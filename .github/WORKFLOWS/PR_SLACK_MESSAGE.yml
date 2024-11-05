@@ -1,0 +1,45 @@
+name: Pull Request Alert Slack Bot
+on:
+  pull_request:
+    types: [review_requested]
+
+jobs:
+  specific_review_requested:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Reviewers List
+        id: reviewers
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const workers = JSON.parse(fs.readFileSync('.github/WORKFLOWS/reviewers.json'));
+            const mention = context.payload.pull_request.requested_reviewers.map((user) => {
+              const login = user.login;
+              const mappedValue = workers[login];
+              return mappedValue ? `<@${mappedValue}>` : `No mapping found for ${login}`;
+            });
+            return mention.join(', ');
+          result-encoding: string
+
+      - name: pr reviewer 되면 slack 알림 보냄
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL }}
+          payload: |
+            {
+              "text": "pr review request",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "리뷰어로 할당되었습니다.\n • 제목: ${{ github.event.pull_request.title }}\n • 리뷰어: ${{ steps.reviewers.outputs.result }} \n • 링크: <${{ github.event.pull_request.html_url }}|리뷰하러 가기>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
