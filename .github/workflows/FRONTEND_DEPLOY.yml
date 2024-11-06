@@ -114,16 +114,6 @@ jobs:
               }
             });
             
-            // 커밋에 배포 결과 코멘트 작성
-            await github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              commit_sha: context.sha,
-              body: finalOutcome === 'success'
-                ? '🎉 프론트엔드(+ shared package)가 성공적으로 배포되었습니다!'
-                : `❌ 배포에 실패했습니다. ${sharedOutcome === 'failure' ? 'shared package build' : 'frontend deploy'}의 단계를 살펴보세요.`
-            });
-
             // 실패 시 워크플로우를 실패 상태로 만듦
             if (finalOutcome === 'failure') {
               core.setFailed('Deployment process failed');
