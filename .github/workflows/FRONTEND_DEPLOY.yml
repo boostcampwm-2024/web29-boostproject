@@ -1,0 +1,130 @@
+name: Frontend Deploy
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'packages/frontend/**'
+      - 'packages/shared/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.4.0
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.9.0'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install
+
+      # shared 패키지 먼저 빌드
+      - name: Build shared package
+        id: build-shared
+        working-directory: packages/shared
+        run: pnpm build
+        continue-on-error: true
+
+      # 🚨 shared 빌드 실패 시 전체 프로세스 중단
+      - name: Check shared build
+        if: steps.build-shared.outcome == 'failure'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Shared package build failed');
+      
+      # frontend 빌드 및 배포
+      - name: Build and Deploy Frontend
+        id: deploy
+        if: steps.build-shared.outcome == 'success'
+        working-directory: packages/frontend
+        env:
+          NCP_ACCESS_KEY: ${{ secrets.NCP_ACCESS_KEY }}
+          NCP_SECRET_KEY: ${{ secrets.NCP_SECRET_KEY }}
+          NCP_BUCKET_NAME: ${{ secrets.NCP_BUCKET_NAME }}
+        run: |
+          echo "🏗️ Building frontend..."
+          pnpm build
+          
+          echo "📦 Installing NCP CLI..."
+          pip install ncli
+          
+          echo "🚀 Deploying to NCP Object Storage..."
+          ncli objectstorage cp -r ./dist/* s3://$NCP_BUCKET_NAME/
+        continue-on-error: true
+
+      # 배포 결과 처리
+      - name: Process Deploy Result
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const sharedOutcome = '${{ steps.build-shared.outcome }}';
+            const deployOutcome = '${{ steps.deploy.outcome }}';
+            const finalOutcome = sharedOutcome === 'success' && deployOutcome === 'success' ? 'success' : 'failure';
+            
+            // GitHub Checks로 배포 상태 보고
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              name: 'Frontend Deploy',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: finalOutcome === 'success' ? 'success' : 'failure',
+              output: {
+                title: finalOutcome === 'success' 
+                  ? '🚀 Frontend Deploy Successful' 
+                  : '❌ Frontend Deploy Failed',
+                summary: finalOutcome === 'success'
+                  ? [
+                      '## ✅ Deploy Status: Success',
+                      '',
+                      '### Build & Deploy Information:',
+                      '- **Time**: ' + new Date().toISOString(),
+                      '- **Environment**: Production',
+                      '- **Packages Built**: shared, frontend',
+                      '- **Target**: NCP Object Storage',
+                      '',
+                      '🎉 Successfully deployed to production!'
+                    ].join('\n')
+                  : [
+                      '## ❌ Deploy Status: Failed',
+                      '',
+                      '### Error 정보:',
+                      '- **Time**: ' + new Date().toISOString(),
+                      '- **Failed Step**: ' + (sharedOutcome === 'failure' ? 'Shared Package Build' : 'Frontend Deploy'),
+                      '',
+                      '### Error 부가정보:',
+                      sharedOutcome === 'failure' 
+                        ? '- Shared package build failed. Check the shared package build logs.'
+                        : '- Frontend deployment failed. Check the deployment logs.',
+                      '',
+                    ].join('\n')
+              }
+            });
+            
+            // 커밋에 배포 결과 코멘트 작성
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              commit_sha: context.sha,
+              body: finalOutcome === 'success'
+                ? '🎉 프론트엔드(+ shared package)가 성공적으로 배포되었습니다!'
+                : `❌ 배포에 실패했습니다. ${sharedOutcome === 'failure' ? 'shared package build' : 'frontend deploy'}의 단계를 살펴보세요.`
+            });
+
+            // 실패 시 워크플로우를 실패 상태로 만듦
+            if (finalOutcome === 'failure') {
+              core.setFailed('Deployment process failed');
+            }
