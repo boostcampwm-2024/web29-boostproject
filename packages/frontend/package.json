@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "playwright:test": "playwright test"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.2",
     "@eslint/js": "^9.13.0",
+    "@playwright/test": "^1.48.2",
     "@storybook/addon-essentials": "^8.4.2",
     "@storybook/addon-interactions": "^8.4.2",
     "@storybook/addon-onboarding": "^8.4.2",
