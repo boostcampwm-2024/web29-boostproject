@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
-interface CreateSpaceButtonProps {
+type CreateSpaceButtonProps = {
   navigate: NavigateFunction;
   spaceName: string;
   setSpaceName: Dispatch<SetStateAction<string>>;
-}
+};
 
 function CreateSpaceButton({
   navigate,
