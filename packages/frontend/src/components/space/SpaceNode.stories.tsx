@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -8,10 +9,26 @@ export default {
   component: SpaceNode,
   tags: ["autodocs"],
   decorators: [
-    (Story) => {
-      // TODO: Konva를 위한 decorator 별도로 분리 작성 必
-      const width = 1000;
-      const height = 1000;
+    (Story, { canvasElement }) => {
+      // TODO: Konva Node를 위한 decorator 별도로 분리 必
+      const [size, setSize] = useState(() => ({
+        width: Math.max(canvasElement.clientWidth, 256),
+        height: Math.max(canvasElement.clientHeight, 256),
+      }));
+
+      const { width, height } = size;
+
+      useEffect(() => {
+        const observer = new ResizeObserver((entries) => {
+          entries.forEach((entry) => {
+            const { width, height } = entry.contentRect;
+            setSize({ width, height });
+          });
+        });
+
+        observer.observe(canvasElement);
+        return () => observer.unobserve(canvasElement);
+      }, [canvasElement]);
 
       return (
         <Stage width={width} height={height} draggable>
