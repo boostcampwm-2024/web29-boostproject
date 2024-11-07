@@ -22,7 +22,7 @@ function TextWithCenteredAnchor(props: Konva.TextConfig) {
     if (props.offsetY === undefined) {
       setOffsetY(ref.current.height() / 2);
     }
-  }, [props.offset, props.offsetX, props.offsetY]);
+  }, [props]);
 
   return <Text ref={ref} offsetX={offsetX} offsetY={offsetY} {...props} />;
 }
