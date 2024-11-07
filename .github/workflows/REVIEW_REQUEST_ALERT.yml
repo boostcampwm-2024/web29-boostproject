@@ -1,9 +1,9 @@
 name: BeeBot
 on:
   pull_request:
-    types: [review_requested]
+    types: [review_request_removed]
 jobs:
-  specific_review_requested:
+  notify_automatically_assigned_review_request:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
