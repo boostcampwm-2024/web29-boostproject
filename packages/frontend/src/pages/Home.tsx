@@ -1,16 +1,17 @@
-import { useNavigate, NavigateFunction } from "react-router-dom";
-import { Dispatch, SetStateAction, useState, FormEvent } from "react";
+import { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+
+import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog.tsx";
-import { Button } from "@/components/ui/button.tsx";
 
 type CreateSpaceButtonProps = {
   navigate: NavigateFunction;
@@ -38,7 +39,7 @@ function CreateSpaceButton({
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button>스페이스 생성</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
