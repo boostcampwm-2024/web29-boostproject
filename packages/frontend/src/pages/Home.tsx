@@ -12,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 
 type CreateSpaceButtonProps = {
   navigate: NavigateFunction;
@@ -49,19 +51,19 @@ function CreateSpaceButton({
             새로운 스페이스를 생성하기 위한 정보를 입력해주세요.
           </DialogDescription>
         </DialogHeader>
-        <form className="mt-4" onSubmit={handleCreateSpace}>
-          <label className="block mb-4">
+        <form onSubmit={handleCreateSpace}>
+          <Label>
             스페이스 이름
-            <input
+            <Input
+              className="mt-1"
               type="text"
-              className="mt-1 block w-full border rounded p-2"
               onChange={(e) => {
                 setSpaceName(e.target.value);
               }}
             />
-          </label>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <DialogFooter className="flex justify-end space-x-2">
+          </Label>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          <DialogFooter className="mt-4">
             <DialogClose asChild>
               <Button variant="secondary">취소</Button>
             </DialogClose>
