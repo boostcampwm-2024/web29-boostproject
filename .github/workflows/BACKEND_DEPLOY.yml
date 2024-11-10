@@ -20,60 +20,61 @@ jobs:
         with:
           registry: ${{ secrets.CONTAINER_REGISTRY_URL }}
           username: ${{ secrets.NCP_ACCESS_KEY }}
-          password: ${{ secrets.NCP_SECERET_KEY }}
+          password: ${{ secrets.NCP_SECRET_KEY }}
 
-      - name: 도커 이미지 빌드 및 푸시
-        id: docker-build
+      - name: 도커 이미지 빌드 및 푸시 (Blue)
+        id: docker-build-blue
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./packages/backend/Dockerfile
+          file: ./packages/backend/Dockerfile.blue
           push: true
-          tags: ${{secrets.CONTAINER_REGISTRY_URL}}/nodejs-server:latest
+          tags: ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:blue-latest
 
-      - name: 배포 결과 처리
-        if: always()
-        uses: actions/github-script@v6
+      - name: 도커 이미지 빌드 및 푸시 (Green)
+        id: docker-build-green
+        uses: docker/build-push-action@v3
         with:
-          script: |
-            const buildOutcome = '${{ steps.docker-build.outcome }}';
-            const repoName = context.repo.repo; 
+          context: .
+          file: ./packages/backend/Dockerfile.green
+          push: true
+          tags: ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:green-latest
 
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: repoName, 
-              name: '백엔드 배포 상태',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: buildOutcome === 'success' ? 'success' : 'failure',
-              output: {
-                title: buildOutcome === 'success' 
-                  ? '🚀 백엔드 배포 성공' 
-                  : '❌ 백엔드 배포 실패',
-                summary: buildOutcome === 'success'
-                  ? [
-                      '## ✅ 배포 상태: 성공',
-                      '',
-                      '### 배포 정보:',
-                      '- 📅 **배포 시간**: ' + new Date().toISOString(),
-                      '- 🌏 **환경**: Production',
-                      '- 📦 **이미지**: nodejs-server:latest',
-                      '- 🎯 **대상**: NCP Container Registry',
-                      '',
-                      '🎉 프로덕션 환경에 성공적으로 배포되었습니다!'
-                    ].join('\n')
-                  : [
-                      '## ❌ 배포 상태: 실패',
-                      '',
-                      '### 오류 정보:',
-                      '- 📅 **실패 시간**: ' + new Date().toISOString(),
-                      '- 🚨 **실패 단계**: Docker 빌드 및 푸시',
-                      '',
-                      '### 문제 해결 방법:',
-                      '1. Dockerfile 설정을 확인해주세요',
-                      '2. 빌드 로그를 확인해주세요',
-                      '3. NCP 인증 정보를 확인해주세요',
-                      '',
-                    ].join('\n')
-              }
-            });
+  pull_from_registry:
+    runs-on: ubuntu-latest
+    needs: push_to_registry
+    steps:
+      - name: SSH로 서버 접속
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+
+      - name: NCP 컨테이너 레지스트리 로그인
+        run: |
+          docker login -u ${{ secrets.NCP_ACCESS_KEY }} -p ${{ secrets.NCP_SECRET_KEY }} ${{ secrets.CONTAINER_REGISTRY_URL }}
+
+      - name: 현재 실행 중인 Blue/Green 확인
+        id: check-current
+        run: |
+          if docker ps --filter "name=backend_green" --format '{{.Names}}' | grep -w backend_green; then
+           echo "current=green" | tee -a $GITHUB_ENV
+          else
+           echo "current=blue" | tee -a $GITHUB_ENV
+          fi
+
+      - name: 컨테이너 업데이트 및 Blue/Green 전환
+        run: |
+          if [ "$current" = "green" ]; then
+            docker stop backend_green || true
+            docker rm backend_green || true
+            docker pull ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:blue-latest
+            docker run -d --name backend_blue --network product_network -p 3000:3000 ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:blue-latest
+          else
+            docker stop backend_blue || true
+            docker rm backend_blue || true
+            docker pull ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:green-latest
+            docker run -d --name backend_blue --network product_network -p 3001:3000 ${{ secrets.CONTAINER_REGISTRY_URL }}/backend:blue-latest
+          fi
