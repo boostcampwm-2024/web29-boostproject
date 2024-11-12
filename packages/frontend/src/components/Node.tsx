@@ -7,23 +7,30 @@ import Konva from "konva";
 type NodeProps = {
   x: number;
   y: number;
+  draggable?: boolean;
   children?: React.ReactNode;
-};
+} & Konva.GroupConfig;
 
-export default function Node({ x, y, children }: NodeProps) {
+export default function Node({
+  x,
+  y,
+  draggable,
+  children,
+  ...rest
+}: NodeProps) {
   return (
-    <Group x={x} y={y}>
+    <Group x={x} y={y} draggable={draggable} {...rest}>
       {children}
     </Group>
   );
 }
 
-type NodeCirleProps = {
+type NodeCircleProps = {
   radius: number;
   fill: string;
 };
 
-Node.Circle = function ({ radius, fill }: NodeCirleProps) {
+Node.Circle = function NodeCircle({ radius, fill }: NodeCircleProps) {
   return <Circle x={0} y={0} radius={radius} fill={fill} />;
 };
 
@@ -74,13 +81,31 @@ export function HeadNode({ name }: HeadNodeProps) {
   const radius = 64;
   return (
     <Node x={0} y={0}>
-      <Node.Circle radius={radius} fill="#FFF2CB" />
+      <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}
         fontSize={16}
         fontStyle="700"
         content={name}
       />
+    </Node>
+  );
+}
+
+type NoteNodeProps = {
+  x: number;
+  y: number;
+  src: string;
+  name: string;
+};
+
+export function NoteNode({ x, y, name }: NoteNodeProps) {
+  // TODO: src 적용 필요
+  const radius = 64;
+  return (
+    <Node x={x} y={y}>
+      <Node.Circle radius={radius} fill="#FFF2CB" />
+      <Node.Text fontSize={16} content={name} />
     </Node>
   );
 }
