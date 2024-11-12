@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
+import { HeadNode } from "../Node.tsx";
 import SpaceNode from "./SpaceNode.tsx";
 
 interface SpaceViewProps {
@@ -42,7 +43,8 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   return (
     <Stage width={stageSize.width} height={stageSize.height} draggable>
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        <SpaceNode label="HEAD NODE" x={0} y={0} />
+        {/* <SpaceNode label="HEAD NODE" x={0} y={0} /> */}
+        <HeadNode name="Hello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello World" />
       </Layer>
     </Stage>
   );
