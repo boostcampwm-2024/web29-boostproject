@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import PaletteMenu from "@/components/space/PaletteMenu";
 
 type CreateSpaceButtonProps = {
   navigate: NavigateFunction;
@@ -96,7 +95,6 @@ export default function Home() {
           끈적끈적 꿀처럼 이루어지는 협업 지식 관리 툴 🍯
         </span>
       </div>
-      <PaletteMenu itemTypes={["note", "image", "link", "note", "link", "image"]} />
       <div className="flex flex-col gap-4">
         <CreateSpaceButton
           navigate={navigate}
