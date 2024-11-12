@@ -1,5 +1,6 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import "./App.css";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import SpacePage from "./pages/Space.tsx";
 

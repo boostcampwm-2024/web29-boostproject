@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
 import { HeadNode, NoteNode } from "../Node.tsx";
-import SpaceNode from "./SpaceNode.tsx";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
