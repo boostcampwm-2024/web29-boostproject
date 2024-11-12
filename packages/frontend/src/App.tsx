@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import "./App.css";
-import PaletteMenu from "./components/space/PaletteMenu.tsx";
 import Home from "./pages/Home.tsx";
 import SpacePage from "./pages/Space.tsx";
 
