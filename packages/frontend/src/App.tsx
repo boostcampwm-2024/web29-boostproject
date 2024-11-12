@@ -2,6 +2,7 @@ import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import SpacePage from "./pages/Space.tsx";
+import PaletteMenu from "./components/space/PaletteMenu.tsx";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/space/:entrySpaceId" element={<SpacePage />} />
+        <Route path="/palette" element={<PaletteMenu itemTypes={["note", "image", "link"]} />} />
       </Routes>
     </BrowserRouter>
   );
