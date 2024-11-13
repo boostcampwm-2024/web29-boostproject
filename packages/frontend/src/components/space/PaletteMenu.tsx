@@ -66,7 +66,7 @@ function getPositionByIndex(index: number): Position {
 }
 
 export default function PaletteMenu({ items }: PaletteMenuProps) {
-  if (process.env.NODE_ENV === "development" && items.length > MAX_ITEMS) {
+  if (import.meta.env.MODE === "development" && items.length > MAX_ITEMS) {
     throw new Error(
       `팔레트 메뉴는 ${MAX_ITEMS}개의 옵션만 표시할 수 있습니다.`,
     );
