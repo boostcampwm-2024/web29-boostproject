@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
-import { HeadNode, NoteNode } from "../Node.tsx";
+import Edge from "@/components/Edge";
+import { nodes } from "@/components/mock";
+
+import { HeadNode, NoteNode } from "../Node";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -42,9 +45,26 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   return (
     <Stage width={stageSize.width} height={stageSize.height} draggable>
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {/* <SpaceNode label="HEAD NODE" x={0} y={0} /> */}
-        <HeadNode name="Hello World" />
-        <NoteNode x={100} y={100} src={""} name={"note"} />
+        {nodes.map((node) => {
+          switch (node.type) {
+            case "head":
+              return <HeadNode key={node.id} name={node.name} />;
+            case "note":
+              return (
+                <NoteNode
+                  key={node.id}
+                  x={node.x}
+                  y={node.y}
+                  name={node.name}
+                  src=""
+                />
+              );
+            default:
+              return null;
+          }
+        })}
+        <Edge from={nodes[0].id} to={nodes[1].id} nodes={nodes} />
+        <Edge from={nodes[1].id} to={nodes[2].id} nodes={nodes} />
       </Layer>
     </Stage>
   );
