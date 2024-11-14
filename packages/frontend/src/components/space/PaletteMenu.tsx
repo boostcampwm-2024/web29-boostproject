@@ -23,6 +23,28 @@ const BUTTON_SIZE = 60;
 const RADIUS = 55;
 const MAX_ITEMS = 6;
 
+const circlePath = `
+  M 50 0
+  Q 85 0, 92.5 25
+  Q 110 50, 92.5 75
+  Q 85 100, 50 100
+  Q 15 100, 7.5 75
+  Q -10 50, 7.5 25
+  Q 15 0, 50 0
+  Z
+`;
+
+const hexagonPath = `
+  M 50 0 
+  Q 71.65 12.5, 93.3 25 
+  Q 93.3 50, 93.3 75 
+  Q 71.65 87.5, 50 100 
+  Q 28.35 87.5, 6.7 75 
+  Q 6.7 50, 6.7 25 
+  Q 28.35 12.5, 50 0 
+  Z
+`;
+
 function PaletteButton({ variant, position }: PaletteButtonProps) {
   const { icon: Icon, color } = buttonConfig[variant];
 
@@ -37,10 +59,15 @@ function PaletteButton({ variant, position }: PaletteButtonProps) {
       }}
     >
       <svg viewBox="0 0 100 100">
-        <polygon
-          points="50 0, 93.3 25, 93.3 75, 50 100, 6.7 75, 6.7 25"
-          className={color}
-        />
+        <path d={circlePath} className={color}>
+          <animate
+            attributeName="d"
+            from={circlePath}
+            to={hexagonPath}
+            dur="1s"
+            fill="freeze"
+          />
+        </path>
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <Icon className="w-6 h-6" />
