@@ -1,11 +1,12 @@
 import { Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 
-type PaletteButtonType = "note" | "image" | "link" | "close";
+export type PaletteButtonType = "note" | "image" | "link" | "close";
 type Position = { top: number; left: number };
 
 type PaletteButtonProps = {
   variant: PaletteButtonType;
   position: Position;
+  onClick: () => void;
 };
 
 const buttonConfig: Record<
@@ -23,7 +24,7 @@ const BUTTON_SIZE = 60;
 const RADIUS = 55;
 const MAX_ITEMS = 6;
 
-function PaletteButton({ variant, position }: PaletteButtonProps) {
+function PaletteButton({ variant, position, onClick }: PaletteButtonProps) {
   const { icon: Icon, color } = buttonConfig[variant];
 
   return (
@@ -35,6 +36,7 @@ function PaletteButton({ variant, position }: PaletteButtonProps) {
         width: BUTTON_SIZE,
         height: BUTTON_SIZE,
       }}
+      onClick={onClick}
     >
       <svg viewBox="0 0 100 100">
         <polygon
@@ -52,6 +54,7 @@ function PaletteButton({ variant, position }: PaletteButtonProps) {
 type PaletteMenuProps = {
   /** 팔레트 메뉴에 표시 옵션 (최대 6개) */
   items: PaletteButtonType[];
+  onSelect: (type: PaletteButtonType) => void;
 };
 
 function getPositionByIndex(index: number): Position {
@@ -65,7 +68,7 @@ function getPositionByIndex(index: number): Position {
   };
 }
 
-export default function PaletteMenu({ items }: PaletteMenuProps) {
+export default function PaletteMenu({ items, onSelect }: PaletteMenuProps) {
   if (import.meta.env.MODE === "development" && items.length > MAX_ITEMS) {
     throw new Error(
       `팔레트 메뉴는 ${MAX_ITEMS}개의 옵션만 표시할 수 있습니다.`,
@@ -88,12 +91,14 @@ export default function PaletteMenu({ items }: PaletteMenuProps) {
           top: centerOffset,
           left: centerOffset,
         }}
+        onClick={() => onSelect("close")}
       />
       {items.slice(0, MAX_ITEMS).map((variant, index) => (
         <PaletteButton
           key={`${variant}-${index}`}
           variant={variant}
           position={getPositionByIndex(index)}
+          onClick={() => onSelect(variant)}
         />
       ))}
     </div>
