@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 
 import { circle, hexagon } from "@/assets/shapes";
@@ -28,32 +30,49 @@ const CENTER_OFFSET = CONTAINER_SIZE / 2 - BUTTON_SIZE / 2;
 
 function PaletteButton({ variant, position }: PaletteButtonProps) {
   const { icon: Icon, color } = buttonConfig[variant];
+  const [transform, setTransform] = useState("translate(0, 0)");
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTransform(
+        `translate(${position.left - CENTER_OFFSET}px, ${position.top - CENTER_OFFSET}px)`,
+      );
+    });
+  }, [position.left, position.top]);
 
   return (
-    <button
-      className="absolute transition-transform hover:scale-110"
+    <div
+      className="absolute transition-transform duration-300 ease-in-out"
       style={{
-        top: position.top,
-        left: position.left,
-        width: BUTTON_SIZE,
-        height: BUTTON_SIZE,
+        top: CENTER_OFFSET,
+        left: CENTER_OFFSET,
+        transform,
+        zIndex: variant === "close" ? 10 : "auto",
       }}
     >
-      <svg viewBox="0 0 100 100">
-        <path d={circlePath} className={color}>
-          <animate
-            attributeName="d"
-            from={circlePath}
-            to={hexagonPath}
-            dur="1s"
-            fill="freeze"
-          />
-        </path>
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Icon className="w-6 h-6" />
-      </div>
-    </button>
+      <button
+        className="relative hover:scale-110 transition-transform"
+        style={{
+          width: BUTTON_SIZE,
+          height: BUTTON_SIZE,
+        }}
+      >
+        <svg viewBox="0 0 100 100">
+          <path d={circle} className={color}>
+            <animate
+              attributeName="d"
+              from={circle}
+              to={hexagon}
+              dur="0.6s"
+              fill="freeze"
+            />
+          </path>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Icon className="w-6 h-6" />
+        </div>
+      </button>
+    </div>
   );
 }
 
