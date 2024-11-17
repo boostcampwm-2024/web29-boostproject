@@ -13,7 +13,7 @@ type NodeProps = {
 export default function Node({
   x,
   y,
-  draggable,
+  draggable = true,
   children,
   ...rest
 }: NodeProps) {
@@ -79,7 +79,7 @@ export type HeadNodeProps = {
 export function HeadNode({ name }: HeadNodeProps) {
   const radius = 64;
   return (
-    <Node x={0} y={0}>
+    <Node x={0} y={0} draggable={false}>
       <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}

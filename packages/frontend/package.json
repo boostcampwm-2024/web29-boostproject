@@ -25,7 +25,8 @@
     "react-konva": "^18.2.10",
     "react-router-dom": "^6.28.0",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.2",
