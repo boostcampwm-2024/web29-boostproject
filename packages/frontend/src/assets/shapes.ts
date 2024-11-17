@@ -1,3 +1,13 @@
+/**
+ * SVG 도형을 그리기 위한 path 데이터 문자열
+ *
+ * M: 시작점 이동 (Move to)
+ * Q: 베지어 곡선 (Quadratic Bezier curve)
+ * Z: 경로 닫기 (Close path)
+ *
+ * 값 형식: x y 좌표 (0~100 범위의 상대값)
+ */
+
 export const circle = `
   M 50 0
   Q 85 0, 92.5 25
