@@ -26,7 +26,7 @@ const CONTAINER_SIZE = 160;
 const BUTTON_SIZE = 60;
 const RADIUS = 55;
 const MAX_ITEMS = 6;
-const CENTER_OFFSET = CONTAINER_SIZE / 2 - BUTTON_SIZE / 2;
+const CENTER_OFFSET = (CONTAINER_SIZE - BUTTON_SIZE) / 2;
 
 function PaletteButton({ variant, position }: PaletteButtonProps) {
   const { icon: Icon, color } = buttonConfig[variant];
