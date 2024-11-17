@@ -1,6 +1,9 @@
-import { Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
+import { Folder, Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 
-export type PaletteButtonType = "note" | "image" | "link" | "close";
+import { Node } from "../mock";
+
+export type CreatableNodeType = Exclude<Node["type"], "head">;
+export type PaletteButtonType = CreatableNodeType | "close";
 type Position = { top: number; left: number };
 
 type PaletteButtonProps = {
@@ -15,8 +18,9 @@ const buttonConfig: Record<
 > = {
   note: { icon: NotebookPen, color: "fill-yellow-300" },
   image: { icon: Image, color: "fill-yellow-400" },
-  link: { icon: Link, color: "fill-yellow-500" },
+  url: { icon: Link, color: "fill-yellow-500" },
   close: { icon: X, color: "fill-yellow-200" },
+  subspace: { icon: Folder, color: "fill-yellow-200" },
 };
 
 const CONTAINER_SIZE = 160;

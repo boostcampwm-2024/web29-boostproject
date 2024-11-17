@@ -5,37 +5,21 @@ import { Circle, Group, Text } from "react-konva";
 import Konva from "konva";
 
 type NodeProps = {
-  id: string;
   x: number;
   y: number;
   draggable?: boolean;
-  onDragStart?: (id: string) => void;
   children?: React.ReactNode;
 } & Konva.GroupConfig;
 
 export default function Node({
-  id,
   x,
   y,
   draggable,
-  onDragStart,
   children,
   ...rest
 }: NodeProps) {
-  const handleDragStart = () => {
-    if (id && onDragStart) {
-      onDragStart(id);
-    }
-  };
-
   return (
-    <Group
-      x={x}
-      y={y}
-      draggable={draggable}
-      onDragStart={handleDragStart}
-      {...rest}
-    >
+    <Group x={x} y={y} draggable={draggable} {...rest}>
       {children}
     </Group>
   );
@@ -90,15 +74,14 @@ Node.Text = function NodeText({
 };
 
 type HeadNodeProps = {
-  id: string;
   name: string;
-  onDragStart?: (id: string) => void;
+  onDragStart?: () => void;
 };
 
-export function HeadNode({ id, name, onDragStart }: HeadNodeProps) {
+export function HeadNode({ name, onDragStart }: HeadNodeProps) {
   const radius = 64;
   return (
-    <Node x={0} y={0} id={id} onDragStart={onDragStart} draggable>
+    <Node x={0} y={0} onDragStart={onDragStart} draggable>
       <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}
@@ -111,19 +94,18 @@ export function HeadNode({ id, name, onDragStart }: HeadNodeProps) {
 }
 
 type NoteNodeProps = {
-  id: string;
   x: number;
   y: number;
   src: string;
   name: string;
-  onDragStart?: (id: string) => void;
+  onDragStart?: () => void;
 };
 
-export function NoteNode({ id, x, y, name, onDragStart }: NoteNodeProps) {
+export function NoteNode({ x, y, name, onDragStart }: NoteNodeProps) {
   // TODO: src 적용 필요
   const radius = 64;
   return (
-    <Node x={x} y={y} id={id} onDragStart={onDragStart} draggable>
+    <Node x={x} y={y} onDragStart={onDragStart} draggable>
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
     </Node>
