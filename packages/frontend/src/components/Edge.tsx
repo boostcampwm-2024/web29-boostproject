@@ -3,12 +3,12 @@ import { Line } from "react-konva";
 
 import Konva from "konva";
 
-import type { Node } from "./mock";
+import type { NodeType } from "./mock";
 
 type EdgeProps = {
-  from: Node["id"];
-  to: Node["id"];
-  nodes: Node[];
+  from: NodeType["id"];
+  to: NodeType["id"];
+  nodes: NodeType[];
 } & Konva.LineConfig;
 
 export default function Edge({ from, to, nodes }: EdgeProps) {

@@ -1,21 +1,19 @@
-// hooks/useNodeOperations.ts
 import React, { useMemo } from "react";
 
 import { Vector2d } from "konva/lib/types";
-import { X } from "lucide-react";
 
-import { Node } from "@/components/mock";
+import { EdgeType, NodeType } from "@/components/mock";
 
 type useNodeOperationsParams = {
-  nodes: Node[];
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>;
+  setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>;
   stageSize: { width: number; height: number };
 };
 
 type CreateNodeParams = {
   parentId: string;
   position: Vector2d;
-  type: Node["type"];
+  type: NodeType["type"];
 };
 
 export type nodeOperationTypes = {
@@ -23,8 +21,8 @@ export type nodeOperationTypes = {
 };
 
 export function useNodeOperations({
-  nodes,
   setNodes,
+  setEdges,
   stageSize,
 }: useNodeOperationsParams) {
   return useMemo(
@@ -33,23 +31,30 @@ export function useNodeOperations({
         const newNode = {
           id: "sampleId",
           type,
-          x: position.x - stageSize.width / 2,
-          y: position.y - stageSize.height / 2,
+          x: position.x,
+          y: position.y,
           name: "sampleName",
         };
 
-        // TODO: Websocket 통신
+        const newEdge = {
+          from: parentId,
+          to: newNode.id,
+        };
+
+        // TODO: Websocket 통신 이후 반영
         console.log({
           parentId,
           position,
           type,
+          newEdge,
         });
 
         setNodes((prev) => [...prev, newNode]);
+        setEdges((prev) => [...prev, newEdge]);
       },
 
       // TODO: 다른 노드 조작 추가
     }),
-    [stageSize, setNodes],
+    [stageSize, setNodes, setEdges],
   );
 }

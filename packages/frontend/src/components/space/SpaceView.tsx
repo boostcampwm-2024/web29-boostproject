@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
+import { Html } from "react-konva-utils";
 
-import { useNodeDrag } from "@/hooks/useNodeDrag.ts";
+import { useDragNode } from "@/hooks/useNodeDrag.ts";
 import { useNodeOperations } from "@/hooks/useNodeOperations.ts";
 
 import Edge from "../Edge.tsx";
 import { HeadNode, NoteNode } from "../Node.tsx";
-import { Node, initialNodes, nodes } from "../mock.ts";
+import { EdgeType, NodeType, initialEdges, initialNodes } from "../mock.ts";
 import PaletteMenu from "./PaletteMenu.tsx";
 
 interface SpaceViewProps {
@@ -15,14 +16,19 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [nodes, setNodes] = useState<NodeType[]>(initialNodes);
+  const [edges, setEdges] = useState<EdgeType[]>(initialEdges);
 
-  const nodeOperations = useNodeOperations({ nodes, setNodes, stageSize });
+  const nodeOperations = useNodeOperations({
+    setNodes,
+    setEdges,
+    stageSize,
+  });
 
   const {
-    dragState: { mousePosition },
+    dragState: { dropPosition },
     handlers: { handleDragStart, handleDragEnd, handlePaletteSelect },
-  } = useNodeDrag({ nodeOperations });
+  } = useDragNode({ nodeOperations });
 
   useEffect(() => {
     if (!autofitTo) {
@@ -59,7 +65,6 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         width={stageSize.width}
         height={stageSize.height}
         onDragEnd={handleDragEnd}
-        draggable={false}
       >
         <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
           {nodes.map((node) => {
@@ -86,27 +91,35 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
                 return null;
             }
           })}
-          <Edge from={nodes[0].id} to={nodes[1].id} nodes={nodes} />
-          <Edge from={nodes[1].id} to={nodes[2].id} nodes={nodes} />
+          {edges.map((edge) => (
+            <Edge
+              key={edge.from + edge.to}
+              from={edge.from}
+              to={edge.to}
+              nodes={nodes}
+            />
+          ))}
+
+          {dropPosition && (
+            <Html>
+              <div
+                style={{
+                  position: "absolute",
+                  left: dropPosition.x,
+                  top: dropPosition.y,
+                  transform: "translate(-50%, -50%)",
+                  pointerEvents: "auto",
+                }}
+              >
+                <PaletteMenu
+                  items={["note", "image", "url", "subspace"]}
+                  onSelect={handlePaletteSelect}
+                />
+              </div>
+            </Html>
+          )}
         </Layer>
       </Stage>
-      {mousePosition && (
-        <div
-          style={{
-            position: "absolute",
-            left: mousePosition.x,
-            top: mousePosition.y,
-            transform: "translate(-50%, -50%)",
-            zIndex: 1,
-            pointerEvents: "auto",
-          }}
-        >
-          <PaletteMenu
-            items={["note", "image", "url", "subspace"]}
-            onSelect={handlePaletteSelect}
-          />
-        </div>
-      )}
     </div>
   );
 }
