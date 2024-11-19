@@ -6,6 +6,9 @@ import type { Node } from "shared/types";
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
 import { edges, nodes } from "@/components/mock";
+import useGooeyDrag from "@/hooks/useGooeyDrag";
+
+import GooeyNode from "./GooeyNode";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -13,7 +16,23 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+  const {
+    isDragging,
+    startNodeState,
+    dragPosition,
+    handleDragStart,
+    handleDragMove,
+  } = useGooeyDrag();
 
+  function createDragBoundFunc(node: Node) {
+    return function dragBoundFunc() {
+      /** 원래 위치로 고정. stage도 draggable하므로 Layer에 적용된 offset을 보정하여 절대 위치로 표시.  */
+      return {
+        x: node.x + stageSize.width / 2,
+        y: node.y + stageSize.height / 2,
+      };
+    };
+  }
   useEffect(() => {
     if (!autofitTo) {
       return undefined;
@@ -44,14 +63,35 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   }, [autofitTo]);
 
   const nodeComponents = {
-    head: (node: Node) => <HeadNode key={node.id} name={node.name} />,
+    head: (node: Node) => (
+      <HeadNode
+        key={node.id}
+        name={node.name}
+        onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
+        onDragMove={handleDragMove}
+        dragBoundFunc={createDragBoundFunc(node)}
+      />
+    ),
     note: (node: Node) => (
-      <NoteNode key={node.id} x={node.x} y={node.y} name={node.name} src="" />
+      <NoteNode
+        key={node.id}
+        x={node.x}
+        y={node.y}
+        name={node.name}
+        src=""
+        onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
+        onDragMove={handleDragMove}
+        dragBoundFunc={createDragBoundFunc(node)}
+      />
     ),
   };
 
   return (
-    <Stage width={stageSize.width} height={stageSize.height} draggable>
+    <Stage
+      width={stageSize.width}
+      height={stageSize.height}
+      draggable={!isDragging}
+    >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {nodes.map((node) => {
           const Component =
@@ -66,6 +106,12 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             nodes={nodes}
           />
         ))}
+        {isDragging && (
+          <GooeyNode
+            startPosition={startNodeState.startPosition}
+            dragPosition={dragPosition}
+          />
+        )}
       </Layer>
     </Stage>
   );
