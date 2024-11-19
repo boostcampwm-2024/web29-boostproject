@@ -33,11 +33,23 @@ function PaletteButton({ variant, position }: PaletteButtonProps) {
   const [transform, setTransform] = useState("translate(0, 0)");
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      setTransform(
-        `translate(${position.left - CENTER_OFFSET}px, ${position.top - CENTER_OFFSET}px)`,
-      );
-    });
+    let animationFrameId: number;
+
+    const updatePosition = () => {
+      animationFrameId = requestAnimationFrame(() => {
+        setTransform(
+          `translate(${position.left - CENTER_OFFSET}px, ${position.top - CENTER_OFFSET}px)`,
+        );
+      });
+    };
+
+    updatePosition();
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [position.left, position.top]);
 
   return (
