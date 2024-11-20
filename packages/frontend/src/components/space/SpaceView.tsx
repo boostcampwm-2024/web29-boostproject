@@ -25,16 +25,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     initialEdges: edgeSample,
   });
 
-  const {
-    startNode,
-    isDragging,
-    dragPosition,
-    dropPosition,
-    handleDragStart,
-    handleDragMove,
-    handleDragEnd,
-    handlePaletteSelect,
-  } = useGooeyDrag(spaceActions);
+  const { drag, dropPosition, handlePaletteSelect } =
+    useGooeyDrag(spaceActions);
+  const { startNode, handlers } = drag;
 
   function createDragBoundFunc(node: Node) {
     return function dragBoundFunc() {
@@ -79,9 +72,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       <HeadNode
         key={node.id}
         name={node.name}
-        onDragStart={() => handleDragStart(node)}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
+        onDragStart={() => handlers.onDragStart(node)}
+        onDragMove={handlers.onDragMove}
+        onDragEnd={handlers.onDragEnd}
         dragBoundFunc={createDragBoundFunc(node)}
       />
     ),
@@ -92,10 +85,10 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         y={node.y}
         name={node.name}
         src=""
-        onDragStart={() => handleDragStart(node)}
-        onDragMove={handleDragMove}
+        onDragStart={() => handlers.onDragStart(node)}
+        onDragMove={handlers.onDragMove}
+        onDragEnd={handlers.onDragEnd}
         dragBoundFunc={createDragBoundFunc(node)}
-        onDragEnd={handleDragEnd}
       />
     ),
   };
@@ -104,13 +97,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     <Stage
       width={stageSize.width}
       height={stageSize.height}
-      draggable={!isDragging}
+      draggable={!drag.isActive}
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {isDragging && dragPosition && startNode && (
+        {drag.isActive && drag.position && startNode && (
           <GooeyNode
             startPosition={{ x: startNode.x, y: startNode.y }}
-            dragPosition={dragPosition}
+            dragPosition={drag.position}
           />
         )}
         {nodes.map((node) => {

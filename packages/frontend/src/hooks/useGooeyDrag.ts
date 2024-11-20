@@ -4,53 +4,76 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Node } from "shared/types";
 
+type DragState = {
+  isDragging: boolean;
+  startNode: Node | null;
+  dragPosition: Vector2d | null;
+};
+
 export default function useGooeyDrag(spaceActions) {
-  const [startNode, setStartNode] = useState<Node | null>(null);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragPosition, setDragPosition] = useState<Vector2d | null>(null);
+  const [dragState, setDragState] = useState<DragState>({
+    isDragging: false,
+    startNode: null,
+    dragPosition: null,
+  });
   const [dropPosition, setDropPosition] = useState<Vector2d | null>(null);
 
   const handleDragStart = (node: Node) => {
     const nodePosition = { x: node.x, y: node.y };
+    setDragState({
+      isDragging: true,
+      startNode: node,
+      dragPosition: nodePosition,
+    });
 
-    setIsDragging(true);
     setDropPosition(null);
-    setStartNode(node);
-    setDragPosition(nodePosition);
   };
 
   const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
     const position = e.target.getLayer()?.getRelativePointerPosition();
     if (!position) return;
 
-    setDragPosition(position);
+    setDragState((prev) => ({
+      ...prev,
+      dragPosition: position,
+    }));
   };
 
   const handleDragEnd = () => {
+    const { dragPosition } = dragState;
     setDropPosition(dragPosition);
-    setIsDragging(false);
-    setDragPosition(null);
+    setDragState((prev) => ({
+      ...prev,
+      isDragging: false,
+      dragPosition: null,
+    }));
   };
 
   const handlePaletteSelect = (type: Node["type"] | "close") => {
+    const { startNode } = dragState;
+
     if (!startNode || !dropPosition || type === "close") {
       setDropPosition(null);
       return;
     }
 
     spaceActions.createNode(type, startNode, dropPosition);
+    setDragState({ isDragging: false, startNode: null, dragPosition: null });
     setDropPosition(null);
-    setStartNode(null);
   };
 
   return {
-    startNode,
-    isDragging,
-    dragPosition,
+    drag: {
+      isActive: dragState.isDragging,
+      startNode: dragState.startNode,
+      position: dragState.dragPosition,
+      handlers: {
+        onDragStart: handleDragStart,
+        onDragMove: handleDragMove,
+        onDragEnd: handleDragEnd,
+      },
+    },
     dropPosition,
-    handleDragStart,
-    handleDragMove,
-    handleDragEnd,
     handlePaletteSelect,
   };
 }

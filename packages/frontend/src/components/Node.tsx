@@ -12,6 +12,13 @@ type NodeProps = {
   children?: ReactNode;
 } & Konva.GroupConfig;
 
+type NodeHandlers = {
+  onDragStart: () => void;
+  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
+  onDragEnd: () => void;
+  dragBoundFunc?: () => Vector2d;
+};
+
 export default function Node({
   x,
   y,
@@ -76,30 +83,12 @@ Node.Text = function NodeText({
 
 export type HeadNodeProps = {
   name: string;
-  onDragStart: () => void;
-  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
-  dragBoundFunc: () => Vector2d;
-  onDragEnd: (e: KonvaEventObject<DragEvent>) => void;
-};
+} & NodeHandlers;
 
-export function HeadNode({
-  name,
-  onDragStart,
-  onDragMove,
-  dragBoundFunc,
-  onDragEnd,
-}: HeadNodeProps) {
+export function HeadNode({ name, ...rest }: HeadNodeProps) {
   const radius = 64;
   return (
-    <Node
-      x={0}
-      y={0}
-      draggable
-      onDragStart={onDragStart}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
-      dragBoundFunc={dragBoundFunc}
-    >
+    <Node x={0} y={0} draggable {...rest}>
       <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}
@@ -116,32 +105,13 @@ export type NoteNodeProps = {
   y: number;
   src: string;
   name: string;
-  onDragStart: () => void;
-  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
-  onDragEnd: (e: KonvaEventObject<DragEvent>) => void;
-  dragBoundFunc: () => Vector2d;
-};
+} & NodeHandlers;
 
-export function NoteNode({
-  x,
-  y,
-  name,
-  onDragStart,
-  onDragMove,
-  onDragEnd,
-  dragBoundFunc,
-}: NoteNodeProps) {
+export function NoteNode({ x, y, name, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
   const radius = 64;
   return (
-    <Node
-      x={x}
-      y={y}
-      onDragStart={onDragStart}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
-      dragBoundFunc={dragBoundFunc}
-    >
+    <Node x={x} y={y} {...rest}>
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
     </Node>
