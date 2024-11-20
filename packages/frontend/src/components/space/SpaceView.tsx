@@ -6,8 +6,9 @@ import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
-import { edges, nodes } from "@/components/mock";
+import { edgeSample, nodeSample } from "@/components/mock";
 import useGooeyDrag from "@/hooks/useGooeyDrag";
+import useSpaceNodes from "@/hooks/useSpaceNode";
 
 import GooeyNode from "./GooeyNode";
 import PaletteMenu from "./PaletteMenu";
@@ -18,15 +19,22 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+
+  const { nodes, edges, spaceActions } = useSpaceNodes({
+    initialNodes: nodeSample,
+    initialEdges: edgeSample,
+  });
+
   const {
-    startNodeState,
+    startNode,
     isDragging,
     dragPosition,
     dropPosition,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
-  } = useGooeyDrag();
+    handlePaletteSelect,
+  } = useGooeyDrag(spaceActions);
 
   function createDragBoundFunc(node: Node) {
     return function dragBoundFunc() {
@@ -71,7 +79,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       <HeadNode
         key={node.id}
         name={node.name}
-        onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
+        onDragStart={() => handleDragStart(node)}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         dragBoundFunc={createDragBoundFunc(node)}
@@ -84,7 +92,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         y={node.y}
         name={node.name}
         src=""
-        onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
+        onDragStart={() => handleDragStart(node)}
         onDragMove={handleDragMove}
         dragBoundFunc={createDragBoundFunc(node)}
         onDragEnd={handleDragEnd}
@@ -99,9 +107,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       draggable={!isDragging}
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {isDragging && dragPosition && (
+        {isDragging && dragPosition && startNode && (
           <GooeyNode
-            startPosition={startNodeState.startPosition}
+            startPosition={{ x: startNode.x, y: startNode.y }}
             dragPosition={dragPosition}
           />
         )}
@@ -129,7 +137,10 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
                 pointerEvents: "auto",
               }}
             >
-              <PaletteMenu items={["note", "image", "link"]} />
+              <PaletteMenu
+                items={["note", "image", "url"]}
+                onSelect={handlePaletteSelect}
+              />
             </div>
           </Html>
         )}
