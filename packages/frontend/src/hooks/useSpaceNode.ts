@@ -17,6 +17,7 @@ export default function useSpaceNode({
 
   const spaceActions = {
     createNode: (type: Node["type"], parentNode: Node, position: Vector2d) => {
+      // FIXME: 서버와 통신하는 부분 연결해서 수정. 낙관적 업데이트 고려 필요.
       const newNode = {
         id: Math.random().toString(36),
         name: `New ${type}`,
