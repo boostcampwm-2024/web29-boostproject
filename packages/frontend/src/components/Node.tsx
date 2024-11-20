@@ -79,6 +79,7 @@ export type HeadNodeProps = {
   onDragStart: () => void;
   onDragMove: (e: KonvaEventObject<DragEvent>) => void;
   dragBoundFunc: () => Vector2d;
+  onDragEnd: (e: KonvaEventObject<DragEvent>) => void;
 };
 
 export function HeadNode({
@@ -86,6 +87,7 @@ export function HeadNode({
   onDragStart,
   onDragMove,
   dragBoundFunc,
+  onDragEnd,
 }: HeadNodeProps) {
   const radius = 64;
   return (
@@ -95,6 +97,7 @@ export function HeadNode({
       draggable
       onDragStart={onDragStart}
       onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
       dragBoundFunc={dragBoundFunc}
     >
       <Node.Circle radius={radius} fill="#FFCC00" />
@@ -115,6 +118,7 @@ export type NoteNodeProps = {
   name: string;
   onDragStart: () => void;
   onDragMove: (e: KonvaEventObject<DragEvent>) => void;
+  onDragEnd: (e: KonvaEventObject<DragEvent>) => void;
   dragBoundFunc: () => Vector2d;
 };
 
@@ -124,6 +128,7 @@ export function NoteNode({
   name,
   onDragStart,
   onDragMove,
+  onDragEnd,
   dragBoundFunc,
 }: NoteNodeProps) {
   // TODO: src 적용 필요
@@ -134,6 +139,7 @@ export function NoteNode({
       y={y}
       onDragStart={onDragStart}
       onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
       dragBoundFunc={dragBoundFunc}
     >
       <Node.Circle radius={radius} fill="#FFF2CB" />

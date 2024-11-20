@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
+import { Html } from "react-konva-utils";
 
 import type { Node } from "shared/types";
 
@@ -9,6 +10,7 @@ import { edges, nodes } from "@/components/mock";
 import useGooeyDrag from "@/hooks/useGooeyDrag";
 
 import GooeyNode from "./GooeyNode";
+import PaletteMenu from "./PaletteMenu";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -17,11 +19,13 @@ interface SpaceViewProps {
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const {
-    isDragging,
     startNodeState,
+    isDragging,
     dragPosition,
+    dropPosition,
     handleDragStart,
     handleDragMove,
+    handleDragEnd,
   } = useGooeyDrag();
 
   function createDragBoundFunc(node: Node) {
@@ -69,6 +73,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         name={node.name}
         onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
         onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
         dragBoundFunc={createDragBoundFunc(node)}
       />
     ),
@@ -82,6 +87,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         onDragStart={() => handleDragStart(node.id, { x: node.x, y: node.y })}
         onDragMove={handleDragMove}
         dragBoundFunc={createDragBoundFunc(node)}
+        onDragEnd={handleDragEnd}
       />
     ),
   };
@@ -93,6 +99,12 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       draggable={!isDragging}
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
+        {isDragging && dragPosition && (
+          <GooeyNode
+            startPosition={startNodeState.startPosition}
+            dragPosition={dragPosition}
+          />
+        )}
         {nodes.map((node) => {
           const Component =
             nodeComponents[node.type as keyof typeof nodeComponents];
@@ -106,11 +118,20 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             nodes={nodes}
           />
         ))}
-        {isDragging && (
-          <GooeyNode
-            startPosition={startNodeState.startPosition}
-            dragPosition={dragPosition}
-          />
+        {dropPosition && (
+          <Html>
+            <div
+              style={{
+                position: "absolute",
+                left: dropPosition.x,
+                top: dropPosition.y,
+                transform: "translate(-50%, -50%)",
+                pointerEvents: "auto",
+              }}
+            >
+              <PaletteMenu items={["note", "image", "link"]} />
+            </div>
+          </Html>
         )}
       </Layer>
     </Stage>

@@ -10,9 +10,11 @@ export default function useGooeyDrag() {
   }>({ startPosition: null, startNodeId: null });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragPosition, setDragPosition] = useState<Vector2d | null>(null);
+  const [dropPosition, setDropPosition] = useState<Vector2d | null>(null);
 
   const handleDragStart = (nodeId, nodePosition) => {
     setIsDragging(true);
+    setDropPosition(null);
     setStartNodeState((prev) => ({
       ...prev,
       startPosition: nodePosition,
@@ -28,11 +30,19 @@ export default function useGooeyDrag() {
     setDragPosition(position);
   };
 
+  const handleDragEnd = () => {
+    setDropPosition(dragPosition);
+    setIsDragging(false);
+    setDragPosition(null);
+  };
+
   return {
     startNodeState,
     isDragging,
     dragPosition,
+    dropPosition,
     handleDragStart,
     handleDragMove,
+    handleDragEnd,
   };
 }
