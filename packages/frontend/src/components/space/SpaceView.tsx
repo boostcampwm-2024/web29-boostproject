@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
 import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
 import { edges, nodes } from "@/components/mock";
+import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -16,7 +16,7 @@ interface SpaceViewProps {
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const stageRef = React.useRef<Konva.Stage>(null);
-  let animationFrameId: number | null = null;
+  const { zoomSpace } = useZoomSpace({ stageRef });
 
   useEffect(() => {
     if (!autofitTo) {
@@ -46,56 +46,6 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       window.removeEventListener("resize", resizeStage);
     };
   }, [autofitTo]);
-
-  const zoomSpace = (event: KonvaEventObject<WheelEvent, Konva.Node>) => {
-    event.evt.preventDefault();
-
-    if (!event.evt.ctrlKey && !event.evt.metaKey) {
-      return;
-    }
-
-    if (!stageRef.current) {
-      return;
-    }
-    const stage = stageRef.current;
-
-    const oldScale = stage.scaleX();
-    const scaleBy = 1.1;
-    const MIN_SCALE = 0.5;
-    const MAX_SCALE = 2.5;
-
-    const { x: pointerX = 0, y: pointerY = 0 } =
-      stage.getPointerPosition() ?? {};
-
-    const mousePointTo = {
-      x: pointerX / oldScale - stage.x() / oldScale,
-      y: pointerY / oldScale - stage.y() / oldScale,
-    };
-
-    let newScale =
-      event.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-
-    newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
-
-    if (newScale === oldScale) {
-      return;
-    }
-
-    const newPosition = {
-      x: pointerX - mousePointTo.x * newScale,
-      y: pointerY - mousePointTo.y * newScale,
-    };
-
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-    }
-
-    animationFrameId = requestAnimationFrame(() => {
-      stage.scale({ x: newScale, y: newScale });
-      stage.position(newPosition);
-      stage.batchDraw();
-    });
-  };
 
   const nodeComponents = {
     head: (node: Node) => <HeadNode key={node.id} name={node.name} />,
