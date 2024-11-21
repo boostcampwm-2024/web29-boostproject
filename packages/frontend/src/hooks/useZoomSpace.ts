@@ -3,6 +3,36 @@ import React, { useRef } from "react";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 
+const getMousePointTo = (
+  stage: Konva.Stage,
+  pointer: { x: number; y: number },
+  oldScale: number,
+) => {
+  return {
+    x: (pointer.x - stage.x()) / oldScale,
+    y: (pointer.y - stage.y()) / oldScale,
+  };
+};
+
+const calculateNewScale = (
+  oldScale: number,
+  deltaY: number,
+  scaleBy: number,
+) => {
+  return deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+};
+
+const calculateNewPosition = (
+  pointer: { x: number; y: number },
+  mousePointTo: { x: number; y: number },
+  newScale: number,
+) => {
+  return {
+    x: pointer.x - mousePointTo.x * newScale,
+    y: pointer.y - mousePointTo.y * newScale,
+  };
+};
+
 interface UseZoomSpaceProps {
   stageRef: React.RefObject<Konva.Stage>;
   scaleBy?: number;
@@ -32,13 +62,8 @@ export function useZoomSpace({
 
       if (!pointer) return;
 
-      const mousePointTo = {
-        x: (pointer.x - stage.x()) / oldScale,
-        y: (pointer.y - stage.y()) / oldScale,
-      };
-
-      let newScale =
-        event.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+      const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+      let newScale = calculateNewScale(oldScale, event.evt.deltaY, scaleBy);
 
       newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
@@ -46,10 +71,7 @@ export function useZoomSpace({
         return;
       }
 
-      const newPosition = {
-        x: pointer.x - mousePointTo.x * newScale,
-        y: pointer.y - mousePointTo.y * newScale,
-      };
+      const newPosition = calculateNewPosition(pointer, mousePointTo, newScale);
 
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
