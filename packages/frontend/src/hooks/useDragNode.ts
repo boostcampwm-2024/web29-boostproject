@@ -59,7 +59,14 @@ export default function useDragNode(spaceActions: spaceActions) {
   ) => {
     const { startNode } = dragState;
 
-    if (!startNode || !dropPosition || type === "close") {
+    // FIXME: note 타입 외의 노드 생성 동작을 임시로 막음.
+    if (
+      !startNode ||
+      !dropPosition ||
+      type === "close" ||
+      type === "image" ||
+      type === "url"
+    ) {
       setDropPosition(null);
       return;
     }
