@@ -93,11 +93,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <Stage
-      width={stageSize.width}
-      height={stageSize.height}
-      draggable={!drag.isActive}
-    >
+    <Stage width={stageSize.width} height={stageSize.height} draggable>
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {drag.isActive && drag.position && startNode && (
           <GooeyNode
