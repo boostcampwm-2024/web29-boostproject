@@ -25,7 +25,6 @@ services:
       - proxy-network
     extra_hosts:
       - "db-host:${DATABASE_HOST}"
-
 networks:
   proxy-network:
     external: true

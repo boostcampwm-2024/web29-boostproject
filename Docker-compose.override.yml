@@ -30,6 +30,7 @@ services:
     container_name: backend
     ports:
       - "3000:3000"
+      - "9001:9001"
     environment:
       NODE_ENV: development
       MYSQL_HOST: mysql-container

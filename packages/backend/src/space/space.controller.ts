@@ -28,7 +28,7 @@ export class SpaceController {
     const { userId, spaceName } = createSpaceDto;
     if (userId !== GUEST_USER_ID || !spaceName) {
       throw new HttpException(
-        ERROR_MESSAGES.BAD_REQUEST,
+        ERROR_MESSAGES.SPACE.BAD_REQUEST,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -47,7 +47,7 @@ export class SpaceController {
     const space = await this.SpaceService.findById(urlPath);
     if (!space) {
       throw new HttpException(
-        ERROR_MESSAGES.SPACE_NOT_FOUND,
+        ERROR_MESSAGES.SPACE.NOT_FOUND,
         HttpStatus.NOT_FOUND,
       );
     }
