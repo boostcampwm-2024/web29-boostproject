@@ -15,6 +15,7 @@ export type spaceActions = {
     position: Vector2d,
     name?: string,
   ) => void;
+  createEdge: (fromNode: Node, toNode: Node) => void;
 };
 
 export default function useSpaceElements({
@@ -50,6 +51,16 @@ export default function useSpaceElements({
 
         setEdges((prevEdges) => [...prevEdges, newEdge]);
       }
+    },
+    createEdge: (fromNode: Node, toNode: Node) => {
+      // FIXME: 서버와 통신하는 부분 연결해서 수정.
+      const newEdge = {
+        from: fromNode,
+        to: toNode,
+      };
+
+      setEdges((prevEdges) => [...prevEdges, newEdge]);
+      console.log(edges);
     },
   };
 

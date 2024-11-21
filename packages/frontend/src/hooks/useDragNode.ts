@@ -46,6 +46,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
 
   const handleDragEnd = () => {
     const { startNode, dragPosition } = dragState;
+    if (!startNode || !dragPosition) return;
 
     const overlapNode = nodes.find((node) => {
       const isIntersects = Konva.Util.haveIntersection(
@@ -67,10 +68,8 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     });
 
     if (overlapNode) {
-      console.log(startNode, overlapNode);
-
       setDropPosition(null);
-      // TODO: 간선생성
+      spaceActions.createEdge(startNode, overlapNode);
     } else {
       setDropPosition(dragPosition);
     }
