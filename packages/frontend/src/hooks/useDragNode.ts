@@ -67,10 +67,12 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       return isIntersects;
     });
 
-    if (overlapNode) {
+    if (overlapNode && overlapNode.id !== startNode.id) {
       setDropPosition(null);
       spaceActions.createEdge(startNode, overlapNode);
-    } else {
+    }
+
+    if (!overlapNode) {
       setDropPosition(dragPosition);
     }
 

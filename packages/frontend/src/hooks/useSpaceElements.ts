@@ -59,8 +59,16 @@ export default function useSpaceElements({
         to: toNode,
       };
 
+      // from-to 순서가 바뀌어도 같은 간선이므로 교차 검사
+      const isSameEdgeExist = edges.some(
+        (edge) =>
+          (edge.from.id === toNode.id && edge.to.id === fromNode.id) ||
+          (edge.from.id === fromNode.id && edge.to.id === toNode.id),
+      );
+
+      if (isSameEdgeExist) return;
+
       setEdges((prevEdges) => [...prevEdges, newEdge]);
-      console.log(edges);
     },
   };
 
