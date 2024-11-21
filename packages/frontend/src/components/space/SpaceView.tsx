@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
+import Konva from "konva";
 import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
@@ -12,6 +13,7 @@ import useSpaceElements from "@/hooks/useSpaceElements";
 
 import GooeyNode from "./GooeyNode";
 import PaletteMenu from "./PaletteMenu";
+import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -19,6 +21,8 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+  const stageRef = React.useRef<Konva.Stage>(null);
+  const { zoomSpace } = useZoomSpace({ stageRef });
 
   const { nodes, edges, spaceActions } = useSpaceElements({
     initialNodes: nodeSample,
@@ -93,7 +97,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <Stage width={stageSize.width} height={stageSize.height} draggable>
+    <Stage
+      width={stageSize.width}
+      height={stageSize.height}
+      ref={stageRef}
+      onWheel={zoomSpace}
+      draggable
+    >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {drag.isActive && drag.position && startNode && (
           <GooeyNode
