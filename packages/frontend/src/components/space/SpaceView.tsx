@@ -5,7 +5,7 @@ import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
-import { edges, nodes } from "@/components/mock";
+import useYjsSpace from "@/hooks/useYjsSpace";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -13,6 +13,8 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+
+  const { nodes, edges } = useYjsSpace();
 
   useEffect(() => {
     if (!autofitTo) {
@@ -53,19 +55,21 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   return (
     <Stage width={stageSize.width} height={stageSize.height} draggable>
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {nodes.map((node) => {
-          const Component =
-            nodeComponents[node.type as keyof typeof nodeComponents];
-          return Component ? Component(node) : null;
-        })}
-        {edges.map((edge) => (
-          <Edge
-            key={`${edge.from}-${edge.to}`}
-            from={edge.from}
-            to={edge.to}
-            nodes={nodes}
-          />
-        ))}
+        {nodes &&
+          Object.entries(nodes).map(([, node]) => {
+            const Component =
+              nodeComponents[node.type as keyof typeof nodeComponents];
+            return Component ? Component(node) : null;
+          })}
+        {edges &&
+          Object.entries(edges).map(([edgeId, edge]) => (
+            <Edge
+              key={edgeId || `${edge.from.id}-${edge.to.id}`}
+              from={edge.from}
+              to={edge.to}
+              nodes={nodes}
+            />
+          ))}
       </Layer>
     </Stage>
   );

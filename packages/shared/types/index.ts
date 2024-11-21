@@ -10,3 +10,10 @@ export type Edge = {
   from: Node;
   to: Node;
 };
+
+export type SpaceData = {
+  contextId: string;
+  parentContextId?: string;
+  edges: Record<string, Edge>; // <edgeId, {}>
+  nodes: Record<Node["id"], Node>;
+};
