@@ -53,8 +53,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       return;
     }
     const stage = stageRef.current;
-    const scaleBy = 1.1;
+
     const oldScale = stage.scaleX();
+    const scaleBy = 1.1;
+    const MIN_SCALE = 0.5;
+    const MAX_SCALE = 2.5;
 
     const { x: pointerX = 0, y: pointerY = 0 } =
       stage.getPointerPosition() ?? {};
@@ -64,8 +67,14 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       y: pointerY / oldScale - stage.y() / oldScale,
     };
 
-    const newScale =
+    let newScale =
       event.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+
+    if (newScale === oldScale) {
+      return;
+    }
 
     stage.scale({ x: newScale, y: newScale });
 
