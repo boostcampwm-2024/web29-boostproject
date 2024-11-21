@@ -1,27 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectLogger } from 'nest-winston';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
 export class LoggerService {
-  constructor(@InjectLogger() private readonly logger) {}
+  private readonly index = 'app-logs';
 
-  log(message: string) {
-    this.logger.info(message);
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+
+  async log(message: string, context: any = {}) {
+    try {
+      await this.elasticsearchService.index({
+        index: this.index,
+        document: {
+          message,
+          context,
+          timestamp: new Date(),
+          level: 'info',
+        },
+      });
+    } catch (error) {
+      console.error('Elasticsearch logging failed:', error);
+    }
   }
 
-  error(message: string, trace: string) {
-    this.logger.error(`${message} - ${trace}`);
-  }
-
-  warn(message: string) {
-    this.logger.warn(message);
-  }
-
-  debug(message: string) {
-    this.logger.debug(message);
-  }
-
-  verbose(message: string) {
-    this.logger.verbose(message);
+  async search(query: string) {
+    const result = await this.elasticsearchService.search({
+      index: this.index,
+      query: {
+        match: {
+          message: query,
+        },
+      },
+    });
+    return result.hits.hits;
   }
 }

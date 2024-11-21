@@ -9,10 +9,23 @@ import { NoteModule } from './note/note.module';
 import { ContentModule } from './content/content.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { LoggerModule } from './common/logger/logger.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ElasticsearchModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        node: configService.get<string>('ELASTIC_NODE') as string,
+        auth: {
+          username: configService.get<string>('ELASTIC_USERNAME') as string,
+          password: configService.get<string>('ELASTIC_PASSWORD') as string,
+        },
+      }),
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
@@ -57,6 +70,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     NoteModule,
     ContentModule,
     RedisModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

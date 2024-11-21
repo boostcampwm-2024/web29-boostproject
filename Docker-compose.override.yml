@@ -12,7 +12,7 @@ services:
       MYSQL_USER: honey
       MYSQL_PASSWORD: 1234
     volumes:
-      - mysql_data:/var/lib/mysql_data
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test:
         ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p1234"]
@@ -20,9 +20,14 @@ services:
       timeout: 5s
       retries: 3
     command: --bind-address=0.0.0.0
+
   backend:
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     build:
       context: .
@@ -50,5 +55,86 @@ services:
     depends_on:
       backend:
         condition: service_started
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGODB_AUTH_MECHANISM: SCRAM-SHA-256
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--username",
+          "root",
+          "--password",
+          "1234",
+          "--eval",
+          "db.runCommand({ ping: 1 })",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - app-network
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - app-network
+
 volumes:
   mysql_data:
+  mongo_data:
+  elasticsearch_data:
+
+networks:
+  app-network:
+    driver: bridge
