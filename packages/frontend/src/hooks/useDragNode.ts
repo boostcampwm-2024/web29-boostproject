@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Node } from "shared/types";
@@ -14,7 +15,7 @@ type DragState = {
   dragPosition: Vector2d | null;
 };
 
-export default function useDragNode(spaceActions: spaceActions) {
+export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     startNode: null,
@@ -44,8 +45,36 @@ export default function useDragNode(spaceActions: spaceActions) {
   };
 
   const handleDragEnd = () => {
-    const { dragPosition } = dragState;
-    setDropPosition(dragPosition);
+    const { startNode, dragPosition } = dragState;
+
+    const overlapNode = nodes.find((node) => {
+      const isIntersects = Konva.Util.haveIntersection(
+        {
+          x: dragPosition.x,
+          y: dragPosition.y,
+          width: 60 * 2,
+          height: 60 * 2,
+        },
+        {
+          x: node.x,
+          y: node.y,
+          width: 64 * 2,
+          height: 64 * 2,
+        },
+      );
+
+      return isIntersects;
+    });
+
+    if (overlapNode) {
+      console.log(startNode, overlapNode);
+
+      setDropPosition(null);
+      // TODO: 간선생성
+    } else {
+      setDropPosition(dragPosition);
+    }
+
     setDragState((prev) => ({
       ...prev,
       isDragging: false,

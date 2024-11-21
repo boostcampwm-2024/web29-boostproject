@@ -25,7 +25,10 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     initialEdges: edgeSample,
   });
 
-  const { drag, dropPosition, handlePaletteSelect } = useDragNode(spaceActions);
+  const { drag, dropPosition, handlePaletteSelect } = useDragNode(
+    nodes,
+    spaceActions,
+  );
   const { startNode, handlers } = drag;
 
   function createDragBoundFunc(node: Node) {
