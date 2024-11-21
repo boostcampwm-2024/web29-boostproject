@@ -1,7 +1,7 @@
 import { Folder, Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 import { Node } from "shared/types";
 
-type PaletteButtonType = Exclude<Node["type"], "head"> | "close";
+export type PaletteButtonType = Exclude<Node["type"], "head"> | "close";
 type Position = { top: number; left: number };
 
 type PaletteButtonProps = {
@@ -56,7 +56,7 @@ function PaletteButton({ variant, position, onClick }: PaletteButtonProps) {
 type PaletteMenuProps = {
   /** 팔레트 메뉴에 표시 옵션 (최대 6개) */
   items: PaletteButtonType[];
-  onSelect: (type: PaletteButtonType) => void;
+  onSelect: (type: PaletteButtonType, name: string | undefined) => void;
 };
 
 function getPositionByIndex(index: number): Position {
@@ -78,6 +78,20 @@ export default function PaletteMenu({ items, onSelect }: PaletteMenuProps) {
   }
 
   const centerOffset = CONTAINER_SIZE / 2 - BUTTON_SIZE / 2;
+  const handleButtonClick = (type: PaletteButtonType) => {
+    if (type === "note" || type === "subspace") {
+      const message = {
+        note: "노트 제목을 입력해주세요.",
+        subspace: "스페이스 이름을 입력해주세요.",
+      };
+      const name = window.prompt(message[type]);
+      if (name) onSelect(type, name);
+
+      return;
+    }
+
+    onSelect(type);
+  };
 
   return (
     <div
@@ -93,14 +107,14 @@ export default function PaletteMenu({ items, onSelect }: PaletteMenuProps) {
           top: centerOffset,
           left: centerOffset,
         }}
-        onClick={() => onSelect("close")}
+        onClick={() => handleButtonClick("close")}
       />
       {items.slice(0, MAX_ITEMS).map((variant, index) => (
         <PaletteButton
           key={`${variant}-${index}`}
           variant={variant}
           position={getPositionByIndex(index)}
-          onClick={() => onSelect(variant)}
+          onClick={() => handleButtonClick(variant)}
         />
       ))}
     </div>

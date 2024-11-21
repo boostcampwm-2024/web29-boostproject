@@ -4,13 +4,17 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Node } from "shared/types";
 
+import { PaletteButtonType } from "@/components/space/PaletteMenu";
+
+import { spaceActions } from "./useSpaceElements";
+
 type DragState = {
   isDragging: boolean;
   startNode: Node | null;
   dragPosition: Vector2d | null;
 };
 
-export default function useGooeyDrag(spaceActions) {
+export default function useDragNode(spaceActions: spaceActions) {
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     startNode: null,
@@ -49,7 +53,10 @@ export default function useGooeyDrag(spaceActions) {
     }));
   };
 
-  const handlePaletteSelect = (type: Node["type"] | "close") => {
+  const handlePaletteSelect = (
+    type: PaletteButtonType,
+    name: string | undefined,
+  ) => {
     const { startNode } = dragState;
 
     if (!startNode || !dropPosition || type === "close") {
@@ -57,7 +64,7 @@ export default function useGooeyDrag(spaceActions) {
       return;
     }
 
-    spaceActions.createNode(type, startNode, dropPosition);
+    spaceActions.createNode(type, startNode, dropPosition, name);
     setDragState({ isDragging: false, startNode: null, dragPosition: null });
     setDropPosition(null);
   };

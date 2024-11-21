@@ -7,8 +7,8 @@ import type { Node } from "shared/types";
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
 import { edgeSample, nodeSample } from "@/components/mock";
-import useGooeyDrag from "@/hooks/useGooeyDrag";
-import useSpaceNodes from "@/hooks/useSpaceNode";
+import useDragNode from "@/hooks/useDragNode";
+import useSpaceElements from "@/hooks/useSpaceElements";
 
 import GooeyNode from "./GooeyNode";
 import PaletteMenu from "./PaletteMenu";
@@ -20,13 +20,12 @@ interface SpaceViewProps {
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
-  const { nodes, edges, spaceActions } = useSpaceNodes({
+  const { nodes, edges, spaceActions } = useSpaceElements({
     initialNodes: nodeSample,
     initialEdges: edgeSample,
   });
 
-  const { drag, dropPosition, handlePaletteSelect } =
-    useGooeyDrag(spaceActions);
+  const { drag, dropPosition, handlePaletteSelect } = useDragNode(spaceActions);
   const { startNode, handlers } = drag;
 
   function createDragBoundFunc(node: Node) {
