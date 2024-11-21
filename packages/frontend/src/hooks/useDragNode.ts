@@ -83,10 +83,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     }));
   };
 
-  const handlePaletteSelect = (
-    type: PaletteButtonType,
-    name: string | undefined,
-  ) => {
+  const handlePaletteSelect = (type: PaletteButtonType, name: string = "") => {
     const { startNode } = dragState;
 
     if (!startNode || !dropPosition || type === "close") {
