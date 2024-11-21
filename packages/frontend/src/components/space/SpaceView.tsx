@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
+import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
@@ -13,6 +15,7 @@ interface SpaceViewProps {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+  const stageRef = React.useRef<Konva.Stage>(null);
 
   useEffect(() => {
     if (!autofitTo) {
@@ -43,6 +46,38 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     };
   }, [autofitTo]);
 
+  const zoomSpace = (event: KonvaEventObject<WheelEvent, Konva.Node>) => {
+    event.evt.preventDefault();
+
+    if (!stageRef.current) {
+      return;
+    }
+    const stage = stageRef.current;
+    const scaleBy = 1.1;
+    const oldScale = stage.scaleX();
+
+    const { x: pointerX = 0, y: pointerY = 0 } =
+      stage.getPointerPosition() ?? {};
+
+    const mousePointTo = {
+      x: pointerX / oldScale - stage.x() / oldScale,
+      y: pointerY / oldScale - stage.y() / oldScale,
+    };
+
+    const newScale =
+      event.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    stage.scale({ x: newScale, y: newScale });
+
+    const newPosition = {
+      x: pointerX - mousePointTo.x * newScale,
+      y: pointerY - mousePointTo.y * newScale,
+    };
+
+    stage.position(newPosition);
+    stage.batchDraw();
+  };
+
   const nodeComponents = {
     head: (node: Node) => <HeadNode key={node.id} name={node.name} />,
     note: (node: Node) => (
@@ -51,7 +86,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <Stage width={stageSize.width} height={stageSize.height} draggable>
+    <Stage
+      width={stageSize.width}
+      height={stageSize.height}
+      ref={stageRef}
+      onWheel={zoomSpace}
+      draggable
+    >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {nodes.map((node) => {
           const Component =
