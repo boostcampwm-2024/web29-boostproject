@@ -49,6 +49,10 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const zoomSpace = (event: KonvaEventObject<WheelEvent, Konva.Node>) => {
     event.evt.preventDefault();
 
+    if (!event.evt.ctrlKey && !event.evt.metaKey) {
+      return;
+    }
+
     if (!stageRef.current) {
       return;
     }
