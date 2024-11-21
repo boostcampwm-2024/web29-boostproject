@@ -11,6 +11,11 @@ export type Edge = {
   to: Node;
 };
 
+export type EdgeWithId = {
+  from: string;
+  to: string;
+};
+
 export type SpaceData = {
   contextId: string;
   parentContextId?: string;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
-import { Edge, Node, SpaceData } from "shared/types";
+import { EdgeWithId, Node, SpaceData } from "shared/types";
 import * as Y from "yjs";
 
+import { generateUniqueId } from "@/lib/utils";
 import { useYjsStore } from "@/store/yjs";
 
 import useY from "./yjs/useY";
@@ -13,13 +14,62 @@ export default function useYjsSpace() {
 
   // TODO 코드 개선
   const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
-  const yEdges = yContext?.get("edges") as Y.Map<Edge> | undefined;
+  const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
   const nodes = useY(yNodes) as SpaceData["nodes"] | undefined;
   const edgesRaw = useY(yEdges) as
     | Record<string, { from: string; to: string }>
     | undefined;
 
   const [edges, setEdges] = useState<SpaceData["edges"] | undefined>();
+
+  // update functions
+
+  const defineNode = (node: Omit<Node, "id">, parentNodeId?: Node["id"]) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    const nodeId = generateUniqueId();
+    const edgeId = generateUniqueId();
+
+    yDoc.transact(() => {
+      yNodes.set(nodeId, { id: nodeId, ...node });
+
+      if (parentNodeId) {
+        yEdges.set(edgeId, { from: parentNodeId, to: nodeId });
+      }
+    });
+  };
+
+  const deleteNode = (nodeId: Node["id"]) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    yDoc.transact(() => {
+      yNodes.delete(nodeId);
+
+      // 이어진 edge도 삭제
+      // MEMO: nodeToEdge 같은 별도 구조로 저장한 뒤, 찾는 게 더 바람직할 것 같다.
+      [...yEdges.entries()]
+        .filter(
+          ([, edge]) => (edge && edge.from === nodeId) || edge.to === nodeId,
+        )
+        .forEach(([edgeId]) => {
+          yEdges.delete(edgeId);
+        });
+    });
+  };
+
+  const updateNode = (nodeId: Node["id"], patch: Partial<Omit<Node, "id">>) => {
+    const prev = yNodes?.get(nodeId);
+
+    if (!yNodes || !prev) {
+      return;
+    }
+
+    yNodes.set(nodeId, { ...prev, ...patch, id: nodeId });
+  };
 
   // edgesRaw는 nodeId로만 구성되어 있음 -> Node로 변환
   useEffect(() => {
@@ -58,5 +108,5 @@ export default function useYjsSpace() {
     return () => yProvider.off("sync", handleOnSync);
   }, [yDoc, yProvider]);
 
-  return { nodes, edges };
+  return { nodes, edges, updateNode, defineNode, deleteNode };
 }

@@ -7,14 +7,12 @@ import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
-import useYjsSpace from "@/hooks/useYjsSpace";
-import { edgeSample, nodeSample } from "@/components/mock";
 import useDragNode from "@/hooks/useDragNode";
-import useSpaceElements from "@/hooks/useSpaceElements";
+import useYjsSpace from "@/hooks/useYjsSpace";
+import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 import GooeyNode from "./GooeyNode";
 import PaletteMenu from "./PaletteMenu";
-import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -25,15 +23,14 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, spaceActions } = useSpaceElements({
-    initialNodes: nodeSample,
-    initialEdges: edgeSample,
+  const { nodes, edges, defineNode } = useYjsSpace();
+
+  const { drag, dropPosition, handlePaletteSelect } = useDragNode({
+    createNode: (type, parentNode, position, name = "New Note") => {
+      defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
+    },
   });
-
-  const { drag, dropPosition, handlePaletteSelect } = useDragNode(spaceActions);
   const { startNode, handlers } = drag;
-
-  const { nodes, edges } = useYjsSpace();
 
   function createDragBoundFunc(node: Node) {
     return function dragBoundFunc() {
@@ -44,7 +41,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       };
     };
   }
-        
+
   useEffect(() => {
     if (!autofitTo) {
       return undefined;

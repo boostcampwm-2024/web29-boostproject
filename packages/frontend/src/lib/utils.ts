@@ -25,6 +25,10 @@ export function createSafeContext<T>(defaultValue?: T) {
   return [useMyContext, MyContext.Provider] as const;
 }
 
+export function generateUniqueId() {
+  return Math.random().toString(36);
+}
+
 type getDistanceFromPoints = (
   firstPoint: Vector2d | null,
   secondPoint: Vector2d | null,
