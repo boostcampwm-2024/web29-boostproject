@@ -16,6 +16,7 @@ interface SpaceViewProps {
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const stageRef = React.useRef<Konva.Stage>(null);
+  let animationFrameId: number | null = null;
 
   useEffect(() => {
     if (!autofitTo) {
@@ -80,15 +81,20 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       return;
     }
 
-    stage.scale({ x: newScale, y: newScale });
-
     const newPosition = {
       x: pointerX - mousePointTo.x * newScale,
       y: pointerY - mousePointTo.y * newScale,
     };
 
-    stage.position(newPosition);
-    stage.batchDraw();
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+
+    animationFrameId = requestAnimationFrame(() => {
+      stage.scale({ x: newScale, y: newScale });
+      stage.position(newPosition);
+      stage.batchDraw();
+    });
   };
 
   const nodeComponents = {
