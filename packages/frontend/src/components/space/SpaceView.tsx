@@ -32,7 +32,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   });
   const { startNode, handlers } = drag;
 
-  function createDragBoundFunc(node: Node) {
+  function createDragBoundFunc() {
     return function dragBoundFunc(this: Konva.Node) {
       /** 원래 위치로 고정. stage도 draggable하므로 Layer에 적용된 offset을 보정하여 절대 위치로 표시.  */
       return this.absolutePosition();
@@ -76,7 +76,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
         onDragEnd={handlers.onDragEnd}
-        dragBoundFunc={createDragBoundFunc(node)}
+        dragBoundFunc={createDragBoundFunc()}
       />
     ),
     note: (node: Node) => (
@@ -89,7 +89,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
         onDragEnd={handlers.onDragEnd}
-        dragBoundFunc={createDragBoundFunc(node)}
+        dragBoundFunc={createDragBoundFunc()}
       />
     ),
   };
