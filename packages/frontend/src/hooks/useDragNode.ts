@@ -50,8 +50,6 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       dragPosition: position,
       overlapNode: selectedNode,
     }));
-
-    console.log("overlapping:", dragState.overlapNode);
   };
 
   const handleDragEnd = () => {

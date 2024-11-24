@@ -12,6 +12,7 @@ import useDragNode from "@/hooks/useDragNode";
 import useSpaceElements from "@/hooks/useSpaceElements";
 
 import GooeyNode from "./GooeyNode";
+import NearNodeIndicator from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
 
 interface SpaceViewProps {
@@ -99,6 +100,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             startPosition={{ x: startNode.x, y: startNode.y }}
             dragPosition={drag.position}
           />
+        )}
+        {drag.position && drag.overlapNode && (
+          <NearNodeIndicator overlapNode={drag.overlapNode} />
         )}
         {nodes.map((node) => {
           const Component =
