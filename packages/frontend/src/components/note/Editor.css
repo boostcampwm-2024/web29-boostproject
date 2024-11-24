@@ -1,9 +1,10 @@
 .milkdown {
-  @apply m-5 px-2 py-4;
+  @apply m-8 px-4 py-6;
 }
 
 .editor {
-  @apply mx-auto;
+  @apply mx-auto max-w-2xl;
+  @apply prose;
 }
 
 /* 첫 번째 문단이 비어있을 때 초기 커서 위치에 대한 임시적인 수정사항 */
@@ -50,4 +51,8 @@
   padding-left: 2px;
   padding-right: 2px;
   white-space: nowrap;
+}
+
+.ProseMirror-focused {
+  outline: none;
 }
