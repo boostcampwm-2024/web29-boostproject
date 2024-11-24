@@ -16,55 +16,58 @@ export default function GooeyConnection({
   debug = false,
 }: GooeyConnectionProps) {
   const distance = getDistanceFromPoints(startPosition, endPosition);
-  const NODE_RADIUS = 64;
+  const NODE_RADIUS = 32;
   const HONEY_COLOR = "#FFF2CB";
 
   const dx = endPosition.x - startPosition.x;
   const dy = endPosition.y - startPosition.y;
-
   const angle = Math.atan2(dy, dx);
 
-  // 수직 드래그 시 일관성을 위한 변화량 계산
-  const controlDistanceX = Math.min(Math.abs(dx) * 0.5, NODE_RADIUS);
-  const controlDistanceY = Math.min(Math.abs(dy) * 0.5, NODE_RADIUS);
+  // 거리에 따라 컨트롤 Point 결정
+  const controlDistance = Math.min(distance * 0.5, NODE_RADIUS * 2);
+  const middlePoint = {
+    x: startPosition.x + (Math.cos(angle) * distance) / 2,
+    y: startPosition.y + (Math.sin(angle) * distance) / 2,
+  };
+
+  const tangentLine = Math.sqrt((distance / 2) ** 2 - (2 * NODE_RADIUS) ** 2);
+  const tangentAngle = Math.atan2(2 * NODE_RADIUS, tangentLine);
 
   // 제어점 계산
   const ctrl1 = {
-    x: startPosition.x + Math.cos(angle) * controlDistanceX * 1.7,
-    y: startPosition.y + Math.sin(angle) * controlDistanceY * 1.7,
+    x: startPosition.x + Math.cos(angle) * controlDistance * 1.3,
+    y: startPosition.y + Math.sin(angle) * controlDistance * 1.3,
   };
   const ctrl2 = {
-    x: endPosition.x - Math.cos(angle) * controlDistanceX * 1.7,
-    y: endPosition.y - Math.sin(angle) * controlDistanceY * 1.7,
+    x: endPosition.x - Math.cos(angle) * controlDistance * 1.3,
+    y: endPosition.y - Math.sin(angle) * controlDistance * 1.3,
+  };
+
+  // 곡선 시작점-끝점
+  const start1 = {
+    x: middlePoint.x - Math.cos(angle - tangentAngle) * tangentLine,
+    y: middlePoint.y - Math.sin(angle - tangentAngle) * tangentLine,
+  };
+
+  const start2 = {
+    x: middlePoint.x - Math.cos(angle + tangentAngle) * tangentLine,
+    y: middlePoint.y - Math.sin(angle + tangentAngle) * tangentLine,
+  };
+
+  const end1 = {
+    x: middlePoint.x + Math.cos(angle + tangentAngle) * tangentLine,
+    y: middlePoint.y + Math.sin(angle + tangentAngle) * tangentLine,
+  };
+
+  const end2 = {
+    x: middlePoint.x + Math.cos(angle - tangentAngle) * tangentLine,
+    y: middlePoint.y + Math.sin(angle - tangentAngle) * tangentLine,
   };
 
   return (
     <>
       <Shape
         sceneFunc={(context) => {
-          // 접점 계산
-          const startAngle = angle + Math.PI / 2;
-          const endAngle = angle - Math.PI / 2;
-
-          // 시작점과 끝점의 두 접점 계산
-          const start1 = {
-            x: startPosition.x + Math.cos(startAngle) * NODE_RADIUS * 0.9,
-            y: startPosition.y + Math.sin(startAngle) * NODE_RADIUS * 0.9,
-          };
-          const start2 = {
-            x: startPosition.x + Math.cos(endAngle) * NODE_RADIUS * 0.9,
-            y: startPosition.y + Math.sin(endAngle) * NODE_RADIUS * 0.9,
-          };
-
-          const end1 = {
-            x: endPosition.x + Math.cos(startAngle) * NODE_RADIUS * 0.9,
-            y: endPosition.y + Math.sin(startAngle) * NODE_RADIUS * 0.9,
-          };
-          const end2 = {
-            x: endPosition.x + Math.cos(endAngle) * NODE_RADIUS * 0.9,
-            y: endPosition.y + Math.sin(endAngle) * NODE_RADIUS * 0.9,
-          };
-
           // 베지어 곡선 그리기
           context.beginPath();
           context.moveTo(start1.x, start1.y);
@@ -100,14 +103,19 @@ export default function GooeyConnection({
           context.fillStyle = gradient;
           context.fill();
           context.strokeStyle = HONEY_COLOR;
-          context.lineWidth = 2 / (1 + distance / NODE_RADIUS);
+          context.lineWidth = 2 / (1 + distance / NODE_RADIUS); // 거리에 따라 선 두께 조절
           context.stroke();
         }}
       />
+      {/* 제어점 디버깅 용도 */}
       {debug && (
         <>
           <Circle x={ctrl1.x} y={ctrl1.y} radius={1} fill="red" />
           <Circle x={ctrl2.x} y={ctrl2.y} radius={1} fill="red" />
+          <Circle x={start1.x} y={start1.y} radius={2} fill="green" />
+          <Circle x={end1.x} y={end1.y} radius={2} fill="blue" />
+          <Circle x={start2.x} y={start2.y} radius={2} fill="green" />
+          <Circle x={end2.x} y={end2.y} radius={2} fill="blue" />
         </>
       )}
     </>
