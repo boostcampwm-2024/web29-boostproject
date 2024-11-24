@@ -61,8 +61,8 @@ export const findNearestNode: findNearestNode = (position, overlapNodes) => {
 
   const sortedNodes = overlapNodes.sort((a, b) => {
     return (
-      getDistanceFromPoints({ x: b.x, y: b.y }, position) -
-      getDistanceFromPoints({ x: a.x, y: a.y }, position)
+      getDistanceFromPoints({ x: a.x, y: a.y }, position) -
+      getDistanceFromPoints({ x: b.x, y: b.y }, position)
     );
   });
 
