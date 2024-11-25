@@ -10,8 +10,8 @@ export default function useYjsConnection(docName: string) {
   useEffect(() => {
     const doc = new Y.Doc();
     const provider = new WebsocketProvider(
-      // `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/space`,
-      `ws://${"localhost"}/space`,
+      `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/ws/space`,
+
       docName,
       doc,
     );

@@ -95,7 +95,7 @@ function PaletteButton({ variant, position, onClick }: PaletteButtonProps) {
 type PaletteMenuProps = {
   /** 팔레트 메뉴에 표시 옵션 (최대 6개) */
   items: PaletteButtonType[];
-  onSelect: (type: PaletteButtonType, name: string | undefined) => void;
+  onSelect: (type: PaletteButtonType, name?: string) => void;
 };
 
 function getPositionByIndex(index: number): Position {
@@ -129,7 +129,7 @@ export default function PaletteMenu({ items, onSelect }: PaletteMenuProps) {
       return;
     }
 
-    onSelect(type, undefined);
+    onSelect(type);
   };
 
   return (

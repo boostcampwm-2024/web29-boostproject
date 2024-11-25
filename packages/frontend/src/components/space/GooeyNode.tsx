@@ -18,7 +18,7 @@ export default function GooeyNode({
       <Circle
         x={dragPosition.x}
         y={dragPosition.y}
-        radius={60}
+        radius={64}
         fill="#FFF2CB"
       />
       <GooeyConnection

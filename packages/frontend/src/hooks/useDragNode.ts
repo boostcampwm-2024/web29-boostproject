@@ -53,10 +53,7 @@ export default function useDragNode(spaceActions: spaceActions) {
     }));
   };
 
-  const handlePaletteSelect = (
-    type: PaletteButtonType,
-    name: string | undefined,
-  ) => {
+  const handlePaletteSelect = (type: PaletteButtonType, name: string = "") => {
     const { startNode } = dragState;
 
     // FIXME: note 타입 외의 노드 생성 동작을 임시로 막음.

@@ -4,6 +4,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { SpaceService } from 'src/space/space.service';
 
@@ -19,7 +20,15 @@ import {
 } from 'y-websocket/bin/utils';
 import * as Y from 'yjs';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+import {
+  yXmlFragmentToProsemirrorJSON,
+  prosemirrorJSONToYXmlFragment,
+  // @ts-expect-error /
+} from 'y-prosemirror';
+import { generateUuid } from 'src/common/utils/url.utils';
 const SPACE = 'space';
+
+import { SpaceData } from 'shared/types';
 
 @WebSocketGateway(9001)
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
