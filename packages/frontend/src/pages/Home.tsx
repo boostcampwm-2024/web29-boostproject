@@ -95,11 +95,9 @@ export default function Home() {
           <img
             src={logo}
             alt="Honey Flow"
-            className="h-16 mb-2 drop-shadow-md"
+            className="h-32 mb-4 mr-[33px] drop-shadow-md"
           />
-          <span className="text-[16px]">
-            끈적끈적 꿀처럼 이루어지는 협업 지식 관리 툴 🍯
-          </span>
+          <span className="text-[16px]">Think Linked, Map Together</span>
         </div>
         <div className="flex flex-col gap-4">
           <CreateSpaceButton
