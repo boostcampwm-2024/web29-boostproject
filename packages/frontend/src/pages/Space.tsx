@@ -22,7 +22,7 @@ export default function SpacePage() {
       style={{ width: "100%", height: "100%" }}
       ref={containerRef}
     >
-      <YjsSpaceView spaceId="123" autofitTo={containerRef} />
+      <YjsSpaceView spaceId={entrySpaceId} autofitTo={containerRef} />
     </div>
   );
 }

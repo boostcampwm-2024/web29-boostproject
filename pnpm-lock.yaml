@@ -95,6 +95,9 @@ importers:
       mysql2:
         specifier: ^3.11.4
         version: 3.11.4
+      prosemirror:
+        specifier: ^0.11.1
+        version: 0.11.1
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -116,6 +119,9 @@ importers:
       typeorm:
         specifier: ^0.3.20
         version: 0.3.20(ioredis@5.4.1)(mysql2@3.11.4)(ts-node@10.9.2(@types/node@20.17.6)(typescript@5.6.3))
+      utils:
+        specifier: link:@milkdown/kit/utils
+        version: link:@milkdown/kit/utils
       uuid:
         specifier: ^11.0.3
         version: 11.0.3
@@ -5478,6 +5484,10 @@ packages:
 
   prosemirror-view@1.36.0:
     resolution: {integrity: sha512-U0GQd5yFvV5qUtT41X1zCQfbw14vkbbKwLlQXhdylEmgpYVHkefXYcC4HHwWOfZa3x6Y8wxDLUBv7dxN5XQ3nA==}
+
+  prosemirror@0.11.1:
+    resolution: {integrity: sha512-IZ35mmexuo3DNkMXs2A3bAm1jdlAJRVPor/bX1AWT+TdAR9fv6igUjRUFtQDCRUKwxH7ufwL1p6Um/MdgcbVIw==}
+    deprecated: This library has been split up into separate modules. This is the old monolithic package, which is no longer maintained. Use prosemirror-view, prosemirror-model, etc instead.
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -12871,6 +12881,8 @@ snapshots:
       prosemirror-model: 1.23.0
       prosemirror-state: 1.4.3
       prosemirror-transform: 1.10.2
+
+  prosemirror@0.11.1: {}
 
   proxy-addr@2.0.7:
     dependencies:

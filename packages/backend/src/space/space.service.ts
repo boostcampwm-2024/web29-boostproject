@@ -1,14 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-import { Edge } from './interface/space.edge';
-import { Node } from './interface/space.node';
 import { Space } from './space.entity';
 import { MAX_SPACES } from 'src/common/constants/space.constants';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
-
+import { generateUuid } from 'src/common/utils/url.utils';
+import { SpaceData, Node, Edge } from 'shared/types';
 @Injectable()
 export class SpaceService {
   constructor(
@@ -17,13 +15,18 @@ export class SpaceService {
     private readonly snowflakeService: SnowflakeService,
   ) {}
 
-  generateUuid(): string {
-    return uuidv4();
-  }
+  async createSpace(userId: string, spaceName: string) {
+    const Edges: SpaceData['edges'] = {};
+    const Nodes: SpaceData['nodes'] = {};
 
-  async create(userId: string, spaceName: string) {
-    const Edges: Edge[] = [];
-    const Nodes: Node[] = [];
+    const headNode: Node = {
+      id: generateUuid(),
+      x: 0,
+      y: 0,
+      type: 'head',
+      name: spaceName,
+    };
+    Nodes[headNode.id] = headNode;
 
     const userSpaceCount = await this.spaceRepository.count({
       where: { userId },
@@ -32,15 +35,16 @@ export class SpaceService {
     if (userSpaceCount >= MAX_SPACES) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.LIMIT_EXCEEDED);
     }
-
-    const space = await this.spaceRepository.save({
+    const spaceDto = {
       id: this.snowflakeService.generateId(),
       userId: userId,
-      urlPath: this.generateUuid(),
+      urlPath: generateUuid(),
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
-    });
+    };
+
+    const space = await this.spaceRepository.save(spaceDto);
     return space.urlPath;
   }
 
@@ -51,8 +55,36 @@ export class SpaceService {
     return result;
   }
 
-  async updateByEdges(urlPath: string, edges: Edge[]) {
-    const space = await this.findById(urlPath);
+  async createSubSpace(
+    userId: string,
+    subSpaceName: string,
+    parentContextNodeId: string,
+  ) {
+    const Edges: SpaceData['edges'] = {};
+    const Nodes: SpaceData['nodes'] = {};
+    const headNode: Node = {
+      id: generateUuid(),
+      x: 0,
+      y: 0,
+      type: 'head',
+      name: subSpaceName,
+    };
+    Nodes[headNode.id] = headNode;
+
+    const spaceDto = {
+      id: this.snowflakeService.generateId(),
+      parentContextNodeId: parentContextNodeId,
+      userId: userId,
+      urlPath: generateUuid(),
+      name: subSpaceName,
+      edges: JSON.stringify(Edges),
+      nodes: JSON.stringify(Nodes),
+    };
+    const subSpace = await this.spaceRepository.save(spaceDto);
+    return [subSpace.urlPath];
+  }
+  async updateByEdges(id: string, edges: string) {
+    const space = await this.findById(id);
     if (!space) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
     }
@@ -65,8 +97,9 @@ export class SpaceService {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.UPDATE_FAILED);
     }
   }
-  async updateByNodes(urlPath: string, nodes: Node[]) {
-    const space = await this.findById(urlPath);
+
+  async updateByNodes(id: string, nodes: string) {
+    const space = await this.findById(id);
     if (!space) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
     }

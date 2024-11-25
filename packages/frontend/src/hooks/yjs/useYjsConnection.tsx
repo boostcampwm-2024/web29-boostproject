@@ -9,9 +9,8 @@ export default function useYjsConnection(docName: string) {
 
   useEffect(() => {
     const doc = new Y.Doc();
-    // FIXME: backend 서버로 변경
     const provider = new WebsocketProvider(
-      `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/space`,
+      `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/ws/space`,
       docName,
       doc,
     );
