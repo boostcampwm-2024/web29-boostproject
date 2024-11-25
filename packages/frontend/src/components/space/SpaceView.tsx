@@ -7,9 +7,9 @@ import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
-import { edgeSample, nodeSample } from "@/components/mock";
 import useDragNode from "@/hooks/useDragNode";
-import useSpaceElements from "@/hooks/useSpaceElements";
+import useYjsSpace from "@/hooks/useYjsSpace";
+import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 import GooeyNode from "./GooeyNode";
 import NearNodeIndicator from "./NearNodeIndicator";
@@ -25,16 +25,16 @@ const dragBoundFunc = function (this: Konva.Node) {
 
 export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+  const stageRef = React.useRef<Konva.Stage>(null);
+  const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, spaceActions } = useSpaceElements({
-    initialNodes: nodeSample,
-    initialEdges: edgeSample,
+  const { nodes, edges, defineNode } = useYjsSpace();
+
+  const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodes, {
+    createNode: (type, parentNode, position, name = "New Note") => {
+      defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
+    },
   });
-
-  const { drag, dropPosition, handlePaletteSelect } = useDragNode(
-    nodes,
-    spaceActions,
-  );
   const { startNode, handlers } = drag;
 
   useEffect(() => {
@@ -93,7 +93,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <Stage width={stageSize.width} height={stageSize.height} draggable>
+    <Stage
+      width={stageSize.width}
+      height={stageSize.height}
+      ref={stageRef}
+      onWheel={zoomSpace}
+      draggable
+    >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {drag.isActive && drag.position && startNode && (
           <GooeyNode

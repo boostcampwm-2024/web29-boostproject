@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,7 +30,7 @@ export class SpaceService {
     });
 
     if (userSpaceCount >= MAX_SPACES) {
-      throw new BadRequestException(ERROR_MESSAGES.SPACE_LIMIT_EXCEEDED);
+      throw new BadRequestException(ERROR_MESSAGES.SPACE.LIMIT_EXCEEDED);
     }
 
     const space = await this.spaceRepository.save({
@@ -45,8 +41,6 @@ export class SpaceService {
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
     });
-    if (!space) {
-    }
     return space.urlPath;
   }
 
@@ -55,5 +49,34 @@ export class SpaceService {
       where: { urlPath },
     });
     return result;
+  }
+
+  async updateByEdges(urlPath: string, edges: Edge[]) {
+    const space = await this.findById(urlPath);
+    if (!space) {
+      throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
+    }
+
+    try {
+      space.edges = JSON.stringify(edges);
+      await this.spaceRepository.save(space);
+      return space;
+    } catch (error) {
+      throw new BadRequestException(ERROR_MESSAGES.SPACE.UPDATE_FAILED);
+    }
+  }
+  async updateByNodes(urlPath: string, nodes: Node[]) {
+    const space = await this.findById(urlPath);
+    if (!space) {
+      throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
+    }
+
+    try {
+      space.nodes = JSON.stringify(nodes);
+      await this.spaceRepository.save(space);
+      return space;
+    } catch (error) {
+      throw new BadRequestException(ERROR_MESSAGES.SPACE.UPDATE_FAILED);
+    }
   }
 }

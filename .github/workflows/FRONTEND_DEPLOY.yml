@@ -1,7 +1,7 @@
 name: 프론트엔드 배포
 on:
   push:
-    branches: [main]
+    branches: [dev]
     paths:
       - "packages/frontend/**"
       - "packages/shared/**"
@@ -57,7 +57,7 @@ jobs:
             docker rm frontend || true
 
             # 새 컨테이너 실행
-            docker run -d --name frontend --network product_network -p 80:80 ${{ secrets.CONTAINER_REGISTRY_URL }}/frontend:latest
+            docker run -d --name frontend --network product_network -p 80:80 --restart unless-stopped ${{ secrets.CONTAINER_REGISTRY_URL }}/frontend:latest
 
             # 헬스체크 (선택사항)
             sleep 5

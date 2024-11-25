@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
+
 import { Folder, Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 import { Node } from "shared/types";
+
+import { circle, hexagon } from "@/assets/shapes";
 
 export type PaletteButtonType = Exclude<Node["type"], "head"> | "close";
 type Position = { top: number; left: number };
@@ -25,31 +29,66 @@ const CONTAINER_SIZE = 160;
 const BUTTON_SIZE = 60;
 const RADIUS = 55;
 const MAX_ITEMS = 6;
+const CENTER_OFFSET = (CONTAINER_SIZE - BUTTON_SIZE) / 2;
 
 function PaletteButton({ variant, position, onClick }: PaletteButtonProps) {
   const { icon: Icon, color } = buttonConfig[variant];
+  const [transform, setTransform] = useState("translate(0, 0)");
+
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const updatePosition = () => {
+      animationFrameId = requestAnimationFrame(() => {
+        setTransform(
+          `translate(${position.left - CENTER_OFFSET}px, ${position.top - CENTER_OFFSET}px)`,
+        );
+      });
+    };
+
+    updatePosition();
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [position.left, position.top]);
 
   return (
-    <button
-      className="absolute transition-transform hover:scale-110"
+    <div
+      className="absolute transition-transform duration-300 ease-in-out"
       style={{
-        top: position.top,
-        left: position.left,
-        width: BUTTON_SIZE,
-        height: BUTTON_SIZE,
+        top: CENTER_OFFSET,
+        left: CENTER_OFFSET,
+        transform,
+        zIndex: variant === "close" ? 10 : "auto",
       }}
       onClick={onClick}
     >
-      <svg viewBox="0 0 100 100">
-        <polygon
-          points="50 0, 93.3 25, 93.3 75, 50 100, 6.7 75, 6.7 25"
-          className={color}
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Icon className="w-6 h-6" />
-      </div>
-    </button>
+      <button
+        className="relative hover:scale-110 transition-transform"
+        style={{
+          width: BUTTON_SIZE,
+          height: BUTTON_SIZE,
+        }}
+      >
+        <svg viewBox="0 0 100 100">
+          <path d={circle} className={color}>
+            <animate
+              attributeName="d"
+              from={circle}
+              to={hexagon}
+              dur="0.6s"
+              fill="freeze"
+            />
+          </path>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Icon className="w-6 h-6" />
+        </div>
+      </button>
+    </div>
   );
 }
 

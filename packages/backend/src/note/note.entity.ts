@@ -1,11 +1,9 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
+
 @Entity()
-export class Space {
+export class Note {
   @PrimaryColumn({ type: 'bigint' })
   id: string;
-
-  @Column({ nullable: true })
-  parentSpaceId: string;
 
   @Column()
   userId: string;
@@ -16,9 +14,6 @@ export class Space {
   @Column()
   name: string;
 
-  @Column({ type: 'text' })
-  edges: string;
-
-  @Column({ type: 'text' })
-  nodes: string;
+  @Column({ type: 'text', nullable: true })
+  content: string;
 }

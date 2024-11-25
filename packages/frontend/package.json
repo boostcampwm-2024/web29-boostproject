@@ -13,6 +13,11 @@
     "playwright:test": "playwright test"
   },
   "dependencies": {
+    "@milkdown/kit": "^7.5.5",
+    "@milkdown/plugin-collab": "^7.5.0",
+    "@milkdown/react": "^7.5.0",
+    "@milkdown/theme-nord": "^7.5.0",
+    "@prosemirror-adapter/react": "^0.2.6",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
@@ -27,7 +32,9 @@
     "react-router-dom": "^6.28.0",
     "shared": "workspace:*",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "y-websocket": "^2.0.4",
+    "yjs": "^13.6.20"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.2",
@@ -41,6 +48,7 @@
     "@storybook/react": "^8.4.2",
     "@storybook/react-vite": "^8.4.2",
     "@storybook/test": "^8.4.2",
+    "@tailwindcss/typography": "^0.5.15",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",

@@ -16,6 +16,10 @@ type DragState = {
   dragPosition: Vector2d | null;
 };
 
+type spaceActions = {
+  createNode: (type, parentNode, positoin, name) => void;
+};
+
 export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -62,7 +66,8 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
 
     if (overlapNode && overlapNode.id !== startNode.id) {
       setDropPosition(null);
-      spaceActions.createEdge(startNode, overlapNode);
+      // FIXME: yjs연동된 부분으로 변경
+      // spaceActions.createEdge(startNode, overlapNode);
     }
 
     setDragState((prev) => ({
@@ -76,12 +81,20 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   const handlePaletteSelect = (type: PaletteButtonType, name: string = "") => {
     const { startNode } = dragState;
 
-    if (!startNode || !dropPosition || type === "close") {
+    // FIXME: note 타입 외의 노드 생성 동작을 임시로 막음.
+    if (
+      !startNode ||
+      !dropPosition ||
+      type === "close" ||
+      type === "image" ||
+      type === "url"
+    ) {
       setDropPosition(null);
       return;
     }
 
-    spaceActions.createNode(type, startNode, dropPosition, name);
+    createNode(type, startNode, dropPosition, name);
+
     setDragState((prev) => ({
       ...prev,
       isDragging: false,
@@ -96,6 +109,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       isActive: dragState.isDragging,
       startNode: dragState.startNode,
       overlapNode: dragState.overlapNode,
+
       position: dragState.dragPosition,
       handlers: {
         onDragStart: handleDragStart,

@@ -1,7 +1,7 @@
 name: 백엔드 배포
 on:
   push:
-    branches: [main]
+    branches: [dev]
     paths:
       - "packages/backend/**"
       - "packages/shared/**"

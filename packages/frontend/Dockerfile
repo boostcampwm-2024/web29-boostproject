@@ -15,6 +15,7 @@ COPY ./packages/frontend/vite.config.ts ./packages/frontend
 RUN cd ./packages/frontend && pnpm build
 
 # 프로덕션 스테이지
+
 FROM nginx:alpine AS production
 # Nginx 전역 설정 먼저 수정
 RUN echo 'events { worker_connections 1024; }' > /etc/nginx/nginx.conf && \
