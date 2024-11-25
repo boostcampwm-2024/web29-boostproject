@@ -54,6 +54,9 @@ export default {
           5: "hsl(var(--chart-5))",
         },
       },
+      backgroundImage: {
+        home: "url('/home-bg.svg')",
+      },
     },
   },
   plugins: [tailwindcssAnimate, tailwindcssTypography],
