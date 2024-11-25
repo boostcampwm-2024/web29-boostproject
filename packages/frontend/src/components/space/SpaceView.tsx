@@ -30,7 +30,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
 
   const { nodes, edges, defineNode } = useYjsSpace();
 
-  const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodes, {
+  const nodesArray = nodes ? Object.values(nodes) : [];
+
+  const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
     },
@@ -110,19 +112,21 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         {drag.position && drag.overlapNode && (
           <NearNodeIndicator overlapNode={drag.overlapNode} />
         )}
-        {nodes.map((node) => {
-          const Component =
-            nodeComponents[node.type as keyof typeof nodeComponents];
-          return Component ? Component(node) : null;
-        })}
-        {edges.map((edge) => (
-          <Edge
-            key={`${edge.from}-${edge.to}`}
-            from={edge.from}
-            to={edge.to}
-            nodes={nodes}
-          />
-        ))}
+        {nodes &&
+          Object.entries(nodes).map(([, node]) => {
+            const Component =
+              nodeComponents[node.type as keyof typeof nodeComponents];
+            return Component ? Component(node) : null;
+          })}
+        {edges &&
+          Object.entries(edges).map(([edgeId, edge]) => (
+            <Edge
+              key={edgeId || `${edge.from.id}-${edge.to.id}`}
+              from={edge.from}
+              to={edge.to}
+              nodes={nodes}
+            />
+          ))}
         {dropPosition && (
           <Html>
             <div

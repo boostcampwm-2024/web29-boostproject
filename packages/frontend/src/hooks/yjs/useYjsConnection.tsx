@@ -11,7 +11,7 @@ export default function useYjsConnection(docName: string) {
     const doc = new Y.Doc();
     // FIXME: backend 서버로 변경
     const provider = new WebsocketProvider(
-      "ws://localhost:3001/space",
+      `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/space`,
       docName,
       doc,
     );
@@ -27,7 +27,7 @@ export default function useYjsConnection(docName: string) {
     // });
 
     return () => {
-      provider.destroy();
+      // provider.destroy();
       setYDoc(undefined);
       setYProvider(undefined);
     };

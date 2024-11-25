@@ -7,8 +7,6 @@ import { Node } from "shared/types";
 import { PaletteButtonType } from "@/components/space/PaletteMenu";
 import { findNearestNode, findOverlapNodes } from "@/lib/utils";
 
-import { spaceActions } from "./useSpaceElements";
-
 type DragState = {
   isDragging: boolean;
   startNode: Node | null;
@@ -17,7 +15,12 @@ type DragState = {
 };
 
 type spaceActions = {
-  createNode: (type, parentNode, positoin, name) => void;
+  createNode: (
+    type: Node["type"],
+    parentNode: Node,
+    position: Vector2d,
+    name?: string,
+  ) => void;
 };
 
 export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
@@ -93,7 +96,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       return;
     }
 
-    createNode(type, startNode, dropPosition, name);
+    spaceActions.createNode(type, startNode, dropPosition, name);
 
     setDragState((prev) => ({
       ...prev,
