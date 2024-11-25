@@ -8,9 +8,28 @@ import { useYjsStore } from "@/store/yjs";
 
 import useY from "./yjs/useY";
 
+const MOCK_DATA = {
+  nodes: {
+    root: {
+      id: "root",
+      type: "head" as const,
+      name: "허니의 스페이스",
+      x: 0,
+      y: 0,
+    },
+  },
+  edges: {},
+};
+
 export default function useYjsSpace() {
   const { yDoc, yProvider } = useYjsStore();
   const [yContext, setYContext] = useState<Y.Map<unknown>>();
+
+  useEffect(() => {
+    if (!yDoc) return;
+    const context = yDoc.getMap("context");
+    setYContext(context);
+  }, [yDoc]);
 
   // TODO 코드 개선
   const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
@@ -108,5 +127,28 @@ export default function useYjsSpace() {
     return () => yProvider.off("sync", handleOnSync);
   }, [yDoc, yProvider]);
 
+  /* NOTE - 개발 단계에서 프론트엔드 Space 개발을 위한 Mock 데이터 임의 설정 */
+  if (!yDoc || !nodes || Object.keys(nodes || {}).length === 0) {
+    // mock 상태일 때도 yDoc에 초기 데이터 설정
+    if (yDoc && yContext) {
+      const yNodes = new Y.Map();
+      const yEdges = new Y.Map();
+
+      yDoc.transact(() => {
+        // root 노드 설정
+        yNodes.set(MOCK_DATA.nodes.root.id, MOCK_DATA.nodes.root);
+        yContext.set("nodes", yNodes);
+        yContext.set("edges", yEdges);
+      });
+    }
+
+    return {
+      nodes: MOCK_DATA.nodes,
+      edges: MOCK_DATA.edges,
+      defineNode,
+      updateNode,
+      deleteNode,
+    };
+  }
   return { nodes, edges, updateNode, defineNode, deleteNode };
 }
