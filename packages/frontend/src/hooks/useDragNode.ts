@@ -21,7 +21,7 @@ type spaceActions = {
     position: Vector2d,
     name?: string,
   ) => void;
-  createEdge: (fromNode, toNode: Node) => void;
+  createEdge: (fromNode: Node, toNode: Node) => void;
 };
 
 export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {

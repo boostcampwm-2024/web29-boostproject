@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Edge, EdgeWithId, Node, SpaceData } from "shared/types";
+import { EdgeWithId, Node, SpaceData } from "shared/types";
 import * as Y from "yjs";
 
 import { generateUniqueId } from "@/lib/utils";
