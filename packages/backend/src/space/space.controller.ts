@@ -20,47 +20,23 @@ import { CreateSubSpaceDto } from './dto/create.subSpace.dto';
 export class SpaceController {
   constructor(private readonly SpaceService: SpaceService) {}
 
-  @Version('1')
+  @Version('2')
   @Post()
   @ApiOperation({ summary: '스페이스 생성' })
   @ApiResponse({ status: 201, description: '스페이스 생성 성공' })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
-  async createSpace(@Body() createSpaceDto: CreateSpaceDto) {
-    const { userId, spaceName } = createSpaceDto;
+  async createSubSpace(@Body() createSpaceDto: CreateSpaceDto) {
+    const { userId, spaceName, parentContextNodeId } = createSpaceDto;
     if (userId !== GUEST_USER_ID || !spaceName) {
       throw new HttpException(
         ERROR_MESSAGES.SPACE.BAD_REQUEST,
         HttpStatus.BAD_REQUEST,
       );
     }
-    const urlPath = await this.SpaceService.createSpace(userId, spaceName);
-    if (!urlPath) {
-      throw new HttpException(
-        ERROR_MESSAGES.SPACE.CREATION_FAILED,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return {
-      urlPath,
-    };
-  }
-
-  @Version('1')
-  @Post()
-  @ApiOperation({ summary: '서브 스페이스 생성' })
-  @ApiResponse({ status: 201, description: '스페이스 생성 성공' })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  async createSubSpace(@Body() createSubSpaceDto: CreateSubSpaceDto) {
-    const { userId, subSpaceName, parentContextNodeId } = createSubSpaceDto;
-    if (userId !== GUEST_USER_ID || !!subSpaceName || !parentContextNodeId) {
-      throw new HttpException(
-        ERROR_MESSAGES.SPACE.BAD_REQUEST,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const urlPath = await this.SpaceService.createSubSpace(
+    const urlPath = await this.SpaceService.create(
       userId,
-      subSpaceName,
+      spaceName,
+
       parentContextNodeId,
     );
     if (!urlPath) {

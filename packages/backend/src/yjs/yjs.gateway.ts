@@ -27,7 +27,6 @@ import {
 } from 'y-prosemirror';
 import { generateUuid } from 'src/common/utils/url.utils';
 const SPACE = 'space';
-const NOTE = 'note';
 
 import { SpaceData } from 'shared/types';
 
@@ -44,7 +43,6 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(connection: WebSocket, request: Request) {
     this.logger.log('connection start');
-
     try {
       const url = request.url || '';
       const { urlType, urlId } = parseSocketUrl(url);
