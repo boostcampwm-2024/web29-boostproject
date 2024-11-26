@@ -161,6 +161,7 @@ export default function useYjsSpace() {
       nodes: MOCK_DATA.nodes,
       edges: MOCK_DATA.edges,
       defineNode,
+      defineEdge,
       updateNode,
       deleteNode,
     };
