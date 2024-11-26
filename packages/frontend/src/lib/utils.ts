@@ -90,3 +90,9 @@ export function createSafeContext<T>(defaultValue?: T) {
 export function generateUniqueId() {
   return Math.random().toString(36);
 }
+
+// 노출과 명도는 유지, 색상만 랜덤
+export function generateUserColor(clientId: number = Math.random() * 999999) {
+  const hue = clientId % 360;
+  return `hsl(${hue}, 80%, 50%)`;
+}

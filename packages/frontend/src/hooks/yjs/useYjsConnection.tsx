@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 
+import { SpaceAwarenessState } from "shared/types";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
+
+import { generateUserColor } from "@/lib/utils";
 
 export default function useYjsConnection(docName: string) {
   const [yDoc, setYDoc] = useState<Y.Doc>();
@@ -18,15 +21,22 @@ export default function useYjsConnection(docName: string) {
     setYDoc(doc);
     setYProvider(provider);
 
-    // provider.on("status", (event: { status: string }) => {
-    //   if (event.status === "connected") {
-    //     setYProvider(provider);
-    //     setYDoc(doc);
-    //   }
-    // });
+    const awareness = provider.awareness;
+
+    provider.on(
+      "status",
+      (event: { status: "connected" | "connecting" | "disconnected" }) => {
+        if (event.status === "connected") {
+          awareness.setLocalStateField("color", generateUserColor());
+        }
+      },
+    );
 
     return () => {
-      // provider.destroy();
+      if (provider.bcconnected || provider.wsconnected) {
+        provider.disconnect();
+        provider.destroy();
+      }
       setYDoc(undefined);
       setYProvider(undefined);
     };

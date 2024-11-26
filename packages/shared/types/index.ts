@@ -24,6 +24,6 @@ export type SpaceData = {
 };
 
 export type SpaceAwarenessState = {
-  color?: string;
+  color: string;
   pointer?: { x: number; y: number };
 };

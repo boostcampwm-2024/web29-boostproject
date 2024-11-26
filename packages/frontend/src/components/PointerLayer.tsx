@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Group, Label, Layer, Tag, Text } from "react-konva";
+import { Html } from "react-konva-utils";
 
 import Konva from "konva";
 import { WebsocketProvider } from "y-websocket";
@@ -8,12 +9,6 @@ import useYjsSpaceAwarenessStates from "@/hooks/useYjsSpaceAwareness";
 import { useYjsStore } from "@/store/yjs";
 
 import PointerCursor from "./PointerCursor";
-
-// 노출과 명도는 유지, 색상만 랜덤
-function getFallbackColor(clientId: number) {
-  const hue = clientId % 360;
-  return `hsl(${hue}, 20%, 50%)`;
-}
 
 export default function PointerLayer() {
   const layerRef = useRef<Konva.Layer>(null);
@@ -58,13 +53,33 @@ export default function PointerLayer() {
 
   return (
     <Layer ref={layerRef}>
+      <Group x={100} y={0}>
+        <Html>
+          <div>
+            <div>공유 중</div>
+            <ul>
+              {userStates &&
+                [...userStates].map(([userClientId, userState]) => (
+                  <li key={userClientId}>
+                    <div
+                      className="rounded-full w-4 h-4"
+                      style={{
+                        backgroundColor: userState.color,
+                      }}
+                    ></div>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </Html>
+      </Group>
       {userStates &&
         [...userStates].map(([clientId, { color, pointer }]) => {
           if (clientId === awareness?.clientID) {
             return null;
           }
 
-          const pointerColor = color || getFallbackColor(clientId);
+          const pointerColor = color;
 
           return (
             pointer && (
