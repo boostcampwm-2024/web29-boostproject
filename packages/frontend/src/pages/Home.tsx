@@ -2,6 +2,7 @@ import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import logo from "@/assets/logo.svg";
+import CustomContextMenu from "@/components/space/CustomContextMenu";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,

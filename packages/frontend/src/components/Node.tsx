@@ -6,6 +6,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
 type NodeProps = {
+  id: string;
   x: number;
   y: number;
   draggable?: boolean;
@@ -20,6 +21,7 @@ type NodeHandlers = {
 };
 
 export default function Node({
+  id,
   x,
   y,
   draggable = true,
@@ -27,7 +29,7 @@ export default function Node({
   ...rest
 }: NodeProps) {
   return (
-    <Group x={x} y={y} draggable={draggable} {...rest}>
+    <Group id={id} x={x} y={y} draggable={draggable} {...rest}>
       {children}
     </Group>
   );
@@ -82,13 +84,14 @@ Node.Text = function NodeText({
 };
 
 export type HeadNodeProps = {
+  id: string;
   name: string;
 } & NodeHandlers;
 
-export function HeadNode({ name, ...rest }: HeadNodeProps) {
+export function HeadNode({ id, name, ...rest }: HeadNodeProps) {
   const radius = 64;
   return (
-    <Node x={0} y={0} draggable {...rest}>
+    <Node id={id} x={0} y={0} draggable {...rest}>
       <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}
@@ -101,17 +104,18 @@ export function HeadNode({ name, ...rest }: HeadNodeProps) {
 }
 
 export type NoteNodeProps = {
+  id: string;
   x: number;
   y: number;
   src: string;
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ x, y, name, ...rest }: NoteNodeProps) {
+export function NoteNode({ id, x, y, name, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
   const radius = 64;
   return (
-    <Node x={x} y={y} {...rest}>
+    <Node id={id} x={x} y={y} {...rest}>
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
     </Node>

@@ -18,6 +18,7 @@
     "@milkdown/react": "^7.5.0",
     "@milkdown/theme-nord": "^7.5.0",
     "@prosemirror-adapter/react": "^0.2.6",
+    "@radix-ui/react-context-menu": "^2.2.2",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",

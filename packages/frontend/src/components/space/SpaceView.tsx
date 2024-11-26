@@ -11,6 +11,8 @@ import useDragNode from "@/hooks/useDragNode";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
+import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import CustomContextMenu from "./CustomContextMenu";
 import GooeyNode from "./GooeyNode";
 import NearNodeIndicator from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
@@ -72,6 +74,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     head: (node: Node) => (
       <HeadNode
         key={node.id}
+        id={node.id}
         name={node.name}
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
@@ -82,6 +85,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     note: (node: Node) => (
       <NoteNode
         key={node.id}
+        id={node.id}
         x={node.x}
         y={node.y}
         name={node.name}
@@ -95,57 +99,65 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <Stage
-      width={stageSize.width}
-      height={stageSize.height}
-      ref={stageRef}
-      onWheel={zoomSpace}
-      draggable
-    >
-      <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {drag.isActive && drag.position && startNode && (
-          <GooeyNode
-            startPosition={{ x: startNode.x, y: startNode.y }}
-            dragPosition={drag.position}
-          />
-        )}
-        {drag.position && drag.overlapNode && (
-          <NearNodeIndicator overlapNode={drag.overlapNode} />
-        )}
-        {nodes &&
-          Object.entries(nodes).map(([, node]) => {
-            const Component =
-              nodeComponents[node.type as keyof typeof nodeComponents];
-            return Component ? Component(node) : null;
-          })}
-        {edges &&
-          Object.entries(edges).map(([edgeId, edge]) => (
-            <Edge
-              key={edgeId || `${edge.from.id}-${edge.to.id}`}
-              from={edge.from}
-              to={edge.to}
-              nodes={nodes}
-            />
-          ))}
-        {dropPosition && (
-          <Html>
-            <div
-              style={{
-                position: "absolute",
-                left: dropPosition.x,
-                top: dropPosition.y,
-                transform: "translate(-50%, -50%)",
-                pointerEvents: "auto",
-              }}
-            >
-              <PaletteMenu
-                items={["note", "image", "url"]}
-                onSelect={handlePaletteSelect}
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <Stage
+          width={stageSize.width}
+          height={stageSize.height}
+          ref={stageRef}
+          onWheel={zoomSpace}
+          onContextMenu={(event) => {
+            console.log(event.target.id());
+          }}
+          draggable
+        >
+          <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
+            {drag.isActive && drag.position && startNode && (
+              <GooeyNode
+                startPosition={{ x: startNode.x, y: startNode.y }}
+                dragPosition={drag.position}
               />
-            </div>
-          </Html>
-        )}
-      </Layer>
-    </Stage>
+            )}
+            {drag.position && drag.overlapNode && (
+              <NearNodeIndicator overlapNode={drag.overlapNode} />
+            )}
+            {nodes &&
+              Object.entries(nodes).map(([, node]) => {
+                const Component =
+                  nodeComponents[node.type as keyof typeof nodeComponents];
+                return Component ? Component(node) : null;
+              })}
+            {edges &&
+              Object.entries(edges).map(([edgeId, edge]) => (
+                <Edge
+                  key={edgeId || `${edge.from.id}-${edge.to.id}`}
+                  from={edge.from}
+                  to={edge.to}
+                  nodes={nodes}
+                />
+              ))}
+            {dropPosition && (
+              <Html>
+                <div
+                  style={{
+                    position: "absolute",
+                    left: dropPosition.x,
+                    top: dropPosition.y,
+                    transform: "translate(-50%, -50%)",
+                    pointerEvents: "auto",
+                  }}
+                >
+                  <PaletteMenu
+                    items={["note", "image", "url"]}
+                    onSelect={handlePaletteSelect}
+                  />
+                </div>
+              </Html>
+            )}
+          </Layer>
+        </Stage>
+        <CustomContextMenu />
+      </ContextMenuTrigger>
+    </ContextMenu>
   );
 }
