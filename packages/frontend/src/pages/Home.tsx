@@ -148,7 +148,6 @@ export default function Home() {
 
   return (
     <div className="bg-home bg-cover">
-      <div>{JSON.stringify(import.meta.env)}</div>
       <div className="flex flex-col gap-16 items-center justify-center h-screen">
         <div className="flex flex-col items-center">
           <img
