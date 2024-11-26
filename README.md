@@ -43,9 +43,6 @@
 
 | J077 김현진 | J082 나희진 | J095 문지후 | J108 박병주 | J218 전호균 | 
 |:-:|:-:|:-:|:-:|:-:| 
-|![enter image description here](https://avatars.githubusercontent.com/u/127650598?v=4)|![enter image description here](https://avatars.githubusercontent.com/u/105726712?v=4)|![enter image description here](https://avatars.githubusercontent.com/u/157210807?v=4)|![enter image description here](https://avatars.githubusercontent.com/u/62245207?v=4)|![enter image description here](https://avatars.githubusercontent.com/u/4702412?v=4)|
-| BE | FE | FE | FE | FE |
+|![fru1tworld](https://github.com/fru1tworld.png)|![heegenie](https://github.com/heegenie.png)|![CatyJazzy](https://github.com/CatyJazzy.png)|![parkblo](https://github.com/parkblo.png)|![hoqn](https://github.com/hoqn.png)|
+| **BE** | **FE** | **FE** | **FE** | **FE** |
 | [@fru1tworld](https://github.com/fru1tworld) |[@heegenie](https://github.com/heegenie)|[@CatyJazzy](https://github.com/CatyJazzy) |[@parkblo](https://github.com/parkblo) |[@hoqn](https://github.com/hoqn) |
-
-
- 
