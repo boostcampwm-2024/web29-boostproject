@@ -23,7 +23,12 @@ function configureGlobalSettings(app: any) {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useWebSocketAdapter(new WsAdapter(app));
   app.enableCors({
-    origin: ['http://www.honeyflow.life', 'https://www.honeyflow.life'],
+    origin: [
+      'http://www.honeyflow.life',
+      'https://www.honeyflow.life',
+      'http://localhost',
+      'http://localhost:5173',
+    ],
     methods: 'GET, POST, PUT, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
