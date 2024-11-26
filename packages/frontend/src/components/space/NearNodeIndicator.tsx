@@ -1,3 +1,4 @@
+import React from "react";
 import { Circle } from "react-konva";
 
 import { Node } from "shared/types";
@@ -6,9 +7,7 @@ type NearNodeIndicatorProps = {
   overlapNode: Node;
 };
 
-export default function NearNodeIndicator({
-  overlapNode,
-}: NearNodeIndicatorProps) {
+function NearNodeIndicator({ overlapNode }: NearNodeIndicatorProps) {
   return (
     <Circle
       x={overlapNode.x}
@@ -19,3 +18,16 @@ export default function NearNodeIndicator({
     />
   );
 }
+
+function areEqual(
+  prevProps: NearNodeIndicatorProps,
+  nextProps: NearNodeIndicatorProps,
+) {
+  return (
+    prevProps.overlapNode.id === nextProps.overlapNode.id &&
+    prevProps.overlapNode.x === nextProps.overlapNode.x &&
+    prevProps.overlapNode.y === nextProps.overlapNode.y
+  );
+}
+
+export const MemoizedNearIndicator = React.memo(NearNodeIndicator, areEqual);
