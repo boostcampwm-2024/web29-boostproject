@@ -6,11 +6,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { YjsModule } from './yjs/yjs.module';
 import { NoteModule } from './note/note.module';
-
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheContextModule } from './cache-context/cache-context.module';
+import { RedisModule } from './redis/redis.module';
+import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    CacheModule.register({
+      store: redisStore,
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
+      ttl: parseInt(process.env.REDIS_TTL || '3600'),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -31,6 +40,8 @@ import { NoteModule } from './note/note.module';
     SpaceModule,
     YjsModule,
     NoteModule,
+    CacheContextModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

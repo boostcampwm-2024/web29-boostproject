@@ -23,7 +23,6 @@ import 'winston-daily-rotate-file';
           ),
         }),
 
-        // 에러 로그 파일
         new winston.transports.DailyRotateFile({
           level: 'error',
           dirname: 'logs/error',
@@ -37,7 +36,6 @@ import 'winston-daily-rotate-file';
           ),
         }),
 
-        // 전체 로그 파일
         new winston.transports.DailyRotateFile({
           dirname: 'logs/combined',
           filename: 'combined-%DATE%.log',

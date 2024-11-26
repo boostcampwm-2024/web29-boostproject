@@ -20,7 +20,6 @@ function MilkdownEditor() {
   useMilkdownCollab({
     editor: loading ? null : get() || null,
     websocketUrl: `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/ws/note`,
-
     roomName: noteId || "",
   });
   return <Milkdown />;

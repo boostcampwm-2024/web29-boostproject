@@ -31,7 +31,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const { nodes, edges, defineNode, defineEdge } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
-
+  
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
