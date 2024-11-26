@@ -13,6 +13,7 @@ import { CreateSpaceDto } from './dto/create.space.dto';
 import { GUEST_USER_ID } from 'src/common/constants/space.constants';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateSubSpaceDto } from './dto/create.subSpace.dto';
 
 @ApiTags('space')
 @Controller('space')
@@ -35,6 +36,7 @@ export class SpaceController {
     const urlPath = await this.SpaceService.create(
       userId,
       spaceName,
+
       parentContextNodeId,
     );
     if (!urlPath) {

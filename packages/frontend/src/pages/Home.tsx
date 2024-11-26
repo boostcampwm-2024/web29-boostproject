@@ -1,6 +1,7 @@
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 
+import logo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -88,20 +89,24 @@ export default function Home() {
   const [spaceName, setSpaceName] = useState("");
 
   return (
-    <div className="flex flex-col gap-16 items-center justify-center h-screen">
-      <div className="flex flex-col items-center font-bold">
-        <span className="text-[64px]">Honey Flow</span>
-        <span className="text-[16px]">
-          끈적끈적 꿀처럼 이루어지는 협업 지식 관리 툴 🍯
-        </span>
-      </div>
-      <div className="flex flex-col gap-4">
-        <CreateSpaceButton
-          navigate={navigate}
-          spaceName={spaceName}
-          setSpaceName={setSpaceName}
-        />
-        <JoinSpaceButton />
+    <div className="bg-home bg-cover">
+      <div className="flex flex-col gap-16 items-center justify-center h-screen">
+        <div className="flex flex-col items-center">
+          <img
+            src={logo}
+            alt="Honey Flow"
+            className="h-32 mb-4 mr-[33px] drop-shadow-md"
+          />
+          <span className="text-[16px]">Think Linked, Map Together</span>
+        </div>
+        <div className="flex flex-col gap-4">
+          <CreateSpaceButton
+            navigate={navigate}
+            spaceName={spaceName}
+            setSpaceName={setSpaceName}
+          />
+          <JoinSpaceButton />
+        </div>
       </div>
     </div>
   );

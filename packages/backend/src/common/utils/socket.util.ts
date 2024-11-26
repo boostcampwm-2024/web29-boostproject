@@ -7,7 +7,6 @@ export function parseSocketUrl(url: string): {
 
     const baseUrl = 'ws://localhost';
     const fullUrl = isAbsoluteUrl ? url : `${baseUrl}${url}`;
-
     const { pathname } = new URL(fullUrl);
 
     const parts = pathname.split('/').filter((part) => part.length > 0);
@@ -16,6 +15,7 @@ export function parseSocketUrl(url: string): {
       return { urlType: parts[1], urlId: parts[2] };
     }
     return { urlType: null, urlId: null };
+
   } catch (error) {
     return { urlType: null, urlId: null };
   }

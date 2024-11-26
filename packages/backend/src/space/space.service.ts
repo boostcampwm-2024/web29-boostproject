@@ -12,6 +12,7 @@ import { v4 as uuid } from 'uuid';
 import { SpaceData, Node, Edge } from 'shared/types';
 import { SpaceValidationService } from './space.validation.service';
 
+
 @Injectable()
 export class SpaceService {
   constructor(
@@ -37,6 +38,7 @@ export class SpaceService {
     const Nodes: SpaceData['nodes'] = {};
     const headNode: Node = {
       id: uuid(),
+
       x: 0,
       y: 0,
       type: 'head',
@@ -49,12 +51,13 @@ export class SpaceService {
       parentContextNodeId,
     );
 
-    const spaceDto = {
+eDto = {
       id: this.snowflakeService.generateId(),
       parentSpaceId:
         parentContextNodeId === null ? undefined : parentContextNodeId,
       userId: userId,
       urlPath: uuid(),
+
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
