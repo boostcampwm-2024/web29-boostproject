@@ -165,5 +165,5 @@ export default function useYjsSpace() {
       deleteNode,
     };
   }
-  return { nodes, edges, updateNode, defineNode, deleteNode };
+  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
 }
