@@ -1,8 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { Circle, Group, Text } from "react-konva";
+import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
 
 import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
 type NodeProps = {
@@ -13,11 +12,8 @@ type NodeProps = {
 } & Konva.GroupConfig;
 
 type NodeHandlers = {
-  onDragStart: () => void;
-  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
-  onDragEnd: () => void;
   dragBoundFunc?: () => Vector2d;
-};
+} & KonvaNodeEvents;
 
 export default function Node({
   x,
