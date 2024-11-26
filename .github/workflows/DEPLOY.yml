@@ -33,20 +33,18 @@ jobs:
             cd $RELEASE_DIR
 
             # 코드 복제
-            git clone -b dev https://github.com/${{ github.repository }}.git .
+            git clone -b dev https://github.com/boostcampwm-2024/web29-honeyflow.git .
 
-            # 환경변수 파일 생성
+              # 환경변수 파일 생성
             echo "$ENV_FILE_CONTENTS" > .env
 
-            # Docker Compose 파일 준비
-            cp Docker-compose.prod.yml Docker-compose.yml
-
             # 이전 컨테이너 정리
-            sudo docker compose down || true
+            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml down || true
+
 
             # 새 컨테이너 실행
-            sudo docker compose pull
-            sudo docker compose up -d
+            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
             # 이전 배포 정리 (최근 3개만 유지)
             cd $DEPLOY_DIR/releases

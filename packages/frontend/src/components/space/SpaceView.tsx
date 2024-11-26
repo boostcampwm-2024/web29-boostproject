@@ -12,7 +12,7 @@ import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
 import GooeyNode from "./GooeyNode";
-import NearNodeIndicator from "./NearNodeIndicator";
+import { MemoizedNearIndicator } from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
 
 interface SpaceViewProps {
@@ -28,13 +28,16 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode } = useYjsSpace();
+  const { nodes, edges, defineNode, defineEdge } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
-
+  
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
+    },
+    createEdge: (fromNode, toNode) => {
+      defineEdge(fromNode.id, toNode.id);
     },
   });
   const { startNode, handlers } = drag;
@@ -110,7 +113,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           />
         )}
         {drag.position && drag.overlapNode && (
-          <NearNodeIndicator overlapNode={drag.overlapNode} />
+          <MemoizedNearIndicator overlapNode={drag.overlapNode} />
         )}
         {nodes &&
           Object.entries(nodes).map(([, node]) => {

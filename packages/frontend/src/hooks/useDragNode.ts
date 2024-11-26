@@ -21,6 +21,7 @@ type spaceActions = {
     position: Vector2d,
     name?: string,
   ) => void;
+  createEdge: (fromNode: Node, toNode: Node) => void;
 };
 
 export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
@@ -69,8 +70,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
 
     if (overlapNode && overlapNode.id !== startNode.id) {
       setDropPosition(null);
-      // FIXME: yjs연동된 부분으로 변경
-      // spaceActions.createEdge(startNode, overlapNode);
+      spaceActions.createEdge(startNode, overlapNode);
     }
 
     setDragState((prev) => ({

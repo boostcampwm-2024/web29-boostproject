@@ -37,6 +37,7 @@ import { Space, SpaceSchema } from './schema/space.schema';
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
       ttl: parseInt(process.env.REDIS_TTL || '3600'),
+      password: process.env.REDIS_PASSWORD,
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],

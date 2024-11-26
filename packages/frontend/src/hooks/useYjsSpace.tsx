@@ -60,6 +60,21 @@ export default function useYjsSpace() {
     });
   };
 
+  const defineEdge = (fromNodeId: string, toNodeId: string) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    const edgeId = generateUniqueId();
+
+    yDoc.transact(() => {
+      yEdges.set(edgeId, {
+        from: fromNodeId,
+        to: toNodeId,
+      });
+    });
+  };
+
   const deleteNode = (nodeId: Node["id"]) => {
     if (!yDoc || !yNodes || !yEdges) {
       return;
@@ -143,14 +158,14 @@ export default function useYjsSpace() {
         });
       }
 
-      return {
-        nodes: MOCK_DATA.nodes,
-        edges: MOCK_DATA.edges,
-        defineNode,
-        updateNode,
-        deleteNode,
-      };
-    }
+    return {
+      nodes: MOCK_DATA.nodes,
+      edges: MOCK_DATA.edges,
+      defineNode,
+      defineEdge,
+      updateNode,
+      deleteNode,
+    };
   }
-  return { nodes, edges, updateNode, defineNode, deleteNode };
+  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
 }

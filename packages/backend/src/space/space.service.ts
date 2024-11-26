@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from './space.entity';
@@ -37,7 +33,6 @@ export class SpaceService {
     const Nodes: SpaceData['nodes'] = {};
     const headNode: Node = {
       id: uuid(),
-
       x: 0,
       y: 0,
       type: 'head',
@@ -56,7 +51,6 @@ export class SpaceService {
         parentContextNodeId === null ? undefined : parentContextNodeId,
       userId: userId,
       urlPath: uuid(),
-
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
