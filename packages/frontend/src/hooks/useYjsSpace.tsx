@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { EdgeWithId, Node, SpaceData } from "shared/types";
+import { Edge, EdgeWithId, Node, SpaceData } from "shared/types";
 import * as Y from "yjs";
 
 import { generateUniqueId } from "@/lib/utils";
@@ -38,6 +38,21 @@ export default function useYjsSpace() {
       if (parentNodeId) {
         yEdges.set(edgeId, { from: parentNodeId, to: nodeId });
       }
+    });
+  };
+
+  const defineEdge = (fromNodeId: string, toNodeId: string) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    const edgeId = generateUniqueId();
+
+    yDoc.transact(() => {
+      yEdges.set(edgeId, {
+        from: fromNodeId,
+        to: toNodeId,
+      });
     });
   };
 
@@ -108,5 +123,5 @@ export default function useYjsSpace() {
     return () => yProvider.off("sync", handleOnSync);
   }, [yDoc, yProvider]);
 
-  return { nodes, edges, updateNode, defineNode, deleteNode };
+  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
 }
