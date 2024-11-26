@@ -26,7 +26,7 @@ export default function useYjsConnection(docName: string) {
     // });
 
     return () => {
-      provider.destroy();
+      // provider.destroy();
       setYDoc(undefined);
       setYProvider(undefined);
     };

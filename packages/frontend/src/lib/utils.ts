@@ -1,32 +1,14 @@
 import { createContext, useContext } from "react";
 
 import { type ClassValue, clsx } from "clsx";
+import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
+import { Node } from "shared/types";
 import { twMerge } from "tailwind-merge";
 
 export default {};
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-export function createSafeContext<T>(defaultValue?: T) {
-  const MyContext = createContext<T | undefined>(defaultValue);
-
-  function useMyContext() {
-    const context = useContext(MyContext);
-
-    if (context === undefined) {
-      throw new Error("Provider 없음");
-    }
-
-    return context;
-  }
-
-  return [useMyContext, MyContext.Provider] as const;
-}
-
-export function generateUniqueId() {
-  return Math.random().toString(36);
 }
 
 type getDistanceFromPoints = (
@@ -48,3 +30,63 @@ export const getDistanceFromPoints: getDistanceFromPoints = (
 
   return distance;
 };
+
+type findOverlapNodes = (dragPosition: Vector2d, nodes: Node[]) => Node[];
+
+export const findOverlapNodes: findOverlapNodes = (dragPosition, nodes) => {
+  const overlapNodes = nodes.filter((node) => {
+    const isIntersects = Konva.Util.haveIntersection(
+      {
+        x: dragPosition.x,
+        y: dragPosition.y,
+        width: 64 * 2,
+        height: 64 * 2,
+      },
+      {
+        x: node.x,
+        y: node.y,
+        width: 64 * 2,
+        height: 64 * 2,
+      },
+    );
+
+    return isIntersects;
+  });
+
+  return overlapNodes;
+};
+
+type findNearestNode = (position: Vector2d, overlapNodes: Node[]) => Node;
+
+export const findNearestNode: findNearestNode = (position, overlapNodes) => {
+  if (overlapNodes.length === 1) return overlapNodes[0];
+
+  const sortedNodes = overlapNodes.sort((a, b) => {
+    return (
+      getDistanceFromPoints({ x: a.x, y: a.y }, position) -
+      getDistanceFromPoints({ x: b.x, y: b.y }, position)
+    );
+  });
+
+  return sortedNodes[0];
+};
+
+export function createSafeContext<T>(defaultValue?: T) {
+  const MyContext = createContext<T | undefined>(defaultValue);
+
+  function useMyContext() {
+    const context = useContext(MyContext);
+
+    if (context === undefined) {
+      throw new Error("Provider 없음");
+    }
+
+    return context;
+  }
+
+  return [useMyContext, MyContext.Provider] as const;
+}
+
+export function generateUniqueId() {
+  return Math.random().toString(36);
+}
