@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
@@ -38,7 +38,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       if (type === "note") {
-        let src = "";
+        const src = "";
         // FIXME: note 생성 후 id 입력
         defineNode(
           {
@@ -87,7 +87,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         parentNode.id,
       );
     },
-
     createEdge: (fromNode, toNode) => {
       defineEdge(fromNode.id, toNode.id);
     },
