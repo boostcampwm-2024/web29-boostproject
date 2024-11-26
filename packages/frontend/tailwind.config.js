@@ -1,3 +1,4 @@
+import tailwindcssTypography from "@tailwindcss/typography";
 import tailwindcssAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
@@ -53,7 +54,10 @@ export default {
           5: "hsl(var(--chart-5))",
         },
       },
+      backgroundImage: {
+        home: "url('/home-bg.svg')",
+      },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, tailwindcssTypography],
 };

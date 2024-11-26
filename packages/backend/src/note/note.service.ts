@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Note } from './note.entity';
 import { Repository } from 'typeorm';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+import { Note } from './note.entity';
 
 @Injectable()
 export class NoteService {
@@ -13,15 +13,12 @@ export class NoteService {
     private readonly noteRepository: Repository<Note>,
     private readonly snowflakeService: SnowflakeService,
   ) {}
-  generateUuid(): string {
-    return uuidv4();
-  }
 
   async create(userId: string, noteName: string) {
     const note = await this.noteRepository.save({
       id: this.snowflakeService.generateId(),
-      userId: userId,
-      urlPath: this.generateUuid(),
+      userId,
+      urlPath: uuid(),
       name: noteName,
     });
     return note.urlPath;
