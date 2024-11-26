@@ -22,3 +22,8 @@ export type SpaceData = {
   edges: Record<string, Edge>; // <edgeId, {}>
   nodes: Record<Node["id"], Node>;
 };
+
+export type SpaceAwarenessState = {
+  color?: string;
+  pointer?: { x: number; y: number };
+};

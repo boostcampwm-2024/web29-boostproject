@@ -168,5 +168,6 @@ export default function useYjsSpace() {
       };
     }
   }
+
   return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
 }

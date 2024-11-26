@@ -11,6 +11,7 @@ import useDragNode from "@/hooks/useDragNode";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
+import PointerLayer from "../PointerLayer";
 import GooeyNode from "./GooeyNode";
 import { MemoizedNearIndicator } from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
@@ -31,7 +32,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const { nodes, edges, defineNode, defineEdge } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
-  
+
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
@@ -101,11 +102,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     <Stage
       width={stageSize.width}
       height={stageSize.height}
+      offsetX={-stageSize.width / 2}
+      offsetY={-stageSize.height / 2}
       ref={stageRef}
       onWheel={zoomSpace}
       draggable
     >
-      <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
+      <Layer>
         {drag.isActive && drag.position && startNode && (
           <GooeyNode
             startPosition={{ x: startNode.x, y: startNode.y }}
@@ -149,6 +152,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           </Html>
         )}
       </Layer>
+      <PointerLayer />
     </Stage>
   );
 }
