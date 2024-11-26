@@ -24,7 +24,6 @@ function areEqual(
   nextProps: NearNodeIndicatorProps,
 ) {
   return (
-    prevProps.overlapNode.id === nextProps.overlapNode.id &&
     prevProps.overlapNode.x === nextProps.overlapNode.x &&
     prevProps.overlapNode.y === nextProps.overlapNode.y
   );
