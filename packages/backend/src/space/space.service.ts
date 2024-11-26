@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from './space.entity';
@@ -11,7 +7,6 @@ import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { SpaceData, Node, Edge } from 'shared/types';
 import { SpaceValidationService } from './space.validation.service';
-
 
 @Injectable()
 export class SpaceService {
@@ -38,7 +33,6 @@ export class SpaceService {
     const Nodes: SpaceData['nodes'] = {};
     const headNode: Node = {
       id: uuid(),
-
       x: 0,
       y: 0,
       type: 'head',
@@ -51,13 +45,12 @@ export class SpaceService {
       parentContextNodeId,
     );
 
-eDto = {
+    const spaceDto = {
       id: this.snowflakeService.generateId(),
       parentSpaceId:
         parentContextNodeId === null ? undefined : parentContextNodeId,
       userId: userId,
       urlPath: uuid(),
-
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),

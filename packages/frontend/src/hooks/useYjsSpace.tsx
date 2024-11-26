@@ -60,6 +60,21 @@ export default function useYjsSpace() {
     });
   };
 
+  const defineEdge = (fromNodeId: string, toNodeId: string) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    const edgeId = generateUniqueId();
+
+    yDoc.transact(() => {
+      yEdges.set(edgeId, {
+        from: fromNodeId,
+        to: toNodeId,
+      });
+    });
+  };
+
   const deleteNode = (nodeId: Node["id"]) => {
     if (!yDoc || !yNodes || !yEdges) {
       return;
@@ -128,27 +143,30 @@ export default function useYjsSpace() {
   }, [yDoc, yProvider]);
 
   /* NOTE - 개발 단계에서 프론트엔드 Space 개발을 위한 Mock 데이터 임의 설정 */
-  if (!yDoc || !nodes || Object.keys(nodes || {}).length === 0) {
-    // mock 상태일 때도 yDoc에 초기 데이터 설정
-    if (yDoc && yContext) {
-      const yNodes = new Y.Map();
-      const yEdges = new Y.Map();
+  if (import.meta.env.VITE_MOCK) {
+    if (!yDoc || !nodes || Object.keys(nodes || {}).length === 0) {
+      // mock 상태일 때도 yDoc에 초기 데이터 설정
+      if (yDoc && yContext) {
+        const yNodes = new Y.Map();
+        const yEdges = new Y.Map();
 
-      yDoc.transact(() => {
-        // root 노드 설정
-        yNodes.set(MOCK_DATA.nodes.root.id, MOCK_DATA.nodes.root);
-        yContext.set("nodes", yNodes);
-        yContext.set("edges", yEdges);
-      });
+        yDoc.transact(() => {
+          // root 노드 설정
+          yNodes.set(MOCK_DATA.nodes.root.id, MOCK_DATA.nodes.root);
+          yContext.set("nodes", yNodes);
+          yContext.set("edges", yEdges);
+        });
+      }
+
+      return {
+        nodes: MOCK_DATA.nodes,
+        edges: MOCK_DATA.edges,
+        defineNode,
+        defineEdge,
+        updateNode,
+        deleteNode,
+      };
     }
-
-    return {
-      nodes: MOCK_DATA.nodes,
-      edges: MOCK_DATA.edges,
-      defineNode,
-      updateNode,
-      deleteNode,
-    };
   }
-  return { nodes, edges, updateNode, defineNode, deleteNode };
+  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
 }
