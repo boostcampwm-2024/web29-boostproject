@@ -1,19 +1,17 @@
 import { useState } from "react";
 
-import { Node } from "shared/types";
-
-export type selectedInfoType = {
-  id: string;
-  type?: Exclude<Node["type"], "url" | "image" | "head"> | null;
-};
+import {
+  SelectedEdgeInfo,
+  SelectedNodeInfo,
+} from "@/components/space/context-menu/type";
 
 export default function useSpaceSelection() {
-  const [selectedNode, setSelectNode] = useState<selectedInfoType | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<selectedInfoType | null>(
+  const [selectedNode, setSelectNode] = useState<SelectedNodeInfo | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<SelectedEdgeInfo | null>(
     null,
   );
 
-  const selectNode = ({ id, type }: selectedInfoType) => {
+  const selectNode = ({ id, type }: SelectedNodeInfo) => {
     setSelectNode({
       id,
       type: type || null,
@@ -21,10 +19,9 @@ export default function useSpaceSelection() {
     setSelectedEdge(null);
   };
 
-  const selectEdge = ({ id }: selectedInfoType) => {
+  const selectEdge = ({ id }: SelectedEdgeInfo) => {
     setSelectedEdge({
       id,
-      type: null,
     });
     setSelectNode(null);
   };
