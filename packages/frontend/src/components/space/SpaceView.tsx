@@ -3,11 +3,13 @@ import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
 import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
 
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode } from "@/components/Node";
 import useDragNode from "@/hooks/useDragNode";
+import useSpaceSelection from "@/hooks/useSpaceSelection";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
@@ -43,6 +45,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     },
   });
   const { startNode, handlers } = drag;
+  const { selectedNodeId, selectNode } = useSpaceSelection();
 
   useEffect(() => {
     if (!autofitTo) {
@@ -109,10 +112,18 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           height={stageSize.height}
           ref={stageRef}
           onWheel={zoomSpace}
-          onContextMenu={(event) => {
-            console.log(event.target.id());
-          }}
           draggable
+          onContextMenu={(e: KonvaEventObject<MouseEvent>) => {
+            const { target } = e;
+            const group = target.findAncestor("Group");
+            const nodeId = group?.attrs?.id;
+
+            console.log(e.event);
+            console.log("Node ID:", nodeId);
+            if (nodeId) {
+              selectNode(nodeId);
+            }
+          }}
         >
           <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
             {drag.isActive && drag.position && startNode && (
@@ -122,7 +133,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
               />
             )}
             {drag.position && drag.overlapNode && (
-              <NearNodeIndicator overlapNode={drag.overlapNode} />
+              <MemoizedNearIndicator overlapNode={drag.overlapNode} />
             )}
             {nodes &&
               Object.entries(nodes).map(([, node]) => {
@@ -159,8 +170,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             )}
           </Layer>
         </Stage>
-        <CustomContextMenu />
       </ContextMenuTrigger>
+      <CustomContextMenu
+        selectedId={selectedNodeId}
+        selectHandler={selectNode}
+      />
     </ContextMenu>
   );
 }

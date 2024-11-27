@@ -1,23 +1,19 @@
-// interface ContextMenuProps {
-//     children?: React.ReactNode;
-//     onOpenChange?(open: boolean): void;
-//     dir?: Direction;
-//     modal?: boolean;
-// }
-import { useState } from "react";
+import { ContextMenuContent, ContextMenuItem } from "../ui/context-menu";
 
-import { ContextMenuTrigger } from "@radix-ui/react-context-menu";
+type CustomContextMenuProps = {
+  selectedId: string | null;
+  selectHandler: (id: string | null) => void;
+};
 
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-} from "../ui/context-menu";
-
-export default function CustomContextMenu() {
+export default function CustomContextMenu({
+  selectedId,
+  selectHandler,
+}: CustomContextMenuProps) {
   return (
     <ContextMenuContent>
-      <ContextMenuItem>편집</ContextMenuItem>
+      <ContextMenuItem onSelect={() => console.log("현상태:", selectedId)}>
+        편집
+      </ContextMenuItem>
       <ContextMenuItem>제거</ContextMenuItem>
     </ContextMenuContent>
   );
