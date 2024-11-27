@@ -104,9 +104,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           move.callbacks.endMove(e);
         }}
         dragBoundFunc={dragBoundFunc}
-        onMouseDown={() => move.callbacks.startHold(node)}
+        onMouseDown={(e) => move.callbacks.startHold(node, e)}
         onMouseUp={move.callbacks.endHold}
-        onTouchStart={() => move.callbacks.startHold(node)}
+        onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
       />
     ),

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 
 import { KonvaEventObject } from "konva/lib/Node";
+import { Easings } from "konva/lib/Tween";
 import { Vector2d } from "konva/lib/types";
 import { Node } from "shared/types";
 
@@ -19,6 +20,10 @@ type MoveState = {
   isOverlapping: boolean;
   nextPosition: Vector2d | null;
   targetNode: Node | null;
+  animationEvent:
+    | KonvaEventObject<MouseEvent>
+    | KonvaEventObject<TouchEvent>
+    | null;
 };
 
 const HOLD_DURATION = 500;
@@ -31,17 +36,46 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
     isOverlapping: false,
     nextPosition: null,
     targetNode: null,
+    animationEvent: null,
   });
 
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const getCircle = (
+    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent>,
+  ) => {
+    const group = e.target.getParent();
+    const circle = group?.findOne("Circle");
+    return circle;
+  };
+
+  const setHoldingAnimation = (
+    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent> | null,
+    bool: boolean,
+  ) => {
+    if (!e) return;
+
+    getCircle(e)?.to({
+      easing: Easings.EaseInOut,
+      shadowColor: "#F9D46B",
+      shadowBlur: bool ? 10 : 0,
+      duration: 0.5,
+    });
+  };
+
   // onMouseDown, onTouchStart
-  const startHold = (node: Node) => {
+  const startHold = (
+    node: Node,
+    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent>,
+  ) => {
     setMoveState((prev) => ({
       ...prev,
       isHolding: true,
       targetNode: node,
+      animationEvent: e,
     }));
+
+    setHoldingAnimation(e, true);
 
     if (holdTimer.current) {
       clearTimeout(holdTimer.current);
@@ -58,10 +92,13 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
   const endHold = () => {
     if (moveState.isMoving) return;
 
+    setHoldingAnimation(moveState.animationEvent, false);
+
     setMoveState((prev) => ({
       ...prev,
       isHolding: false,
       targetNode: null,
+      animationEvent: null,
     }));
 
     if (holdTimer.current) {
@@ -102,6 +139,7 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
 
   // onDragEnd
   const endMove = (e: KonvaEventObject<DragEvent>) => {
+    setHoldingAnimation(moveState.animationEvent, false);
     if (!moveState.isMoving) return;
 
     const pointerPosition = e.target.getLayer()?.getRelativePointerPosition();
@@ -117,6 +155,7 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
       isHolding: false,
       isMoving: false,
       targetNode: null,
+      animationEvent: null,
     }));
   };
 
