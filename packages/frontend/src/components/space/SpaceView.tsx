@@ -112,7 +112,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     ),
   };
 
-  const GooeyNodeCreatingRenderer = drag.isActive &&
+  const gooeyNodeCreatingRenderer = drag.isActive &&
     drag.position &&
     drag.startNode && (
       <GooeyNode
@@ -121,7 +121,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       />
     );
 
-  const GooeyNodeMovingRenderer = drag.position && (
+  const gooeyNodeMovingRenderer = drag.position && (
     <GooeyNode
       startPosition={{ x: 0, y: 0 }}
       dragPosition={drag.position}
@@ -130,13 +130,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     />
   );
 
-  const NearIndicatorRenderer = !moveState.isMoving &&
+  const nearIndicatorRenderer = !moveState.isMoving &&
     drag.position &&
     drag.overlapNode && (
       <MemoizedNearIndicator overlapNode={drag.overlapNode} />
     );
 
-  const NodesRenderer =
+  const nodesRenderer =
     nodes &&
     Object.entries(nodes).map(([, node]) => {
       const Component =
@@ -144,7 +144,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       return Component ? Component(node) : null;
     });
 
-  const EdgesRenderer =
+  const edgesRenderer =
     edges &&
     Object.entries(edges).map(([edgeId, edge]) => (
       <Edge
@@ -155,7 +155,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       />
     ));
 
-  const PaletteRenderer = !moveState.isMoving && dropPosition && (
+  const paletteRenderer = !moveState.isMoving && dropPosition && (
     <Html>
       <div
         style={{
@@ -184,12 +184,12 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
         {moveState.isMoving
-          ? GooeyNodeMovingRenderer
-          : GooeyNodeCreatingRenderer}
-        {NearIndicatorRenderer}
-        {NodesRenderer}
-        {EdgesRenderer}
-        {PaletteRenderer}
+          ? gooeyNodeMovingRenderer
+          : gooeyNodeCreatingRenderer}
+        {nearIndicatorRenderer}
+        {nodesRenderer}
+        {edgesRenderer}
+        {paletteRenderer}
       </Layer>
     </Stage>
   );

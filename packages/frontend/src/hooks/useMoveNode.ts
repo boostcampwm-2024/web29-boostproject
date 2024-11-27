@@ -14,16 +14,18 @@ type useMoveNodeProps = {
   };
 };
 
+type KonvaInteractionEvent =
+  | KonvaEventObject<MouseEvent>
+  | KonvaEventObject<TouchEvent>
+  | KonvaEventObject<DragEvent>;
+
 type MoveState = {
   isHolding: boolean;
   isMoving: boolean;
   isOverlapping: boolean;
   nextPosition: Vector2d | null;
   targetNode: Node | null;
-  animationEvent:
-    | KonvaEventObject<MouseEvent>
-    | KonvaEventObject<TouchEvent>
-    | null;
+  animationEvent: KonvaInteractionEvent | null;
 };
 
 const HOLD_DURATION = 500;
@@ -41,32 +43,27 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
 
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const getCircle = (
-    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent>,
-  ) => {
+  const getCircle = (e: KonvaInteractionEvent) => {
     const group = e.target.getParent();
     const circle = group?.findOne("Circle");
     return circle;
   };
 
   const setHoldingAnimation = (
-    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent> | null,
-    bool: boolean,
+    e: KonvaInteractionEvent | null,
+    isActive: boolean,
   ) => {
     if (!e) return;
 
     getCircle(e)?.to({
       easing: Easings.EaseInOut,
-      shadowBlur: bool ? 10 : 0,
+      shadowBlur: isActive ? 10 : 0,
       duration: 0.5,
     });
   };
 
   // onMouseDown, onTouchStart
-  const startHold = (
-    node: Node,
-    e: KonvaEventObject<MouseEvent> | KonvaEventObject<TouchEvent>,
-  ) => {
+  const startHold = (node: Node, e: KonvaInteractionEvent) => {
     setMoveState((prev) => ({
       ...prev,
       isHolding: true,
@@ -107,7 +104,7 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
   };
 
   // onDragMove
-  const monitorHoldingPosition = (e: KonvaEventObject<DragEvent>) => {
+  const monitorHoldingPosition = (e: KonvaInteractionEvent) => {
     if (!moveState.isHolding) return;
 
     const layer = e.target.getLayer();
@@ -123,21 +120,15 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
     }
 
     const overlapNodes = findOverlapNodes(pointerPosition, nodes);
-    if (overlapNodes.length > 0) {
-      setMoveState((prev) => ({
-        ...prev,
-        isOverlapping: true,
-      }));
-    } else {
-      setMoveState((prev) => ({
-        ...prev,
-        isOverlapping: false,
-      }));
-    }
+
+    setMoveState((prev) => ({
+      ...prev,
+      isOverlapping: overlapNodes.length > 0,
+    }));
   };
 
   // onDragEnd
-  const endMove = (e: KonvaEventObject<DragEvent>) => {
+  const endMove = (e: KonvaInteractionEvent) => {
     setHoldingAnimation(moveState.animationEvent, false);
     if (!moveState.isMoving) return;
 
