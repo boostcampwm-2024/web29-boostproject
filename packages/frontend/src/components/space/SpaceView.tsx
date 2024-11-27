@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
