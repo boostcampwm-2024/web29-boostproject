@@ -6,15 +6,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { YjsModule } from './yjs/yjs.module';
 import { NoteModule } from './note/note.module';
-import { CacheModule } from '@nestjs/cache-manager';
 import { CacheContextModule } from './cache-context/cache-context.module';
 import { RedisModule } from './redis/redis.module';
-import * as redisStore from 'cache-manager-redis-store';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { LoggerModule } from './common/logger/logger.module';
 import { Space, SpaceSchema } from './schema/space.schema';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,13 +29,6 @@ import { Space, SpaceSchema } from './schema/space.schema';
       }),
     }),
 
-    CacheModule.register({
-      store: redisStore,
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
-      ttl: parseInt(process.env.REDIS_TTL || '3600'),
-      password: process.env.REDIS_PASSWORD,
-    }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -61,7 +51,7 @@ import { Space, SpaceSchema } from './schema/space.schema';
         type: 'mysql',
         host: configService.get<string>('MYSQL_HOST'),
         port: configService.get<number>('MYSQL_PORT'),
-        username: configService.get<string>('MYSQL_USERNAME'),
+        username: configService.get<string>('MYSQL_USER'),
         password: configService.get<string>('MYSQL_PASSWORD'),
         database: configService.get<string>('MYSQL_DATABASE'),
         entities: [__dirname + '/**/*.entity.js'],

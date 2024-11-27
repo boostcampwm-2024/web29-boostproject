@@ -13,6 +13,10 @@
     "playwright:test": "playwright test"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.7.1",
+    "@codemirror/language-data": "^6.5.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.35.0",
     "@milkdown/kit": "^7.5.5",
     "@milkdown/plugin-collab": "^7.5.0",
     "@milkdown/react": "^7.5.0",
@@ -24,6 +28,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "codemirror": "^6.0.1",
     "konva": "^9.3.16",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",

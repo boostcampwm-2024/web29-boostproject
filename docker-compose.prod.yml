@@ -1,21 +1,54 @@
 services:
+  db-healthcheck:
+    image: curlimages/curl:latest
+    container_name: db-healthcheck
+    command: >
+      /bin/sh -c "
+        curl -f telnet://${REDIS_HOST}:${REDIS_PORT} || exit 1;
+        curl -f telnet://${MYSQL_HOST}:${MYSQL_PORT} || exit 1;
+        curl -f telnet://${MONGO_HOST}:27017 || exit 1;
+      "
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   backend:
     container_name: backend
+    depends_on:
+      db-healthcheck:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
     build:
       target: production
     environment:
+      # 배포 환경 세팅
       - NODE_ENV=production
+
+      # MySQL 세팅
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_NAME=${MYSQL_NAME}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      # Elastic 세팅
       - ELASTIC_NODE=${ELASTIC_NODE}
       - ELASTIC_USERNAME=${ELASTIC_USERNAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+
+      # Redis 세팅
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_TTL=${REDIS_TTL}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      # Mongo 세팅
       - MONGO_HOST=${MONGO_HOST}
       - MONGO_USER=${MONGO_USER}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
@@ -26,6 +59,11 @@ services:
 
   frontend:
     container_name: frontend
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "80:80"
     environment:
       - NODE_ENV=production
       - BACKEND_URL=http://backend:3000
@@ -65,6 +103,7 @@ services:
       - "5601:5601"
     networks:
       - app-network
+
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.12.0
     container_name: filebeat
@@ -103,9 +142,12 @@ services:
       elasticsearch:
         condition: service_healthy
 
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
   filebeat_data:
   metricbeat_data:
-  mysql_data:
   mongo_data:
   elasticsearch_data:

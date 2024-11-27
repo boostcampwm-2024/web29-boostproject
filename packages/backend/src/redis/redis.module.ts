@@ -10,7 +10,7 @@ const cacheModule = CacheModule.registerAsync({
   useFactory: async (configService: ConfigService) => ({
     isGlobal: true,
     store: redisStore,
-    url: `redis://${configService.get<string>('REDIS_USERNAME') || ''}:${configService.get<string>('REDIS_PASSWORD')}@${configService.get<string>('REDIS_HOST')}:${configService.get<number>('REDIS_PORT')}`,
+    url: `redis://:${configService.get<string>('REDIS_PASSWORD')}@${configService.get<string>('REDIS_HOST')}:${configService.get<number>('REDIS_PORT')}`,
     ttl: configService.get<number>('REDIS_TTL') ?? 60,
   }),
 });

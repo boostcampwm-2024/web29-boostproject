@@ -30,7 +30,7 @@ export const BlockView = () => {
   return (
     <div
       ref={ref}
-      className="absolute w-4 bg-slate-100 rounded hover:bg-slate-300 cursor-grab"
+      className="absolute top-[-9999px] w-6 rounded hover:bg-slate-100 cursor-grab flex justify-center items-center"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +43,9 @@ export const BlockView = () => {
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+          d="M8 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM16 6.75a.75.75 0 110-1.5.75.75 0 010 1.5z
+             M8 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM16 12.75a.75.75 0 110-1.5.75.75 0 010 1.5z
+             M8 18.75a.75.75 0 110-1.5.75.75 0 010 1.5zM16 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
         />
       </svg>
     </div>

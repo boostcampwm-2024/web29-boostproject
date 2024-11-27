@@ -1,9 +1,10 @@
 .milkdown {
-  @apply m-5 px-2 py-4;
+  @apply m-8 px-4 py-6;
 }
 
 .editor {
-  @apply mx-auto;
+  @apply mx-auto max-w-2xl;
+  @apply prose;
 }
 
 /* 첫 번째 문단이 비어있을 때 초기 커서 위치에 대한 임시적인 수정사항 */
@@ -50,4 +51,147 @@
   padding-left: 2px;
   padding-right: 2px;
   white-space: nowrap;
+}
+
+.ProseMirror-focused {
+  outline: none;
+}
+
+milkdown-code-block {
+  display: block;
+  position: relative;
+  margin: 20px 0;
+
+  .language-picker {
+    width: max-content;
+    position: absolute;
+    z-index: 1;
+    display: none;
+    padding-top: 8px;
+  }
+
+  .language-picker.show {
+    display: block;
+  }
+
+  .language-button {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-box .clear-icon {
+    cursor: pointer;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .cm-editor {
+    outline: none !important;
+  }
+
+  .language-button {
+    gap: 8px;
+    padding: 8px;
+    background: #FAF9F7;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .language-button:hover {
+    background: #DED8D3;
+  }
+
+  .language-button .expand-icon {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .language-button .expand-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .language-button[data-expanded="true"] .expand-icon {
+    transform: rotate(180deg);
+  }
+
+  .language-button .expand-icon svg:focus,
+  .language-button .expand-icon:focus-visible {
+    outline: none;
+  }
+
+  .list-wrapper {
+    background: #FAF9F7;
+    border-radius: 16px;
+    box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+    width: 220px;
+  }
+
+  .language-list {
+    height: 356px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .language-list-item {
+    cursor: pointer;
+    margin: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .language-list-item .leading,
+  .language-list-item .leading svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .list-wrapper {
+    padding-top: 20px;
+  }
+
+  .search-box {
+    margin: 0 16px 12px;
+    background: white;
+    height: 32px;
+    border-radius: 4px;
+    outline: 2px solid #E5E0DC;
+    gap: 8px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+
+  .search-box .search-input {
+    width: 100%;
+  }
+
+  .search-box .search-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-box .clear-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-box input {
+    background: transparent;
+  }
+
+  .search-box input:focus {
+    outline: none;
+  }
 }
