@@ -1,4 +1,5 @@
 import SpaceBreadcrumb from "../SpaceBreadcrumb";
+import SpaceUsersIndicator from "../SpaceUsersIndicator";
 import { Button } from "../ui/button";
 
 export default function SpacePageHeader() {
@@ -24,8 +25,11 @@ export default function SpacePageHeader() {
             ]}
           />
         </div>
-        <div className="flex-0">
-          <Button variant="outline">공유</Button>
+        <div className="flex-grow-0 flex flex-row justify-center items-center">
+          <SpaceUsersIndicator />
+          <Button className="ml-2" variant="outline">
+            공유
+          </Button>
         </div>
       </div>
     </header>
