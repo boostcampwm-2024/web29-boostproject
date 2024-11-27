@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-import { SpaceAwarenessState } from "shared/types";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 
@@ -21,7 +20,7 @@ export default function useYjsConnection(docName: string) {
     setYDoc(doc);
     setYProvider(provider);
 
-    const awareness = provider.awareness;
+    const { awareness } = provider;
 
     provider.on(
       "status",

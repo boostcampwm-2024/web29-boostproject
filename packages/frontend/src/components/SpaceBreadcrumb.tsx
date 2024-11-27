@@ -78,14 +78,19 @@ function SpaceBreadcrumbItem({ spacePath, isPage }: SpaceBreadcrumbItemProps) {
   }
 
   return (
-    <BreadcrumbItem>
-      <BreadcrumbLink asChild>
-        <Link className="truncate max-w-20" to={`/space/${spacePath.urlPath}`}>
-          {spacePath.name}
-        </Link>
-      </BreadcrumbLink>
+    <>
+      <BreadcrumbItem>
+        <BreadcrumbLink asChild>
+          <Link
+            className="truncate max-w-20"
+            to={`/space/${spacePath.urlPath}`}
+          >
+            {spacePath.name}
+          </Link>
+        </BreadcrumbLink>
+      </BreadcrumbItem>
       <BreadcrumbSeparator />
-    </BreadcrumbItem>
+    </>
   );
 }
 

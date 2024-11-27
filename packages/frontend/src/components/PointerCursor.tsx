@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useRef } from "react";
 import { Group, Label, Path, Tag, Text } from "react-konva";
 
 import Konva from "konva";
