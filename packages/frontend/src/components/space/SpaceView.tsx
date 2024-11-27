@@ -112,15 +112,23 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     ),
   };
 
-  const GooeyNodeRenderer = drag.isActive &&
+  const GooeyNodeCreatingRenderer = drag.isActive &&
     drag.position &&
     drag.startNode && (
       <GooeyNode
         startPosition={{ x: drag.startNode.x, y: drag.startNode.y }}
         dragPosition={drag.position}
-        connectionVisible={!moveState.isMoving}
       />
     );
+
+  const GooeyNodeMovingRenderer = drag.position && (
+    <GooeyNode
+      startPosition={{ x: 0, y: 0 }}
+      dragPosition={drag.position}
+      connectionVisible={false}
+      color={moveState.isOverlapping ? "#ECE8E4" : "#FFF2CB"}
+    />
+  );
 
   const NearIndicatorRenderer = !moveState.isMoving &&
     drag.position &&
@@ -175,7 +183,9 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       draggable
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {GooeyNodeRenderer}
+        {moveState.isMoving
+          ? GooeyNodeMovingRenderer
+          : GooeyNodeCreatingRenderer}
         {NearIndicatorRenderer}
         {NodesRenderer}
         {EdgesRenderer}

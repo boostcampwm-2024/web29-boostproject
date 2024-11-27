@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { Node } from "shared/types";
 
-import { getDistanceFromPoints } from "@/lib/utils";
+import { findOverlapNodes, getDistanceFromPoints } from "@/lib/utils";
 
 type useMoveNodeProps = {
+  nodes: Node[];
   spaceActions: {
     updateNode: (nodeId: Node["id"], patch: Partial<Omit<Node, "id">>) => void;
   };
@@ -15,6 +16,7 @@ type useMoveNodeProps = {
 type MoveState = {
   isHolding: boolean;
   isMoving: boolean;
+  isOverlapping: boolean;
   nextPosition: Vector2d | null;
   targetNode: Node | null;
 };
@@ -22,27 +24,16 @@ type MoveState = {
 const HOLD_DURATION = 500;
 const NODE_RADIUS = 64;
 
-export default function useMoveNode({ spaceActions }: useMoveNodeProps) {
+export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
   const [moveState, setMoveState] = useState<MoveState>({
     isHolding: false,
     isMoving: false,
+    isOverlapping: false,
     nextPosition: null,
     targetNode: null,
   });
 
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const setMoveStatus = (
-    stateName: "isHolding" | "isMoving",
-    state: boolean,
-  ) => {
-    setMoveState((prev) => ({
-      ...prev,
-      [stateName]: state,
-    }));
-  };
-
-  useEffect(() => {}, [moveState.isMoving]);
 
   // onMouseDown, onTouchStart
   const startHold = (node: Node) => {
@@ -56,7 +47,10 @@ export default function useMoveNode({ spaceActions }: useMoveNodeProps) {
       clearTimeout(holdTimer.current);
     }
     holdTimer.current = setTimeout(() => {
-      setMoveStatus("isMoving", true);
+      setMoveState((prev) => ({
+        ...prev,
+        isMoving: true,
+      }));
     }, HOLD_DURATION);
   };
 
@@ -85,10 +79,24 @@ export default function useMoveNode({ spaceActions }: useMoveNodeProps) {
 
     const targetPosition = e.target.getAbsolutePosition(layer);
     const pointerPosition = layer.getRelativePointerPosition();
+    if (!pointerPosition) return;
 
     const distance = getDistanceFromPoints(targetPosition, pointerPosition);
     if (distance > NODE_RADIUS) {
       endHold();
+    }
+
+    const overlapNodes = findOverlapNodes(pointerPosition, nodes);
+    if (overlapNodes.length > 0) {
+      setMoveState((prev) => ({
+        ...prev,
+        isOverlapping: true,
+      }));
+    } else {
+      setMoveState((prev) => ({
+        ...prev,
+        isOverlapping: false,
+      }));
     }
   };
 
@@ -97,14 +105,13 @@ export default function useMoveNode({ spaceActions }: useMoveNodeProps) {
     if (!moveState.isMoving) return;
 
     const pointerPosition = e.target.getLayer()?.getRelativePointerPosition();
-
     if (!pointerPosition || !moveState.targetNode) return;
 
-    const { id } = moveState.targetNode;
-    const { x, y } = pointerPosition;
-
-    spaceActions.updateNode(id, { x, y });
-
+    if (!moveState.isOverlapping) {
+      const { id } = moveState.targetNode;
+      const { x, y } = pointerPosition;
+      spaceActions.updateNode(id, { x, y });
+    }
     setMoveState((prev) => ({
       ...prev,
       isHolding: false,
