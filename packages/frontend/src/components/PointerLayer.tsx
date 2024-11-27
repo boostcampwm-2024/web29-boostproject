@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
-import { Group, Label, Layer, Tag, Text } from "react-konva";
-import { Html } from "react-konva-utils";
+import { Layer } from "react-konva";
 
 import Konva from "konva";
 import { WebsocketProvider } from "y-websocket";
 
 import useYjsSpaceAwarenessStates from "@/hooks/useYjsSpaceAwareness";
+import { throttle } from "@/lib/utils";
 import { useYjsStore } from "@/store/yjs";
 
 import PointerCursor from "./PointerCursor";
@@ -33,46 +33,27 @@ export default function PointerLayer() {
       return undefined;
     }
 
-    const handlePointerMove = () => {
+    const handlePointerMove = throttle(() => {
       const pointerPosition = stage.getRelativePointerPosition();
-      console.log(pointerPosition);
       setLocalPointerPosition(pointerPosition || undefined);
-    };
+    }, 100);
 
     const handlePointerLeave = () => {
       setLocalPointerPosition(undefined);
     };
 
-    stage.on("pointermove pointerover", handlePointerMove);
-    stage.on("pointerleave pointerout pointercancel", handlePointerLeave);
+    stage.on("pointermove dragmove", handlePointerMove);
+    window.addEventListener("pointerleave", handlePointerLeave);
+    window.addEventListener("pointerout", handlePointerLeave);
     return () => {
-      stage.off("pointermove pointerover", handlePointerMove);
-      stage.off("pointerleave pointerout pointercancel", handlePointerLeave);
+      stage.off("pointermove dragmove", handlePointerMove);
+      window.removeEventListener("pointerleave", handlePointerLeave);
+      window.removeEventListener("pointerout", handlePointerLeave);
     };
   }, [setLocalPointerPosition]);
 
   return (
     <Layer ref={layerRef}>
-      <Group x={100} y={0}>
-        <Html>
-          <div>
-            <div>공유 중</div>
-            <ul>
-              {userStates &&
-                [...userStates].map(([userClientId, userState]) => (
-                  <li key={userClientId}>
-                    <div
-                      className="rounded-full w-4 h-4"
-                      style={{
-                        backgroundColor: userState.color,
-                      }}
-                    ></div>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </Html>
-      </Group>
       {userStates &&
         [...userStates].map(([clientId, { color, pointer }]) => {
           if (clientId === awareness?.clientID) {
@@ -83,24 +64,12 @@ export default function PointerLayer() {
 
           return (
             pointer && (
-              <Group key={clientId} x={pointer.x} y={pointer.y}>
-                <PointerCursor color={pointerColor} />
-                <Label x={12} y={12}>
-                  <Tag
-                    fill={pointerColor}
-                    opacity={0.2}
-                    pointerWidth={6}
-                    pointerHeight={12}
-                    cornerRadius={8}
-                  />
-                  <Text
-                    fill="black"
-                    padding={4}
-                    fontSize={12}
-                    text={`${clientId}`}
-                  />
-                </Label>
-              </Group>
+              <PointerCursor
+                key={clientId}
+                position={pointer}
+                color={pointerColor}
+                label={`${clientId}`}
+              />
             )
           );
         })}

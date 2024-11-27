@@ -96,3 +96,24 @@ export function generateUserColor(clientId: number = Math.random() * 999999) {
   const hue = clientId % 360;
   return `hsl(${hue}, 80%, 50%)`;
 }
+
+export function throttle<T extends (...args: unknown[]) => unknown>(
+  callback: T,
+  delay: number,
+) {
+  let timer: null | number = null;
+
+  return function throttledCallback(
+    this: ThisParameterType<T>,
+    ...args: Parameters<T>
+  ) {
+    if (timer) {
+      return;
+    }
+
+    timer = window.setTimeout(() => {
+      callback.apply(this, args);
+      timer = null;
+    }, delay);
+  };
+}
