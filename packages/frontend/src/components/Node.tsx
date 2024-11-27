@@ -32,10 +32,17 @@ export default function Node({
 type NodeCircleProps = {
   radius: number;
   fill: string;
+  shadowColor?: string;
 };
 
-Node.Circle = function NodeCircle({ radius, fill }: NodeCircleProps) {
-  return <Circle x={0} y={0} radius={radius} fill={fill} />;
+Node.Circle = function NodeCircle({
+  radius,
+  fill,
+  shadowColor = "#F9D46B",
+}: NodeCircleProps) {
+  return (
+    <Circle x={0} y={0} radius={radius} fill={fill} shadowColor={shadowColor} />
+  );
 };
 
 type NodeTextProps = {

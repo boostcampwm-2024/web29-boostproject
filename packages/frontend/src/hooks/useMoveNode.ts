@@ -57,7 +57,6 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
 
     getCircle(e)?.to({
       easing: Easings.EaseInOut,
-      shadowColor: "#F9D46B",
       shadowBlur: bool ? 10 : 0,
       duration: 0.5,
     });
