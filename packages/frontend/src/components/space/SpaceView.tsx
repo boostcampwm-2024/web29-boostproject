@@ -107,7 +107,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   };
 
   return (
-    <ContextMenu>
+    <ContextMenu
+      onOpenChange={(open) => {
+        if (!open) {
+          clearSelection();
+        }
+      }}
+    >
       <ContextMenuTrigger>
         <Stage
           width={stageSize.width}
@@ -116,6 +122,8 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           onWheel={zoomSpace}
           draggable
           onContextMenu={(e: KonvaEventObject<MouseEvent>) => {
+            clearSelection();
+
             const { target } = e;
             const group = target.findAncestor("Group");
             const nodeId = group?.attrs?.id;
@@ -171,7 +179,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
                   }}
                 >
                   <PaletteMenu
-                    items={["note", "image", "url"]}
+                    items={["note", "image", "url", "subspace"]}
                     onSelect={handlePaletteSelect}
                   />
                 </div>
@@ -188,8 +196,12 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             const nodeNewName = window.prompt("수정할 이름을 입력해주세요.");
             if (!nodeNewName) return;
             updateNode(selectedNode.id, { name: nodeNewName });
+            clearSelection();
           }}
-          onDeleteClick={() => deleteNode(selectedNode.id)}
+          onDeleteClick={() => {
+            deleteNode(selectedNode.id);
+            clearSelection();
+          }}
         />
       )}
     </ContextMenu>

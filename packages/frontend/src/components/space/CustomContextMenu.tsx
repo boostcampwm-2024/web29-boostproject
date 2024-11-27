@@ -15,11 +15,12 @@ export default function CustomContextMenu({
   onDeleteClick,
 }: CustomContextMenuProps) {
   console.log(selectedInfo);
-  const { id, type } = selectedInfo;
+  const { type } = selectedInfo;
 
   const nodeTypeConfig = {
     note: "노트",
     subspace: "하위스페이스",
+    head: "스페이스",
   };
 
   return (
