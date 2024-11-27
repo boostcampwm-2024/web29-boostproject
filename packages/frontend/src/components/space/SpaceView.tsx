@@ -116,7 +116,6 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     clearSelection();
 
     const { target } = e;
-    console.log(target.attrs);
 
     if (target.attrs.name === "edge") {
       const edgeId = target.attrs.id;
