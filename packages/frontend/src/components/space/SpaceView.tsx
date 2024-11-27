@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
@@ -8,6 +8,7 @@ import type { Node } from "shared/types";
 import { createSpace } from "@/api/space";
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode, SubspaceNode } from "@/components/Node";
+import useAutofit from "@/hooks/useAutofit";
 import useDragNode from "@/hooks/useDragNode";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
@@ -27,7 +28,6 @@ const dragBoundFunc = function (this: Konva.Node) {
 };
 
 export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
-  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
@@ -94,34 +94,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   });
   const { startNode, handlers } = drag;
 
-  useEffect(() => {
-    if (!autofitTo) {
-      return undefined;
-    }
-
-    const containerRef =
-      "current" in autofitTo ? autofitTo : { current: autofitTo };
-
-    function resizeStage() {
-      const container = containerRef.current;
-
-      if (!container) {
-        return;
-      }
-
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-
-      setStageSize({ width, height });
-    }
-
-    resizeStage();
-
-    window.addEventListener("resize", resizeStage);
-    return () => {
-      window.removeEventListener("resize", resizeStage);
-    };
-  }, [autofitTo]);
+  const stageSize = useAutofit(autofitTo);
 
   const nodeComponents = {
     head: (node: Node) => (
