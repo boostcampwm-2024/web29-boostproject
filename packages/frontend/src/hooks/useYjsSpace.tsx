@@ -11,7 +11,7 @@ import useY from "./yjs/useY";
 const MOCK_DATA = {
   nodes: {
     root: {
-      id: "root",
+      id: generateUniqueId(),
       type: "head" as const,
       name: "허니의 스페이스",
       x: 0,

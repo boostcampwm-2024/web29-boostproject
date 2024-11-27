@@ -120,17 +120,31 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
 
     if (target.attrs.name === "edge") {
       const edgeId = target.attrs.id;
+      if (!edgeId) return;
 
       selectEdge({ id: edgeId });
       return;
     }
 
     const group = target.findAncestor("Group");
-    const nodeId = group?.attrs?.id;
-    if (nodeId) {
-      const nodeType = nodes[nodeId].type;
-      selectNode({ id: nodeId, type: nodeType });
-    }
+
+    const nodeId = group?.attrs?.id as string | undefined;
+
+    if (!nodes || !nodeId) return;
+
+    const nodeMap = nodes as Record<string, Node>;
+    const node = nodeMap[nodeId];
+
+    // FIXME - url, image, head 노드에 대한 편집 임시로 막음
+    if (
+      !node ||
+      node.type === "url" ||
+      node.type === "image" ||
+      node.type === "head"
+    )
+      return;
+
+    selectNode({ id: nodeId, type: node.type });
   };
 
   return (

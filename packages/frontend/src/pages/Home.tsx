@@ -3,7 +3,6 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { createSpace } from "@/api/space";
 import logo from "@/assets/logo.svg";
-import CustomContextMenu from "@/components/space/CustomContextMenu";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -48,7 +47,7 @@ function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
         navigate(`/space/${urlPath}`);
       })
       .catch((error) => {
-        setError("스페이스 생성에 실패했어요. (" + error + ")");
+        setError(`스페이스 생성에 실패했어요. (${error})`);
       });
   };
 
