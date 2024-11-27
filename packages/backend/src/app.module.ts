@@ -6,11 +6,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { YjsModule } from './yjs/yjs.module';
 import { NoteModule } from './note/note.module';
-import { CacheContextModule } from './cache-context/cache-context.module';
 import { RedisModule } from './redis/redis.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { LoggerModule } from './common/logger/logger.module';
+import { LoggerModule } from './note/common/logger/logger.module';
 import { Space, SpaceSchema } from './schema/space.schema';
 @Module({
   imports: [
@@ -63,7 +62,6 @@ import { Space, SpaceSchema } from './schema/space.schema';
     SpaceModule,
     YjsModule,
     NoteModule,
-    CacheContextModule,
     RedisModule,
     LoggerModule,
     MongooseModule.forFeature([{ name: Space.name, schema: SpaceSchema }]),

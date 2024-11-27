@@ -4,13 +4,15 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
 } from '@nestjs/websockets';
 import { SpaceService } from 'src/space/space.service';
 
 import { NoteService } from 'src/note/note.service';
-import { parseSocketUrl } from 'src/common/utils/socket.util';
-import { WebsocketStatus } from 'src/common/constants/websocket.constants';
+
+import { parseSocketUrl } from 'src/note/common/utils/socket.util';
+
+import { WebsocketStatus } from 'src/note/common/constants/websocket.constants';
+
 import { Server, WebSocket } from 'ws';
 import { Request } from 'express';
 import {
@@ -19,16 +21,8 @@ import {
   setContentInitializor,
 } from 'y-websocket/bin/utils';
 import * as Y from 'yjs';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import {
-  yXmlFragmentToProsemirrorJSON,
-  prosemirrorJSONToYXmlFragment,
-  // @ts-expect-error /
-} from 'y-prosemirror';
-import { generateUuid } from 'src/common/utils/url.utils';
+import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
 const SPACE = 'space';
-
-import { SpaceData } from 'shared/types';
 
 @WebSocketGateway(9001)
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -64,7 +58,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleDisconnect(connection: WebSocket) {
+  handleDisconnect() {
     this.logger.log(`connection end`);
   }
 
@@ -118,7 +112,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     setContentInitializor(async (ydoc) => {
-      const space = await this.spaceService.findById(urlId);
+      const space = await this.spaceService.findByUrlPath(urlId);
       if (!space) {
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,

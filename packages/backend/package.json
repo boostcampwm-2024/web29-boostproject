@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-socket.io": "^10.4.8",
     "@nestjs/platform-ws": "^10.4.8",
+    "@nestjs/schedule": "^4.1.1",
     "@nestjs/swagger": "^8.0.7",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/typeorm": "^10.0.2",

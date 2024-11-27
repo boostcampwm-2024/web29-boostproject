@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Space } from './space.entity';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import { MAX_SPACES } from 'src/common/constants/space.constants';
+import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
+import { MAX_SPACES } from 'src/note/common/constants/space.constants';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()

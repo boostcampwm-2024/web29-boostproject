@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NoteService } from './note.service';
-import { GUEST_USER_ID } from 'src/common/constants/space.constants';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+import { GUEST_USER_ID } from 'src/note/common/constants/space.constants';
+import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
 import { CreateNoteDto } from './dto/note.dto';
 @ApiTags('note')
 @Controller('note')

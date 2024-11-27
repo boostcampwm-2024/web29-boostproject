@@ -7,7 +7,7 @@ import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constant
 import { Note } from './note.entity';
 
 @Injectable()
-export class NoteService {
+export class NoteServiceV2 {
   constructor(
     @InjectRepository(Note)
     private readonly noteRepository: Repository<Note>,

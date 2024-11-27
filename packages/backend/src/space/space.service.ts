@@ -2,10 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from './space.entity';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
+import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
+import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
-import { SpaceData, Node, Edge } from 'shared/types';
+import { SpaceData, Node } from 'temp/types';
 import { SpaceValidationService } from './space.validation.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class SpaceService {
     private readonly spaceValidationService: SpaceValidationService,
   ) {}
 
-  async findById(urlPath: string) {
+  async findByUrlPath(urlPath: string) {
     const result = await this.spaceRepository.findOne({
       where: { urlPath },
     });
@@ -37,6 +37,7 @@ export class SpaceService {
       y: 0,
       type: 'head',
       name: spaceName,
+      src: uuid(),
     };
     Nodes[headNode.id] = headNode;
 
@@ -50,7 +51,7 @@ export class SpaceService {
       parentSpaceId:
         parentContextNodeId === null ? undefined : parentContextNodeId,
       userId: userId,
-      urlPath: uuid(),
+      urlPath: headNode.src,
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
@@ -58,8 +59,9 @@ export class SpaceService {
     const space = await this.spaceRepository.save(spaceDto);
     return [space.urlPath];
   }
+
   async updateByEdges(id: string, edges: string) {
-    const space = await this.findById(id);
+    const space = await this.findByUrlPath(id);
     if (!space) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
     }
@@ -74,7 +76,7 @@ export class SpaceService {
   }
 
   async updateByNodes(id: string, nodes: string) {
-    const space = await this.findById(id);
+    const space = await this.findByUrlPath(id);
     if (!space) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.NOT_FOUND);
     }
@@ -86,5 +88,12 @@ export class SpaceService {
     } catch (error) {
       throw new BadRequestException(ERROR_MESSAGES.SPACE.UPDATE_FAILED);
     }
+  }
+
+  async existsByUrlPath(urlPath: string): Promise<boolean> {
+    const count = await this.spaceRepository.count({
+      where: [{ urlPath }],
+    });
+    return count > 0;
   }
 }

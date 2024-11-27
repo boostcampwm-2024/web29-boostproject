@@ -3,7 +3,7 @@ import { NoteService } from './note.service';
 import { NoteController } from './note.controller';
 import { Note } from './note.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
+import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Note])],
