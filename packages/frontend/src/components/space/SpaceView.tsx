@@ -33,6 +33,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
+  const { move, moveState } = useMoveNode({
+    nodes: nodesArray,
+    spaceActions: { updateNode },
+  });
+
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
@@ -41,8 +46,6 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       defineEdge(fromNode.id, toNode.id);
     },
   });
-
-  const { move, moveState } = useMoveNode({ spaceActions: { updateNode } });
 
   useEffect(() => {
     if (!autofitTo) {
@@ -80,7 +83,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         name={node.name}
         onDragStart={() => drag.handlers.onDragStart(node)}
         onDragMove={drag.handlers.onDragMove}
-        onDragEnd={drag.handlers.onDragEnd}
+        onDragEnd={() => drag.handlers.onDragEnd()}
         dragBoundFunc={dragBoundFunc}
       />
     ),
@@ -97,7 +100,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           move.callbacks.monitorHoldingPosition(e);
         }}
         onDragEnd={(e) => {
-          drag.handlers.onDragEnd();
+          drag.handlers.onDragEnd(moveState.isMoving);
           move.callbacks.endMove(e);
         }}
         dragBoundFunc={dragBoundFunc}
