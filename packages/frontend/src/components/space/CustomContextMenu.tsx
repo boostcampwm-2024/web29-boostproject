@@ -11,7 +11,9 @@ type CustomContextMenuProps = {
 
 export default function CustomContextMenu({
   selectedInfo,
+  onDeleteClick,
 }: CustomContextMenuProps) {
+  console.log(selectedInfo);
   const { id, type } = selectedInfo;
 
   const nodeTypeConfig = {
@@ -26,7 +28,7 @@ export default function CustomContextMenu({
           {nodeTypeConfig[type]}명 편집
         </ContextMenuItem>
       )}
-      <ContextMenuItem>제거</ContextMenuItem>
+      <ContextMenuItem onSelect={onDeleteClick}>제거</ContextMenuItem>
     </ContextMenuContent>
   );
 }

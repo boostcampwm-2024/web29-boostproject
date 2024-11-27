@@ -32,7 +32,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode, defineEdge } = useYjsSpace();
+  const { nodes, edges, defineNode, defineEdge, deleteNode } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
@@ -45,7 +45,8 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     },
   });
   const { startNode, handlers } = drag;
-  const { selectedNodeId, selectNode } = useSpaceSelection();
+  const { selectedNode, selectNode, selectedEdge, clearSelection } =
+    useSpaceSelection();
 
   useEffect(() => {
     if (!autofitTo) {
@@ -118,11 +119,18 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             const group = target.findAncestor("Group");
             const nodeId = group?.attrs?.id;
 
-            console.log(e.event);
             console.log("Node ID:", nodeId);
+
             if (nodeId) {
-              selectNode(nodeId);
+              const nodeType = nodes[nodeId].type;
+              selectNode({
+                id: nodeId,
+                type: nodeType,
+              });
+              return;
             }
+
+            clearSelection();
           }}
         >
           <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
@@ -171,10 +179,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
           </Layer>
         </Stage>
       </ContextMenuTrigger>
-      <CustomContextMenu
-        selectedId={selectedNodeId}
-        selectHandler={selectNode}
-      />
+      {selectedNode && (
+        <CustomContextMenu
+          selectedInfo={selectedNode}
+          selectHandler={clearSelection}
+          onDeleteClick={() => deleteNode(selectedNode.id)}
+        />
+      )}
     </ContextMenu>
   );
 }

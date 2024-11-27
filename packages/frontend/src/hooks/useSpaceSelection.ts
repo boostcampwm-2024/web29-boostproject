@@ -16,7 +16,7 @@ export default function useSpaceSelection() {
   const selectNode = ({ id, type }: selectedInfoType) => {
     setSelectNode({
       id,
-      type: type ? null : type,
+      type: type || null,
     });
     setSelectedEdge(null);
   };
