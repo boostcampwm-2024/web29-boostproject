@@ -7,11 +7,13 @@ import GooeyConnection from "./GooeyConnection";
 type GooeyNodeProps = {
   startPosition: Vector2d;
   dragPosition: Vector2d;
+  connectionVisible?: boolean;
 };
 
 export default function GooeyNode({
   startPosition,
   dragPosition,
+  connectionVisible = true,
 }: GooeyNodeProps) {
   return (
     <>
@@ -21,10 +23,12 @@ export default function GooeyNode({
         radius={64}
         fill="#FFF2CB"
       />
-      <GooeyConnection
-        startPosition={startPosition}
-        endPosition={dragPosition}
-      />
+      {connectionVisible && (
+        <GooeyConnection
+          startPosition={startPosition}
+          endPosition={dragPosition}
+        />
+      )}
     </>
   );
 }
