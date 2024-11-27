@@ -52,7 +52,7 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=dev_db
       - MYSQL_PASSWORD=1234
-      - MYSQL_USERNAME=honey
+      - MYSQL_USER=honey
       - NODE_ENV=dev
       - ELASTIC_NODE=http://elsatic:9200
       - ELASTIC_USERNAME=honey
