@@ -11,6 +11,7 @@ type CustomContextMenuProps = {
 
 export default function CustomContextMenu({
   selectedInfo,
+  onEditClick,
   onDeleteClick,
 }: CustomContextMenuProps) {
   console.log(selectedInfo);
@@ -24,7 +25,7 @@ export default function CustomContextMenu({
   return (
     <ContextMenuContent>
       {type && (
-        <ContextMenuItem onSelect={() => console.log("현상태:", selectedInfo)}>
+        <ContextMenuItem onSelect={onEditClick}>
           {nodeTypeConfig[type]}명 편집
         </ContextMenuItem>
       )}

@@ -32,7 +32,8 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode, defineEdge, deleteNode } = useYjsSpace();
+  const { nodes, edges, defineNode, defineEdge, updateNode, deleteNode } =
+    useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
@@ -183,6 +184,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         <CustomContextMenu
           selectedInfo={selectedNode}
           selectHandler={clearSelection}
+          onEditClick={() => {
+            const nodeNewName = window.prompt("수정할 이름을 입력해주세요.");
+            if (!nodeNewName) return;
+            updateNode(selectedNode.id, { name: nodeNewName });
+          }}
           onDeleteClick={() => deleteNode(selectedNode.id)}
         />
       )}
