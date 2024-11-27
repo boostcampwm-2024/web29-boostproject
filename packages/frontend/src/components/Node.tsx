@@ -109,11 +109,12 @@ export type NoteNodeProps = {
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ x, y, name, ...rest }: NoteNodeProps) {
+export function NoteNode({ x, y, name, src, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
+  const navigate = useNavigate();
   const radius = 64;
   return (
-    <Node x={x} y={y} {...rest}>
+    <Node x={x} y={y} onClick={() => navigate(`/note/${src}`)} {...rest}>
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
     </Node>

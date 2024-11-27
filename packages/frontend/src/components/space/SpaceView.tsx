@@ -39,19 +39,17 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       if (type === "note") {
-        // FIXME: note 생성 후 id 입력
         createNote({
           userId: "honeyflow",
           noteName: name,
         }).then((res) => {
-          const [urlPath] = res.urlPath;
           defineNode(
             {
               type,
               x: position.x,
               y: position.y,
               name,
-              src: urlPath,
+              src: res.urlPath.toString(),
             },
             parentNode.id,
           );
@@ -118,7 +116,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         x={node.x}
         y={node.y}
         name={node.name}
-        src=""
+        src={node.src}
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
         onDragEnd={handlers.onDragEnd}
