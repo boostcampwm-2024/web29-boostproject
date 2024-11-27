@@ -95,6 +95,16 @@ export default function useYjsSpace() {
     });
   };
 
+  const deleteEdge = (edgeId: Node["id"]) => {
+    if (!yDoc || !yNodes || !yEdges) {
+      return;
+    }
+
+    yDoc.transact(() => {
+      yEdges.delete(edgeId);
+    });
+  };
+
   const updateNode = (nodeId: Node["id"], patch: Partial<Omit<Node, "id">>) => {
     const prev = yNodes?.get(nodeId);
 
@@ -161,12 +171,21 @@ export default function useYjsSpace() {
       return {
         nodes: MOCK_DATA.nodes,
         edges: MOCK_DATA.edges,
+        updateNode,
         defineNode,
         defineEdge,
-        updateNode,
         deleteNode,
+        deleteEdge,
       };
     }
   }
-  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
+  return {
+    nodes,
+    edges,
+    updateNode,
+    defineNode,
+    defineEdge,
+    deleteNode,
+    deleteEdge,
+  };
 }

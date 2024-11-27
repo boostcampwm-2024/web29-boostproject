@@ -13,11 +13,10 @@ import useSpaceSelection from "@/hooks/useSpaceSelection";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
-import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
-import CustomContextMenu from "./CustomContextMenu";
 import GooeyNode from "./GooeyNode";
 import { MemoizedNearIndicator } from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
+import SpaceContextMenuWrapper from "./context-menu/SpaceContextMenuWrapper";
 
 interface SpaceViewProps {
   autofitTo?: Element | React.RefObject<Element>;
@@ -32,8 +31,15 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode, defineEdge, updateNode, deleteNode } =
-    useYjsSpace();
+  const {
+    nodes,
+    edges,
+    defineNode,
+    defineEdge,
+    updateNode,
+    deleteNode,
+    deleteEdge,
+  } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
@@ -46,7 +52,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     },
   });
   const { startNode, handlers } = drag;
-  const { selectedNode, selectNode, selectedEdge, clearSelection } =
+  const { selectedNode, selectNode, selectedEdge, selectEdge, clearSelection } =
     useSpaceSelection();
 
   useEffect(() => {
@@ -106,104 +112,91 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     ),
   };
 
+  const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
+    clearSelection();
+
+    const { target } = e;
+    const shape = target.findAncestor("Shape");
+    if (shape?.attrs?.name === "edge") {
+      const edgeId = shape.attrs.id;
+      selectEdge({ id: edgeId });
+      return;
+    }
+
+    const group = target.findAncestor("Group");
+    const nodeId = group?.attrs?.id;
+    if (nodeId) {
+      const nodeType = nodes[nodeId].type;
+      selectNode({ id: nodeId, type: nodeType });
+    }
+  };
+
   return (
-    <ContextMenu
-      onOpenChange={(open) => {
-        if (!open) {
-          clearSelection();
-        }
+    <SpaceContextMenuWrapper
+      selection={{
+        selectedNode,
+        selectedEdge,
+        clearSelection,
+      }}
+      actions={{
+        onNodeUpdate: updateNode,
+        onNodeDelete: deleteNode,
+        onEdgeDelete: deleteEdge,
       }}
     >
-      <ContextMenuTrigger>
-        <Stage
-          width={stageSize.width}
-          height={stageSize.height}
-          ref={stageRef}
-          onWheel={zoomSpace}
-          draggable
-          onContextMenu={(e: KonvaEventObject<MouseEvent>) => {
-            clearSelection();
-
-            const { target } = e;
-            const group = target.findAncestor("Group");
-            const nodeId = group?.attrs?.id;
-
-            console.log("Node ID:", nodeId);
-
-            if (nodeId) {
-              const nodeType = nodes[nodeId].type;
-              selectNode({
-                id: nodeId,
-                type: nodeType,
-              });
-              return;
-            }
-
-            clearSelection();
-          }}
-        >
-          <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-            {drag.isActive && drag.position && startNode && (
-              <GooeyNode
-                startPosition={{ x: startNode.x, y: startNode.y }}
-                dragPosition={drag.position}
+      <Stage
+        width={stageSize.width}
+        height={stageSize.height}
+        ref={stageRef}
+        onWheel={zoomSpace}
+        draggable
+        onContextMenu={handleContextMenu}
+      >
+        <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
+          {drag.isActive && drag.position && startNode && (
+            <GooeyNode
+              startPosition={{ x: startNode.x, y: startNode.y }}
+              dragPosition={drag.position}
+            />
+          )}
+          {drag.position && drag.overlapNode && (
+            <MemoizedNearIndicator overlapNode={drag.overlapNode} />
+          )}
+          {nodes &&
+            Object.entries(nodes).map(([, node]) => {
+              const Component =
+                nodeComponents[node.type as keyof typeof nodeComponents];
+              return Component ? Component(node) : null;
+            })}
+          {edges &&
+            Object.entries(edges).map(([edgeId, edge]) => (
+              <Edge
+                key={edgeId || `${edge.from.id}-${edge.to.id}`}
+                from={edge.from}
+                to={edge.to}
+                nodes={nodes}
               />
-            )}
-            {drag.position && drag.overlapNode && (
-              <MemoizedNearIndicator overlapNode={drag.overlapNode} />
-            )}
-            {nodes &&
-              Object.entries(nodes).map(([, node]) => {
-                const Component =
-                  nodeComponents[node.type as keyof typeof nodeComponents];
-                return Component ? Component(node) : null;
-              })}
-            {edges &&
-              Object.entries(edges).map(([edgeId, edge]) => (
-                <Edge
-                  key={edgeId || `${edge.from.id}-${edge.to.id}`}
-                  from={edge.from}
-                  to={edge.to}
-                  nodes={nodes}
+            ))}
+          {dropPosition && (
+            <Html>
+              <div
+                style={{
+                  position: "absolute",
+                  left: dropPosition.x,
+                  top: dropPosition.y,
+                  transform: "translate(-50%, -50%)",
+                  pointerEvents: "auto",
+                }}
+              >
+                <PaletteMenu
+                  items={["note", "image", "url", "subspace"]}
+                  onSelect={handlePaletteSelect}
                 />
-              ))}
-            {dropPosition && (
-              <Html>
-                <div
-                  style={{
-                    position: "absolute",
-                    left: dropPosition.x,
-                    top: dropPosition.y,
-                    transform: "translate(-50%, -50%)",
-                    pointerEvents: "auto",
-                  }}
-                >
-                  <PaletteMenu
-                    items={["note", "image", "url", "subspace"]}
-                    onSelect={handlePaletteSelect}
-                  />
-                </div>
-              </Html>
-            )}
-          </Layer>
-        </Stage>
-      </ContextMenuTrigger>
-      {selectedNode && (
-        <CustomContextMenu
-          selectedInfo={selectedNode}
-          selectHandler={clearSelection}
-          onEditClick={() => {
-            const nodeNewName = window.prompt("수정할 이름을 입력해주세요.");
-            if (!nodeNewName) return;
-            updateNode(selectedNode.id, { name: nodeNewName });
-            clearSelection();
-          }}
-          onDeleteClick={() => {
-            deleteNode(selectedNode.id);
-            clearSelection();
-          }}
-        />
-      )}
-    </ContextMenu>
+              </div>
+            </Html>
+          )}
+        </Layer>
+      </Stage>
+    </SpaceContextMenuWrapper>
   );
 }

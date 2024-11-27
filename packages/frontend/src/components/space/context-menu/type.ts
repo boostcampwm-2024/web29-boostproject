@@ -24,5 +24,4 @@ export type SelectionState = {
   selectedNode: SelectedNodeInfo | null;
   selectedEdge: SelectedEdgeInfo | null;
   clearSelection: () => void;
-  onClearSelection: () => void;
 };

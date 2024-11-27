@@ -1,9 +1,6 @@
 import React from "react";
 
-import { Node } from "shared/types";
-
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import useSpaceSelection from "@/hooks/useSpaceSelection";
 
 import CustomContextMenu from "./CustomContextMenu";
 import {
@@ -15,16 +12,16 @@ import {
 type SpaceContextMenuWrapperProps = {
   children: React.ReactNode;
   selection: SelectionState;
-  action: ContextMenuActions;
+  actions: ContextMenuActions;
 };
 
 export default function SpaceContextMenuWrapper({
   children,
   selection,
-  action,
+  actions,
 }: SpaceContextMenuWrapperProps) {
   const { selectedNode, selectedEdge, clearSelection } = selection;
-  const { onNodeUpdate, onNodeDelete, onEdgeDelete } = action;
+  const { onNodeUpdate, onNodeDelete, onEdgeDelete } = actions;
 
   const getContextMenuItems = (): ContextMenuItemConfig[] => {
     if (selectedNode) {
