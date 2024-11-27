@@ -63,7 +63,12 @@ export function useZoomSpace({
       if (!pointer) return;
 
       const mousePointTo = getMousePointTo(stage, pointer, oldScale);
-      let newScale = calculateNewScale(oldScale, event.evt.deltaY, scaleBy);
+
+      const adjustedDeltaY = event.evt.ctrlKey
+        ? -event.evt.deltaY
+        : event.evt.deltaY;
+
+      let newScale = calculateNewScale(oldScale, adjustedDeltaY, scaleBy);
 
       newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
