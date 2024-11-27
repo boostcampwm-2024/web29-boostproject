@@ -16,12 +16,19 @@ const PointerCursor = memo(({ color, position, label }: PointerCursorProps) => {
   const ref = useRef<Konva.Group>(null);
 
   const tween = useCallback((position: { x: number; y: number }) => {
-    ref.current?.visible(true);
-    ref.current?.to({
-      x: position.x,
-      y: position.y,
-      duration: 0.1,
-    });
+    const { current } = ref;
+
+    if (current?.visible()) {
+      current?.to({
+        x: position.x,
+        y: position.y,
+        duration: 0.1,
+      });
+
+      return;
+    }
+    current?.visible(true);
+    current?.position(position);
   }, []);
 
   if (position) {
