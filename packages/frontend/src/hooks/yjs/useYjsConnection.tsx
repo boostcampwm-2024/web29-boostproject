@@ -6,6 +6,7 @@ import * as Y from "yjs";
 import { generateUserColor } from "@/lib/utils";
 
 export default function useYjsConnection(docName: string) {
+  const [error, setError] = useState<Error>();
   const [yDoc, setYDoc] = useState<Y.Doc>();
   const [yProvider, setYProvider] = useState<Y.AbstractConnector>();
 
@@ -31,6 +32,13 @@ export default function useYjsConnection(docName: string) {
       },
     );
 
+    provider.on("connection-close", (event: CloseEvent) => {
+      if (event.code === 1008) {
+        provider.shouldConnect = false;
+        setError(new Error("찾을 수 없거나 접근할 수 없는 스페이스예요."));
+      }
+    });
+
     return () => {
       if (provider.bcconnected || provider.wsconnected) {
         provider.disconnect();
@@ -41,5 +49,5 @@ export default function useYjsConnection(docName: string) {
     };
   }, [docName]);
 
-  return { yProvider, yDoc, setYProvider, setYDoc };
+  return { error, yProvider, yDoc, setYProvider, setYDoc };
 }
