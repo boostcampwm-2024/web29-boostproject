@@ -116,9 +116,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     clearSelection();
 
     const { target } = e;
-    const shape = target.findAncestor("Shape");
-    if (shape?.attrs?.name === "edge") {
-      const edgeId = shape.attrs.id;
+    console.log(target.attrs);
+
+    if (target.attrs.name === "edge") {
+      const edgeId = target.attrs.id;
+
       selectEdge({ id: edgeId });
       return;
     }
@@ -172,6 +174,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
             Object.entries(edges).map(([edgeId, edge]) => (
               <Edge
                 key={edgeId || `${edge.from.id}-${edge.to.id}`}
+                id={edgeId}
                 from={edge.from}
                 to={edge.to}
                 nodes={nodes}
