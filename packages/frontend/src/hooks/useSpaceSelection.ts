@@ -1,29 +1,44 @@
 import { useState } from "react";
 
-export default function useSpaceSelection() {
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+import { Node } from "shared/types";
 
-  const selectNode = (nodeId: string | null) => {
-    setSelectedNodeId(nodeId);
-    setSelectedEdgeId(null);
+export type selectedInfoType = {
+  id: string;
+  type?: Exclude<Node["type"], "url" | "image" | "head"> | null;
+};
+
+export default function useSpaceSelection() {
+  const [selectedNode, setSelectNode] = useState<selectedInfoType | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<selectedInfoType | null>(
+    null,
+  );
+
+  const selectNode = ({ id, type }: selectedInfoType) => {
+    setSelectNode({
+      id,
+      type: type ? null : type,
+    });
+    setSelectedEdge(null);
   };
 
-  const selectEdge = (edgeId: string | null) => {
-    setSelectedEdgeId(edgeId);
-    setSelectedNodeId(null);
+  const selectEdge = ({ id }: selectedInfoType) => {
+    setSelectedEdge({
+      id,
+      type: null,
+    });
+    setSelectNode(null);
   };
 
   const clearSelection = () => {
-    setSelectedNodeId(null);
-    setSelectedEdgeId(null);
+    setSelectNode(null);
+    setSelectedEdge(null);
   };
 
   return {
     selectNode,
     selectEdge,
-    selectedNodeId,
-    selectedEdgeId,
+    selectedNode,
+    selectedEdge,
     clearSelection,
   };
 }

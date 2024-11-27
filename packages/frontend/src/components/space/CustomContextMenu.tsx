@@ -1,19 +1,31 @@
+import { selectedInfoType } from "@/hooks/useSpaceSelection";
+
 import { ContextMenuContent, ContextMenuItem } from "../ui/context-menu";
 
 type CustomContextMenuProps = {
-  selectedId: string | null;
-  selectHandler: (id: string | null) => void;
+  selectedInfo: selectedInfoType;
+  selectHandler: () => void;
+  onEditClick: () => void;
+  onDeleteClick: () => void;
 };
 
 export default function CustomContextMenu({
-  selectedId,
-  selectHandler,
+  selectedInfo,
 }: CustomContextMenuProps) {
+  const { id, type } = selectedInfo;
+
+  const nodeTypeConfig = {
+    note: "노트",
+    subspace: "하위스페이스",
+  };
+
   return (
     <ContextMenuContent>
-      <ContextMenuItem onSelect={() => console.log("현상태:", selectedId)}>
-        편집
-      </ContextMenuItem>
+      {type && (
+        <ContextMenuItem onSelect={() => console.log("현상태:", selectedInfo)}>
+          {nodeTypeConfig[type]}명 편집
+        </ContextMenuItem>
+      )}
       <ContextMenuItem>제거</ContextMenuItem>
     </ContextMenuContent>
   );
