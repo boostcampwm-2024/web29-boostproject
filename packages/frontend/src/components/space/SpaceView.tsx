@@ -109,7 +109,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
     ),
   };
 
-  const gooeyNodeComponent = drag.isActive &&
+  const GooeyNodeRenderer = drag.isActive &&
     drag.position &&
     drag.startNode && (
       <GooeyNode
@@ -119,13 +119,13 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       />
     );
 
-  const NearIndicatorComponent = !moveState.isMoving &&
+  const NearIndicatorRenderer = !moveState.isMoving &&
     drag.position &&
     drag.overlapNode && (
       <MemoizedNearIndicator overlapNode={drag.overlapNode} />
     );
 
-  const nodesComponent =
+  const NodesRenderer =
     nodes &&
     Object.entries(nodes).map(([, node]) => {
       const Component =
@@ -133,7 +133,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       return Component ? Component(node) : null;
     });
 
-  const edgesComponent =
+  const EdgesRenderer =
     edges &&
     Object.entries(edges).map(([edgeId, edge]) => (
       <Edge
@@ -144,7 +144,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       />
     ));
 
-  const paletteComponent = !moveState.isMoving && dropPosition && (
+  const PaletteRenderer = !moveState.isMoving && dropPosition && (
     <Html>
       <div
         style={{
@@ -172,11 +172,11 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
       draggable
     >
       <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {gooeyNodeComponent}
-        {NearIndicatorComponent}
-        {nodesComponent}
-        {edgesComponent}
-        {paletteComponent}
+        {GooeyNodeRenderer}
+        {NearIndicatorRenderer}
+        {NodesRenderer}
+        {EdgesRenderer}
+        {PaletteRenderer}
       </Layer>
     </Stage>
   );
