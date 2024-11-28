@@ -51,7 +51,15 @@ export function useZoomSpace({
   const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
 
-    if (!event.evt.ctrlKey && !event.evt.metaKey) {
+    const isTrackpadGesture =
+      event.evt.deltaMode === WheelEvent.DOM_DELTA_PIXEL && event.evt.ctrlKey;
+    const isCommandWheelZoom =
+      event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.metaKey;
+    const isControlWheelZoom =
+      event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.ctrlKey;
+
+    // command + 휠이나 트랙패드만 허용하고 ctrl + 휠은 차단
+    if ((!isTrackpadGesture && !isCommandWheelZoom) || isControlWheelZoom) {
       return;
     }
 
@@ -64,11 +72,7 @@ export function useZoomSpace({
 
       const mousePointTo = getMousePointTo(stage, pointer, oldScale);
 
-      const adjustedDeltaY = event.evt.ctrlKey
-        ? -event.evt.deltaY
-        : event.evt.deltaY;
-
-      let newScale = calculateNewScale(oldScale, adjustedDeltaY, scaleBy);
+      let newScale = calculateNewScale(oldScale, -event.evt.deltaY, scaleBy);
 
       newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
