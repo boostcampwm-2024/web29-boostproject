@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
 import Konva from "konva";
 import type { Node } from "shared/types";
 
+import { createSpace } from "@/api/space";
 import Edge from "@/components/Edge";
-import { HeadNode, NoteNode } from "@/components/Node";
+import { HeadNode, NoteNode, SubspaceNode } from "@/components/Node";
+import useAutofit from "@/hooks/useAutofit";
 import useDragNode from "@/hooks/useDragNode";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
@@ -17,6 +19,7 @@ import { MemoizedNearIndicator } from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
 
 interface SpaceViewProps {
+  spaceId: string;
   autofitTo?: Element | React.RefObject<Element>;
 }
 
@@ -24,8 +27,7 @@ const dragBoundFunc = function (this: Konva.Node) {
   return this.absolutePosition();
 };
 
-export default function SpaceView({ autofitTo }: SpaceViewProps) {
-  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
@@ -35,42 +37,64 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
 
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
-      defineNode({ type, x: position.x, y: position.y, name }, parentNode.id);
+      if (type === "note") {
+        let src = "";
+        // FIXME: note 생성 후 id 입력
+        defineNode(
+          {
+            type,
+            x: position.x,
+            y: position.y,
+            name,
+            src,
+          },
+          parentNode.id,
+        );
+
+        return;
+      }
+
+      if (type === "subspace") {
+        createSpace({
+          spaceName: name,
+          userId: "honeyflow",
+          parentContextNodeId: spaceId,
+        }).then((res) => {
+          const [urlPath] = res.urlPath;
+          defineNode(
+            {
+              type,
+              x: position.x,
+              y: position.y,
+              name,
+              src: urlPath,
+            },
+            parentNode.id,
+          );
+        });
+
+        return;
+      }
+
+      defineNode(
+        {
+          type,
+          x: position.x,
+          y: position.y,
+          name,
+          src: "",
+        },
+        parentNode.id,
+      );
     },
+
     createEdge: (fromNode, toNode) => {
       defineEdge(fromNode.id, toNode.id);
     },
   });
   const { startNode, handlers } = drag;
 
-  useEffect(() => {
-    if (!autofitTo) {
-      return undefined;
-    }
-
-    const containerRef =
-      "current" in autofitTo ? autofitTo : { current: autofitTo };
-
-    function resizeStage() {
-      const container = containerRef.current;
-
-      if (!container) {
-        return;
-      }
-
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-
-      setStageSize({ width, height });
-    }
-
-    resizeStage();
-
-    window.addEventListener("resize", resizeStage);
-    return () => {
-      window.removeEventListener("resize", resizeStage);
-    };
-  }, [autofitTo]);
+  const stageSize = useAutofit(autofitTo);
 
   const nodeComponents = {
     head: (node: Node) => (
@@ -90,6 +114,19 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
         y={node.y}
         name={node.name}
         src=""
+        onDragStart={() => handlers.onDragStart(node)}
+        onDragMove={handlers.onDragMove}
+        onDragEnd={handlers.onDragEnd}
+        dragBoundFunc={dragBoundFunc}
+      />
+    ),
+    subspace: (node: Node) => (
+      <SubspaceNode
+        key={node.id}
+        src={node.src}
+        x={node.x}
+        y={node.y}
+        name={node.name}
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
         onDragEnd={handlers.onDragEnd}
@@ -145,7 +182,7 @@ export default function SpaceView({ autofitTo }: SpaceViewProps) {
               }}
             >
               <PaletteMenu
-                items={["note", "image", "url"]}
+                items={["note", "image", "url", "subspace"]}
                 onSelect={handlePaletteSelect}
               />
             </div>
