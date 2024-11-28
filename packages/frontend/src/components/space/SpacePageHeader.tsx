@@ -1,3 +1,5 @@
+import { prompt } from "@/lib/prompt-dialog";
+
 import SpaceBreadcrumb from "../SpaceBreadcrumb";
 import SpaceUsersIndicator from "../SpaceUsersIndicator";
 import { Button } from "../ui/button";
@@ -27,7 +29,16 @@ export default function SpacePageHeader() {
         </div>
         <div className="flex-grow-0 flex flex-row justify-center items-center">
           <SpaceUsersIndicator />
-          <Button className="ml-2" variant="outline">
+          <Button
+            className="ml-2"
+            variant="outline"
+            onClick={() => {
+              prompt(
+                "공유",
+                `아래 주소를 공유해주세요.\n\n${window.location.href}`,
+              );
+            }}
+          >
             공유
           </Button>
         </div>
