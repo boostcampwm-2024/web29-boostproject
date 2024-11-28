@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { MoveLeftIcon } from "lucide-react";
+import { CircleDashedIcon, MoveLeftIcon } from "lucide-react";
 
 import ErrorSection from "@/components/ErrorSection";
 import SpacePageHeader from "@/components/space/SpacePageHeader";
@@ -45,7 +45,7 @@ export default function SpacePage() {
   if (status === "connecting") {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="animate-pulse w-32 h-32 rounded-full bg-muted"></div>
+        <CircleDashedIcon className="animate-spin w-32 h-32 text-primary" />
       </div>
     );
   }
