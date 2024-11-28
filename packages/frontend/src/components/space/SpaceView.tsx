@@ -11,6 +11,7 @@ import Edge from "@/components/Edge";
 import { HeadNode, NoteNode, SubspaceNode } from "@/components/Node";
 import useAutofit from "@/hooks/useAutofit";
 import useDragNode from "@/hooks/useDragNode";
+import useMoveNode from "@/hooks/useMoveNode";
 import useYjsSpace from "@/hooks/useYjsSpace";
 import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
 
@@ -32,9 +33,14 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode, defineEdge } = useYjsSpace();
+  const { nodes, edges, defineNode, defineEdge, updateNode } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
+
+  const { move, moveState } = useMoveNode({
+    nodes: nodesArray,
+    spaceActions: { updateNode },
+  });
 
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
@@ -95,7 +101,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       defineEdge(fromNode.id, toNode.id);
     },
   });
-  const { startNode, handlers } = drag;
 
   const stageSize = useAutofit(autofitTo);
 
@@ -104,9 +109,9 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       <HeadNode
         key={node.id}
         name={node.name}
-        onDragStart={() => handlers.onDragStart(node)}
-        onDragMove={handlers.onDragMove}
-        onDragEnd={handlers.onDragEnd}
+        onDragStart={() => drag.handlers.onDragStart(node)}
+        onDragMove={drag.handlers.onDragMove}
+        onDragEnd={() => drag.handlers.onDragEnd()}
         dragBoundFunc={dragBoundFunc}
       />
     ),
@@ -116,27 +121,109 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         x={node.x}
         y={node.y}
         name={node.name}
-        src={node.src}
-        onDragStart={() => handlers.onDragStart(node)}
-        onDragMove={handlers.onDragMove}
-        onDragEnd={handlers.onDragEnd}
+        src={node.src || ""}
+        onDragStart={() => drag.handlers.onDragStart(node)}
+        onDragMove={(e) => {
+          drag.handlers.onDragMove(e);
+          move.callbacks.monitorHoldingPosition(e);
+        }}
+        onDragEnd={(e) => {
+          drag.handlers.onDragEnd(moveState.isMoving);
+          move.callbacks.endMove(e);
+        }}
         dragBoundFunc={dragBoundFunc}
+        onMouseDown={(e) => move.callbacks.startHold(node, e)}
+        onMouseUp={move.callbacks.endHold}
+        onTouchStart={(e) => move.callbacks.startHold(node, e)}
+        onTouchEnd={move.callbacks.endHold}
       />
     ),
     subspace: (node: Node) => (
       <SubspaceNode
         key={node.id}
-        src={node.src}
         x={node.x}
         y={node.y}
         name={node.name}
-        onDragStart={() => handlers.onDragStart(node)}
-        onDragMove={handlers.onDragMove}
-        onDragEnd={handlers.onDragEnd}
+        src={node.src || ""}
+        onDragStart={() => drag.handlers.onDragStart(node)}
+        onDragMove={(e) => {
+          drag.handlers.onDragMove(e);
+          move.callbacks.monitorHoldingPosition(e);
+        }}
+        onDragEnd={(e) => {
+          drag.handlers.onDragEnd(moveState.isMoving);
+          move.callbacks.endMove(e);
+        }}
         dragBoundFunc={dragBoundFunc}
+        onMouseDown={(e) => move.callbacks.startHold(node, e)}
+        onMouseUp={move.callbacks.endHold}
+        onTouchStart={(e) => move.callbacks.startHold(node, e)}
+        onTouchEnd={move.callbacks.endHold}
       />
     ),
   };
+
+  const gooeyNodeCreatingRenderer = drag.isActive &&
+    drag.position &&
+    drag.startNode && (
+      <GooeyNode
+        startPosition={{ x: drag.startNode.x, y: drag.startNode.y }}
+        dragPosition={drag.position}
+      />
+    );
+
+  const gooeyNodeMovingRenderer = drag.position && (
+    <GooeyNode
+      startPosition={{ x: 0, y: 0 }}
+      dragPosition={drag.position}
+      connectionVisible={false}
+      color={moveState.isOverlapping ? "#ECE8E4" : "#FFF2CB"}
+    />
+  );
+
+  const nearIndicatorRenderer = !moveState.isMoving &&
+    drag.position &&
+    drag.overlapNode && (
+      <MemoizedNearIndicator overlapNode={drag.overlapNode} />
+    );
+
+  const nodesRenderer =
+    nodes &&
+    Object.entries(nodes).map(([, node]) => {
+      const Component =
+        nodeComponents[node.type as keyof typeof nodeComponents];
+      return Component ? Component(node) : null;
+    });
+
+  const edgesRenderer =
+    edges &&
+    Object.entries(edges).map(([edgeId, edge]) => (
+      <Edge
+        key={edgeId || `${edge.from.id}-${edge.to.id}`}
+        from={edge.from}
+        to={edge.to}
+        nodes={nodes}
+      />
+    ));
+
+  const paletteRenderer = !moveState.isMoving && dropPosition && (
+    <Html>
+      <div
+        style={{
+          position: "absolute",
+          left: dropPosition.x,
+          top: dropPosition.y,
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "auto",
+        }}
+      >
+        <PaletteMenu
+          items={["note", "image", "url", "subspace"]}
+          onSelect={handlePaletteSelect}
+        />
+      </div>
+    </Html>
+  );
 
   return (
     <Stage
@@ -148,49 +235,14 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       onWheel={zoomSpace}
       draggable
     >
-      <Layer>
-        {drag.isActive && drag.position && startNode && (
-          <GooeyNode
-            startPosition={{ x: startNode.x, y: startNode.y }}
-            dragPosition={drag.position}
-          />
-        )}
-        {drag.position && drag.overlapNode && (
-          <MemoizedNearIndicator overlapNode={drag.overlapNode} />
-        )}
-        {nodes &&
-          Object.entries(nodes).map(([, node]) => {
-            const Component =
-              nodeComponents[node.type as keyof typeof nodeComponents];
-            return Component ? Component(node) : null;
-          })}
-        {edges &&
-          Object.entries(edges).map(([edgeId, edge]) => (
-            <Edge
-              key={edgeId || `${edge.from.id}-${edge.to.id}`}
-              from={edge.from}
-              to={edge.to}
-              nodes={nodes}
-            />
-          ))}
-        {dropPosition && (
-          <Html>
-            <div
-              style={{
-                position: "absolute",
-                left: dropPosition.x,
-                top: dropPosition.y,
-                transform: "translate(-50%, -50%)",
-                pointerEvents: "auto",
-              }}
-            >
-              <PaletteMenu
-                items={["note", "image", "url", "subspace"]}
-                onSelect={handlePaletteSelect}
-              />
-            </div>
-          </Html>
-        )}
+      <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
+        {moveState.isMoving
+          ? gooeyNodeMovingRenderer
+          : gooeyNodeCreatingRenderer}
+        {nearIndicatorRenderer}
+        {nodesRenderer}
+        {edgesRenderer}
+        {paletteRenderer}
       </Layer>
       <PointerLayer />
     </Stage>

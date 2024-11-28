@@ -4,7 +4,7 @@ export type Node = {
   x: number;
   y: number;
   type: "head" | "note" | "url" | "image" | "subspace";
-  src: string;
+  src?: string;
 };
 
 export type Edge = {

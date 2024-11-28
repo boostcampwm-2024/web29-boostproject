@@ -3,7 +3,6 @@ import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
 import { useNavigate } from "react-router-dom";
 
 import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
 type NodeProps = {
@@ -15,11 +14,8 @@ type NodeProps = {
   KonvaNodeEvents;
 
 type NodeHandlers = {
-  onDragStart: () => void;
-  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
-  onDragEnd: () => void;
   dragBoundFunc?: () => Vector2d;
-};
+} & KonvaNodeEvents;
 
 export default function Node({
   x,
@@ -38,10 +34,17 @@ export default function Node({
 type NodeCircleProps = {
   radius: number;
   fill: string;
+  shadowColor?: string;
 };
 
-Node.Circle = function NodeCircle({ radius, fill }: NodeCircleProps) {
-  return <Circle x={0} y={0} radius={radius} fill={fill} />;
+Node.Circle = function NodeCircle({
+  radius,
+  fill,
+  shadowColor = "#F9D46B",
+}: NodeCircleProps) {
+  return (
+    <Circle x={0} y={0} radius={radius} fill={fill} shadowColor={shadowColor} />
+  );
 };
 
 type NodeTextProps = {
