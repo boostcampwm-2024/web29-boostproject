@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
@@ -33,6 +33,9 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   });
   const [dropPosition, setDropPosition] = useState<Vector2d | null>(null);
 
+  const animationFrameId = useRef<number>();
+  const lastPositionRef = useRef<Vector2d | null>();
+
   const handleDragStart = (node: Node) => {
     const nodePosition = { x: node.x, y: node.y };
     setDragState((prev) => ({
@@ -49,18 +52,34 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     const position = e.target.getLayer()?.getRelativePointerPosition();
     if (!position) return;
 
-    const overlapNodes = findOverlapNodes(position, nodes);
-    const selectedNode =
-      overlapNodes.length > 0 ? findNearestNode(position, overlapNodes) : null;
+    lastPositionRef.current = position;
 
-    setDragState((prev) => ({
-      ...prev,
-      dragPosition: position,
-      overlapNode: selectedNode,
-    }));
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+
+    animationFrameId.current = requestAnimationFrame(() => {
+      const overlapNodes = findOverlapNodes(position, nodes);
+      const selectedNode =
+        overlapNodes.length > 0
+          ? findNearestNode(position, overlapNodes)
+          : null;
+
+      setDragState((prev) => ({
+        ...prev,
+        dragPosition: position,
+        overlapNode: selectedNode,
+      }));
+
+      animationFrameId.current = undefined;
+    });
   };
 
   const handleDragEnd = (isMoving: boolean = false) => {
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+
     const { startNode, dragPosition, overlapNode } = dragState;
     if (!startNode || !dragPosition) return;
 
