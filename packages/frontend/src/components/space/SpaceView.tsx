@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
 import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
 
 import { createNote } from "@/api/note";
@@ -12,13 +13,15 @@ import { HeadNode, NoteNode, SubspaceNode } from "@/components/Node";
 import useAutofit from "@/hooks/useAutofit";
 import useDragNode from "@/hooks/useDragNode";
 import useMoveNode from "@/hooks/useMoveNode";
+import useSpaceSelection from "@/hooks/useSpaceSelection";
 import useYjsSpace from "@/hooks/useYjsSpace";
-import { useZoomSpace } from "@/hooks/useZoomSpace.ts";
+import { useZoomSpace } from "@/hooks/useZoomSpace";
 
 import PointerLayer from "../PointerLayer";
 import GooeyNode from "./GooeyNode";
 import { MemoizedNearIndicator } from "./NearNodeIndicator";
 import PaletteMenu from "./PaletteMenu";
+import SpaceContextMenuWrapper from "./context-menu/SpaceContextMenuWrapper";
 
 interface SpaceViewProps {
   spaceId: string;
@@ -31,9 +34,18 @@ const dragBoundFunc = function (this: Konva.Node) {
 
 export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
+  const stageSize = useAutofit(autofitTo); // useAutofit 호출
   const { zoomSpace } = useZoomSpace({ stageRef });
 
-  const { nodes, edges, defineNode, defineEdge, updateNode } = useYjsSpace();
+  const {
+    nodes,
+    edges,
+    defineNode,
+    defineEdge,
+    updateNode,
+    deleteNode,
+    deleteEdge,
+  } = useYjsSpace();
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
@@ -60,7 +72,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
             parentNode.id,
           );
         });
-
         return;
       }
 
@@ -82,7 +93,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
             parentNode.id,
           );
         });
-
         return;
       }
 
@@ -102,12 +112,44 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     },
   });
 
-  const stageSize = useAutofit(autofitTo);
+  const { selectedNode, selectNode, selectedEdge, selectEdge, clearSelection } =
+    useSpaceSelection();
+
+  useEffect(() => {
+    if (!autofitTo) {
+      return undefined;
+    }
+
+    const containerRef =
+      "current" in autofitTo ? autofitTo : { current: autofitTo };
+
+    function resizeStage() {
+      const container = containerRef.current;
+
+      if (!container) {
+        return;
+      }
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      stageRef.current?.width(width);
+      stageRef.current?.height(height);
+    }
+
+    resizeStage();
+
+    window.addEventListener("resize", resizeStage);
+    return () => {
+      window.removeEventListener("resize", resizeStage);
+    };
+  }, [autofitTo]);
 
   const nodeComponents = {
     head: (node: Node) => (
       <HeadNode
         key={node.id}
+        id={node.id}
         name={node.name}
         onDragStart={() => drag.handlers.onDragStart(node)}
         onDragMove={drag.handlers.onDragMove}
@@ -118,6 +160,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     note: (node: Node) => (
       <NoteNode
         key={node.id}
+        id={node.id}
         x={node.x}
         y={node.y}
         name={node.name}
@@ -141,6 +184,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     subspace: (node: Node) => (
       <SubspaceNode
         key={node.id}
+        id={node.id}
         x={node.x}
         y={node.y}
         name={node.name}
@@ -161,6 +205,39 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onTouchEnd={move.callbacks.endHold}
       />
     ),
+  };
+
+  const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
+    clearSelection();
+
+    const { target } = e;
+
+    if (target.attrs.name === "edge") {
+      const edgeId = target.attrs.id;
+      if (!edgeId) return;
+
+      selectEdge({ id: edgeId });
+      return;
+    }
+
+    const group = target.findAncestor("Group");
+
+    const nodeId = group?.attrs?.id as string | undefined;
+
+    if (!nodes || !nodeId) return;
+
+    const nodeMap = nodes as Record<string, Node>;
+    const node = nodeMap[nodeId];
+
+    if (
+      !node ||
+      node.type === "url" ||
+      node.type === "image" ||
+      node.type === "head"
+    )
+      return;
+
+    selectNode({ id: nodeId, type: node.type });
   };
 
   const gooeyNodeCreatingRenderer = drag.isActive &&
@@ -199,6 +276,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     edges &&
     Object.entries(edges).map(([edgeId, edge]) => (
       <Edge
+        id={edgeId}
         key={edgeId || `${edge.from.id}-${edge.to.id}`}
         from={edge.from}
         to={edge.to}
@@ -226,25 +304,39 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   );
 
   return (
-    <Stage
-      width={stageSize.width}
-      height={stageSize.height}
-      offsetX={-stageSize.width / 2}
-      offsetY={-stageSize.height / 2}
-      ref={stageRef}
-      onWheel={zoomSpace}
-      draggable
+    <SpaceContextMenuWrapper
+      selection={{
+        selectedNode,
+        selectedEdge,
+        clearSelection,
+      }}
+      actions={{
+        onNodeUpdate: updateNode,
+        onNodeDelete: deleteNode,
+        onEdgeDelete: deleteEdge,
+      }}
     >
-      <Layer offsetX={-stageSize.width / 2} offsetY={-stageSize.height / 2}>
-        {moveState.isMoving
-          ? gooeyNodeMovingRenderer
-          : gooeyNodeCreatingRenderer}
-        {nearIndicatorRenderer}
-        {nodesRenderer}
-        {edgesRenderer}
-        {paletteRenderer}
-      </Layer>
-      <PointerLayer />
-    </Stage>
+      <Stage
+        width={stageSize.width}
+        height={stageSize.height}
+        offsetX={-stageSize.width / 2}
+        offsetY={-stageSize.height / 2}
+        ref={stageRef}
+        onWheel={zoomSpace}
+        onContextMenu={handleContextMenu}
+        draggable
+      >
+        <Layer>
+          {moveState.isMoving
+            ? gooeyNodeMovingRenderer
+            : gooeyNodeCreatingRenderer}
+          {nearIndicatorRenderer}
+          {nodesRenderer}
+          {edgesRenderer}
+          {paletteRenderer}
+        </Layer>
+        <PointerLayer />
+      </Stage>
+    </SpaceContextMenuWrapper>
   );
 }

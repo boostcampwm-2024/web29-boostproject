@@ -6,6 +6,7 @@ import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 
 type NodeProps = {
+  id: string;
   x: number;
   y: number;
   draggable?: boolean;
@@ -18,6 +19,7 @@ type NodeHandlers = {
 } & KonvaNodeEvents;
 
 export default function Node({
+  id,
   x,
   y,
   draggable = true,
@@ -25,7 +27,7 @@ export default function Node({
   ...rest
 }: NodeProps) {
   return (
-    <Group x={x} y={y} draggable={draggable} {...rest}>
+    <Group id={id} x={x} y={y} draggable={draggable} {...rest}>
       {children}
     </Group>
   );
@@ -87,13 +89,14 @@ Node.Text = function NodeText({
 };
 
 export type HeadNodeProps = {
+  id: string;
   name: string;
 } & NodeHandlers;
 
-export function HeadNode({ name, ...rest }: HeadNodeProps) {
+export function HeadNode({ id, name, ...rest }: HeadNodeProps) {
   const radius = 64;
   return (
-    <Node x={0} y={0} draggable {...rest}>
+    <Node id={id} x={0} y={0} draggable {...rest}>
       <Node.Circle radius={radius} fill="#FFCC00" />
       <Node.Text
         width={radius * 2}
@@ -106,18 +109,25 @@ export function HeadNode({ name, ...rest }: HeadNodeProps) {
 }
 
 export type NoteNodeProps = {
+  id: string;
   x: number;
   y: number;
   src: string;
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ x, y, name, src, ...rest }: NoteNodeProps) {
+export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
   const navigate = useNavigate();
   const radius = 64;
   return (
-    <Node x={x} y={y} onClick={() => navigate(`/note/${src}`)} {...rest}>
+    <Node
+      id={id}
+      x={x}
+      y={y}
+      onClick={() => navigate(`/note/${src}`)}
+      {...rest}
+    >
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
     </Node>
@@ -125,17 +135,31 @@ export function NoteNode({ x, y, name, src, ...rest }: NoteNodeProps) {
 }
 
 export type SubspaceNodeProps = {
+  id: string;
   x: number;
   y: number;
   name: string;
   src: string;
 } & NodeHandlers;
 
-export function SubspaceNode({ x, y, name, src, ...rest }: SubspaceNodeProps) {
+export function SubspaceNode({
+  id,
+  x,
+  y,
+  name,
+  src,
+  ...rest
+}: SubspaceNodeProps) {
   const navigate = useNavigate();
 
   return (
-    <Node x={x} y={y} onClick={() => navigate(`/space/${src}`)} {...rest}>
+    <Node
+      id={id}
+      x={x}
+      y={y}
+      onClick={() => navigate(`/space/${src}`)}
+      {...rest}
+    >
       <Node.Circle radius={64} fill="#FFF2CB" />
       <Node.Text fontSize={16} fontStyle="700" content={name} />
     </Node>

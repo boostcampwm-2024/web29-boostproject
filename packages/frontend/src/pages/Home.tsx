@@ -47,7 +47,7 @@ function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
         navigate(`/space/${urlPath}`);
       })
       .catch((error) => {
-        setError("스페이스 생성에 실패했어요. (" + error + ")");
+        setError(`스페이스 생성에 실패했어요. (${error})`);
       });
   };
 

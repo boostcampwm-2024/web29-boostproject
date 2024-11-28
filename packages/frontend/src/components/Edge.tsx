@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Line } from "react-konva";
+import { Group, Line } from "react-konva";
 
 import Konva from "konva";
 import type { Edge } from "shared/types";
@@ -21,8 +21,9 @@ function calculateOffsets(
   return { offsetX, offsetY };
 }
 
-export default function Edge({ from, to, ...rest }: EdgeProps) {
+export default function Edge({ from, to, id, ...rest }: EdgeProps) {
   const [points, setPoints] = useState<number[]>([]);
+  const [isHovered, setIsHovered] = useState(false);
   const RADIUS = 64;
 
   useEffect(() => {
@@ -39,6 +40,25 @@ export default function Edge({ from, to, ...rest }: EdgeProps) {
   }, [from, to]);
 
   return (
-    <Line points={points} stroke={"#FFCC00"} strokeWidth={3} {...rest}></Line>
+    <Group
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Line
+        points={points}
+        stroke={"#FFCC00"}
+        strokeWidth={isHovered ? 5 : 3}
+        opacity={isHovered ? 1 : 0.8}
+        {...rest}
+      ></Line>
+      <Line
+        points={points}
+        stroke="transparent"
+        strokeWidth={7} // 우클릭 감지를 위한 영역 확장 용도
+        hitStrokeWidth={7}
+        name="edge"
+        id={id}
+      />
+    </Group>
   );
 }

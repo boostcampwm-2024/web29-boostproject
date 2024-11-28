@@ -84,7 +84,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   const handlePaletteSelect = (type: PaletteButtonType, name: string = "") => {
     const { startNode } = dragState;
 
-    // FIXME: note 타입 외의 노드 생성 동작을 임시로 막음.
+    // FIXME: note/subspace 타입 외의 노드 생성 동작을 임시로 막음.
     if (
       !startNode ||
       !dropPosition ||

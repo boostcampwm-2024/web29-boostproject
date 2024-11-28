@@ -11,7 +11,7 @@ import useY from "./yjs/useY";
 const MOCK_DATA = {
   nodes: {
     root: {
-      id: "root",
+      id: generateUniqueId(),
       type: "head" as const,
       name: "허니의 스페이스",
       x: 0,
@@ -95,6 +95,17 @@ export default function useYjsSpace() {
     });
   };
 
+  const deleteEdge = (edgeId: Node["id"]) => {
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+    if (!yDoc || !yEdges) {
+      return;
+    }
+
+    yDoc.transact(() => {
+      yEdges.delete(edgeId);
+    });
+  };
+
   const updateNode = (nodeId: Node["id"], patch: Partial<Omit<Node, "id">>) => {
     const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
 
@@ -147,13 +158,21 @@ export default function useYjsSpace() {
       return {
         nodes: MOCK_DATA.nodes,
         edges: MOCK_DATA.edges,
+        updateNode,
         defineNode,
         defineEdge,
-        updateNode,
         deleteNode,
+        deleteEdge,
       };
     }
   }
-
-  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
+  return {
+    nodes,
+    edges,
+    updateNode,
+    defineNode,
+    defineEdge,
+    deleteNode,
+    deleteEdge,
+  };
 }
