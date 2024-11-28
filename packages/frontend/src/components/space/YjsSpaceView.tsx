@@ -18,7 +18,7 @@ export default function YjsSpaceView({
 
   return (
     <YjsStoreProvider value={{ yDoc, yProvider, setYDoc, setYProvider }}>
-      <SpaceView autofitTo={autofitTo} />
+      <SpaceView spaceId={spaceId} autofitTo={autofitTo} />
     </YjsStoreProvider>
   );
 }

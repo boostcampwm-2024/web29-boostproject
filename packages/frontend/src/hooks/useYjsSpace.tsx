@@ -11,7 +11,7 @@ import useY from "./yjs/useY";
 const MOCK_DATA = {
   nodes: {
     root: {
-      id: "root",
+      id: generateUniqueId(),
       type: "head" as const,
       name: "허니의 스페이스",
       x: 0,
@@ -22,28 +22,22 @@ const MOCK_DATA = {
 };
 
 export default function useYjsSpace() {
-  const { yDoc, yProvider } = useYjsStore();
-  const [yContext, setYContext] = useState<Y.Map<unknown>>();
+  const { yDoc } = useYjsStore();
 
-  useEffect(() => {
-    if (!yDoc) return;
-    const context = yDoc.getMap("context");
-    setYContext(context);
-  }, [yDoc]);
+  const yContext = yDoc?.getMap("context") as Y.Map<Y.Map<unknown>> | undefined;
 
-  // TODO 코드 개선
-  const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
-  const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
-  const nodes = useY(yNodes) as SpaceData["nodes"] | undefined;
-  const edgesRaw = useY(yEdges) as
-    | Record<string, { from: string; to: string }>
-    | undefined;
+  const context = useY(yContext) as SpaceData | undefined;
+  const nodes = context?.nodes;
+  const edgesRaw = context?.edges as EdgeWithId[] | undefined;
 
   const [edges, setEdges] = useState<SpaceData["edges"] | undefined>();
 
   // update functions
 
   const defineNode = (node: Omit<Node, "id">, parentNodeId?: Node["id"]) => {
+    const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+
     if (!yDoc || !yNodes || !yEdges) {
       return;
     }
@@ -61,6 +55,9 @@ export default function useYjsSpace() {
   };
 
   const defineEdge = (fromNodeId: string, toNodeId: string) => {
+    const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+
     if (!yDoc || !yNodes || !yEdges) {
       return;
     }
@@ -76,6 +73,9 @@ export default function useYjsSpace() {
   };
 
   const deleteNode = (nodeId: Node["id"]) => {
+    const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+
     if (!yDoc || !yNodes || !yEdges) {
       return;
     }
@@ -95,7 +95,20 @@ export default function useYjsSpace() {
     });
   };
 
+  const deleteEdge = (edgeId: Node["id"]) => {
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+    if (!yDoc || !yEdges) {
+      return;
+    }
+
+    yDoc.transact(() => {
+      yEdges.delete(edgeId);
+    });
+  };
+
   const updateNode = (nodeId: Node["id"], patch: Partial<Omit<Node, "id">>) => {
+    const yNodes = yContext?.get("nodes") as Y.Map<Node> | undefined;
+
     const prev = yNodes?.get(nodeId);
 
     if (!yNodes || !prev) {
@@ -124,23 +137,7 @@ export default function useYjsSpace() {
       }, {});
 
     setEdges(edgesData);
-
-    // NOTE nodes는 포함되지 않아도 될 것 같긴 하다 -> 이후 이를 고려해 로직 수정
   }, [edgesRaw, nodes]);
-
-  useEffect(() => {
-    if (!yDoc || !yProvider) {
-      return undefined;
-    }
-
-    const handleOnSync = (/* isSynced: boolean */) => {
-      const yContext = yDoc.getMap("context");
-      setYContext(yContext);
-    };
-
-    yProvider.on("sync", handleOnSync);
-    return () => yProvider.off("sync", handleOnSync);
-  }, [yDoc, yProvider]);
 
   /* NOTE - 개발 단계에서 프론트엔드 Space 개발을 위한 Mock 데이터 임의 설정 */
   if (import.meta.env.VITE_MOCK) {
@@ -161,12 +158,21 @@ export default function useYjsSpace() {
       return {
         nodes: MOCK_DATA.nodes,
         edges: MOCK_DATA.edges,
+        updateNode,
         defineNode,
         defineEdge,
-        updateNode,
         deleteNode,
+        deleteEdge,
       };
     }
   }
-  return { nodes, edges, updateNode, defineNode, defineEdge, deleteNode };
+  return {
+    nodes,
+    edges,
+    updateNode,
+    defineNode,
+    defineEdge,
+    deleteNode,
+    deleteEdge,
+  };
 }

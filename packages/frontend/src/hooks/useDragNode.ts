@@ -60,15 +60,15 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     }));
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (isMoving: boolean = false) => {
     const { startNode, dragPosition, overlapNode } = dragState;
     if (!startNode || !dragPosition) return;
 
-    if (!overlapNode) {
+    if (!overlapNode && !isMoving) {
       setDropPosition(dragPosition);
     }
 
-    if (overlapNode && overlapNode.id !== startNode.id) {
+    if (overlapNode && overlapNode.id !== startNode.id && !isMoving) {
       setDropPosition(null);
       spaceActions.createEdge(startNode, overlapNode);
     }
@@ -84,7 +84,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
   const handlePaletteSelect = (type: PaletteButtonType, name: string = "") => {
     const { startNode } = dragState;
 
-    // FIXME: note 타입 외의 노드 생성 동작을 임시로 막음.
+    // FIXME: note/subspace 타입 외의 노드 생성 동작을 임시로 막음.
     if (
       !startNode ||
       !dropPosition ||

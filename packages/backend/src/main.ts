@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Logger, VersioningType } from '@nestjs/common';
 import { AllExceptionsFilter } from './note/common/filters/all-exceptions.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { AppModule } from './app.module';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -23,14 +23,22 @@ function configureGlobalSettings(app: any) {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useWebSocketAdapter(new WsAdapter(app));
   app.enableCors({
-    origin: [
-      'http://www.honeyflow.life',
-      'https://www.honeyflow.life',
-      'http://localhost',
-      'http://localhost:5173',
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://www.honeyflow.life',
+        'https://www.honeyflow.life',
+        'http://localhost',
+        'http://localhost:5173',
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET, POST, PUT, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   });
   app.enableVersioning({
     type: VersioningType.URI,

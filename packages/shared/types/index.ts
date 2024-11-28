@@ -4,7 +4,7 @@ export type Node = {
   x: number;
   y: number;
   type: "head" | "note" | "url" | "image" | "subspace";
-  src: string;
+  src?: string;
 };
 
 export type Edge = {
@@ -22,4 +22,9 @@ export type SpaceData = {
   parentContextId?: string;
   edges: Record<string, Edge>; // <edgeId, {}>
   nodes: Record<Node["id"], Node>;
+};
+
+export type SpaceAwarenessState = {
+  color: string;
+  pointer?: { x: number; y: number };
 };
