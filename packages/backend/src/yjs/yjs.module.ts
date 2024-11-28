@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { YjsGateway } from './yjs.gateway';
 import { SpaceModule } from 'src/space/space.module';
 import { NoteModule } from 'src/note/note.module';
-import { YjsGatewayV2 } from './yjs.gateway.v2';
 import { CollaborativeModule } from 'src/collaborative/collaborative.module';
-import { LoggerModule } from 'src/common/logger/logger.module';
-
+import { YjsGateway } from './yjs.gateway';
+// import { YjsGatewayV2 } from './yjs.gateway.v2';
 @Module({
-  imports: [SpaceModule, NoteModule, CollaborativeModule, LoggerModule],
-  providers: [YjsGateway, YjsGatewayV2],
+  imports: [SpaceModule, NoteModule, CollaborativeModule],
+  providers: [YjsGateway],
+  // providers: [YjsGatewayV2],
 })
 export class YjsModule {}
