@@ -8,7 +8,7 @@ import { generateUserColor } from "@/lib/utils";
 export default function useYjsConnection(docName: string) {
   const [status, setStatus] = useState<
     "connecting" | "connected" | "disconnected"
-  >("connecting");
+  >("disconnected");
   const [error, setError] = useState<Error>();
   const [yDoc, setYDoc] = useState<Y.Doc>();
   const [yProvider, setYProvider] = useState<Y.AbstractConnector>();
@@ -52,6 +52,8 @@ export default function useYjsConnection(docName: string) {
       }
       setYDoc(undefined);
       setYProvider(undefined);
+      setError(undefined);
+      setStatus("disconnected");
     };
   }, [docName]);
 
