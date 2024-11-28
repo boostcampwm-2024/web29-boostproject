@@ -23,7 +23,7 @@ export default function SpacePage() {
   return (
     <YjsStoreProvider value={{ yDoc, yProvider, setYDoc, setYProvider }}>
       <div className="w-full h-full" ref={containerRef}>
-        <SpaceView autofitTo={containerRef} />
+        <SpaceView spaceId={spaceId} autofitTo={containerRef} />
         <SpacePageHeader />
       </div>
     </YjsStoreProvider>
