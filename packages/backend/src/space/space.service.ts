@@ -10,12 +10,12 @@ import { SpaceValidationService } from './space.validation.service';
 import { Logger } from '@nestjs/common';
 @Injectable()
 export class SpaceService {
+  private readonly logger = new Logger(SpaceService.name);
   constructor(
     @InjectRepository(Space)
     private readonly spaceRepository: Repository<Space>,
     private readonly snowflakeService: SnowflakeService,
     private readonly spaceValidationService: SpaceValidationService,
-    private readonly logger = new Logger(SpaceService.name),
   ) {}
 
   async findByUrlPath(urlPath: string) {

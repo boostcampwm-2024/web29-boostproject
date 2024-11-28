@@ -19,10 +19,10 @@ import { Logger } from '@nestjs/common';
 @ApiTags('space')
 @Controller('space')
 export class SpaceController {
+  private readonly logger = new Logger(SpaceController.name);
   constructor(
     private readonly SpaceService: SpaceService,
     private readonly SpaceServiceV2: SpaceServiceV2,
-    private readonly logger = new Logger(SpaceController.name),
   ) {}
 
   @Version('2')

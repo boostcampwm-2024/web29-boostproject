@@ -13,7 +13,6 @@ import {
   SpaceSchema,
 } from '../collaborative/schemas/space.schema';
 import { SpaceValidationServiceV2 } from './space.validation.serviceV2';
-import { LoggerModule } from 'src/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { LoggerModule } from 'src/common/logger/logger.module';
     MongooseModule.forFeature([
       { name: SpaceDocument.name, schema: SpaceSchema },
     ]),
-    LoggerModule,
   ],
   controllers: [SpaceController],
   providers: [

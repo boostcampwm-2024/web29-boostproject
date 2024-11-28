@@ -7,8 +7,8 @@ import { LoggerModule } from 'src/common/logger/logger.module';
 import { LoggerService } from 'src/common/logger/logger.service';
 
 const cacheModule = CacheModule.registerAsync({
-  imports: [ConfigModule, LoggerModule],
-  inject: [ConfigService, LoggerService],
+  imports: [ConfigModule],
+  inject: [ConfigService],
   useFactory: async (configService: ConfigService) => ({
     isGlobal: true,
     store: redisStore,

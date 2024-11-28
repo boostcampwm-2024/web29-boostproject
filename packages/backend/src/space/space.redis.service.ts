@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from 'src/common/logger/logger.service';
@@ -7,47 +7,23 @@ import { LoggerService } from 'src/common/logger/logger.service';
 export class SpaceRedisService {
   private readonly redis: Redis;
   private readonly SPACE_TTL = 3600;
+  private readonly logger = new Logger(SpaceRedisService.name);
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly logger: LoggerService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     const host = this.configService.get('REDIS_HOST');
     const port = this.configService.get('REDIS_PORT');
     const password = this.configService.get('REDIS_PASSWORD');
-
-    this.logger.info('Initializing Redis connection', {
-      service: 'SpaceRedisService',
-      host,
-      port,
-      keyPrefix: 'space:',
-    });
-
     this.redis = new Redis({
       host,
       port,
       password,
       keyPrefix: 'space:',
     });
-
-    this.redis.on('error', (error) => {
-      this.logger.error('Redis connection error', {
-        service: 'SpaceRedisService',
-        error: error.message,
-        stack: error.stack,
-      });
-    });
-
-    this.redis.on('connect', () => {
-      this.logger.info('Redis connected successfully', {
-        service: 'SpaceRedisService',
-      });
-    });
   }
 
   async setSpace(id: string, data: string) {
     try {
-      this.logger.info('Setting space data in Redis', {
+      this.logger.log('Setting space data in Redis', {
         method: 'setSpace',
         spaceId: id,
         dataSize: data.length,
@@ -56,7 +32,7 @@ export class SpaceRedisService {
 
       const result = await this.redis.set(id, data, 'EX', this.SPACE_TTL);
 
-      this.logger.info('Space data set successfully in Redis', {
+      this.logger.log('Space data set successfully in Redis', {
         method: 'setSpace',
         spaceId: id,
       });
@@ -75,7 +51,7 @@ export class SpaceRedisService {
 
   async getSpace(id: string) {
     try {
-      this.logger.info('Getting space data from Redis', {
+      this.logger.log('Getting space data from Redis', {
         method: 'getSpace',
         spaceId: id,
       });
@@ -83,14 +59,14 @@ export class SpaceRedisService {
       const data = await this.redis.get(id);
 
       if (!data) {
-        this.logger.info('Space data not found in Redis', {
+        this.logger.log('Space data not found in Redis', {
           method: 'getSpace',
           spaceId: id,
         });
         return null;
       }
 
-      this.logger.info('Space data retrieved successfully from Redis', {
+      this.logger.log('Space data retrieved successfully from Redis', {
         method: 'getSpace',
         spaceId: id,
         dataSize: data.length,

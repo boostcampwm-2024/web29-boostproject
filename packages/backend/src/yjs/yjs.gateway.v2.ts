@@ -21,10 +21,8 @@ const SPACE = 'space';
 
 @WebSocketGateway(9002)
 export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(
-    private readonly collaborativeService: CollaborativeService,
-    private readonly logger = new Logger(YjsGatewayV2.name),
-  ) {}
+  private readonly logger = new Logger(YjsGatewayV2.name);
+  constructor(private readonly collaborativeService: CollaborativeService) {}
 
   @WebSocketServer()
   server: Server;
