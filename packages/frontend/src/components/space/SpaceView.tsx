@@ -302,9 +302,10 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
             <Popover.Content
               className="-translate-y-1/2"
               onOpenAutoFocus={(e) => e.preventDefault()}
+              avoidCollisions={false}
             >
               <PaletteMenu
-                items={["note", "subspace"]}
+                items={["note", "subspace", "image", "url"]}
                 onSelect={handlePaletteSelect}
               />
             </Popover.Content>
