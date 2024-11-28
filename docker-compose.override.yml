@@ -138,7 +138,7 @@ services:
       elasticsearch:
         condition: service_healthy
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
     ports:
       - "5601:5601"
     networks:
@@ -153,7 +153,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - filebeat_data:/usr/share/filebeat/data
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_=http://elasticsearch:9200
       - KIBANA_HOST=http://kibana:5601
       - LOG_FORMAT=json
     networks:
@@ -174,7 +174,7 @@ services:
       - /:/hostfs:ro
       - metricbeat_data:/usr/share/metricbeat/data
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - KIBANA_HOST=http://kibana:5601
     networks:
       - app-network
