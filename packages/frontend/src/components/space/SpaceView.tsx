@@ -42,7 +42,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     spaceActions: { updateNode },
   });
 
-
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       if (type === "note") {
@@ -102,7 +101,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       defineEdge(fromNode.id, toNode.id);
     },
   });
-  const { startNode, handlers } = drag;
 
   const stageSize = useAutofit(autofitTo);
 
@@ -123,7 +121,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         x={node.x}
         y={node.y}
         name={node.name}
-        src={node.src}
+        src={node.src || ""}
         onDragStart={() => drag.handlers.onDragStart(node)}
         onDragMove={(e) => {
           drag.handlers.onDragMove(e);
@@ -134,18 +132,28 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
           move.callbacks.endMove(e);
         }}
         dragBoundFunc={dragBoundFunc}
+        onMouseDown={(e) => move.callbacks.startHold(node, e)}
+        onMouseUp={move.callbacks.endHold}
+        onTouchStart={(e) => move.callbacks.startHold(node, e)}
+        onTouchEnd={move.callbacks.endHold}
       />
     ),
     subspace: (node: Node) => (
       <SubspaceNode
         key={node.id}
-        src={node.src}
         x={node.x}
         y={node.y}
         name={node.name}
-        onDragStart={() => handlers.onDragStart(node)}
-        onDragMove={handlers.onDragMove}
-        onDragEnd={handlers.onDragEnd}
+        src={node.src || ""}
+        onDragStart={() => drag.handlers.onDragStart(node)}
+        onDragMove={(e) => {
+          drag.handlers.onDragMove(e);
+          move.callbacks.monitorHoldingPosition(e);
+        }}
+        onDragEnd={(e) => {
+          drag.handlers.onDragEnd(moveState.isMoving);
+          move.callbacks.endMove(e);
+        }}
         dragBoundFunc={dragBoundFunc}
         onMouseDown={(e) => move.callbacks.startHold(node, e)}
         onMouseUp={move.callbacks.endHold}
@@ -210,7 +218,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         }}
       >
         <PaletteMenu
-          items={["note", "image", "url"]}
+          items={["note", "image", "url", "subspace"]}
           onSelect={handlePaletteSelect}
         />
       </div>
@@ -235,49 +243,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         {nodesRenderer}
         {edgesRenderer}
         {paletteRenderer}
-      <Layer>
-        {drag.isActive && drag.position && startNode && (
-          <GooeyNode
-            startPosition={{ x: startNode.x, y: startNode.y }}
-            dragPosition={drag.position}
-          />
-        )}
-        {drag.position && drag.overlapNode && (
-          <MemoizedNearIndicator overlapNode={drag.overlapNode} />
-        )}
-        {nodes &&
-          Object.entries(nodes).map(([, node]) => {
-            const Component =
-              nodeComponents[node.type as keyof typeof nodeComponents];
-            return Component ? Component(node) : null;
-          })}
-        {edges &&
-          Object.entries(edges).map(([edgeId, edge]) => (
-            <Edge
-              key={edgeId || `${edge.from.id}-${edge.to.id}`}
-              from={edge.from}
-              to={edge.to}
-              nodes={nodes}
-            />
-          ))}
-        {dropPosition && (
-          <Html>
-            <div
-              style={{
-                position: "absolute",
-                left: dropPosition.x,
-                top: dropPosition.y,
-                transform: "translate(-50%, -50%)",
-                pointerEvents: "auto",
-              }}
-            >
-              <PaletteMenu
-                items={["note", "image", "url", "subspace"]}
-                onSelect={handlePaletteSelect}
-              />
-            </div>
-          </Html>
-        )}
       </Layer>
       <PointerLayer />
     </Stage>
