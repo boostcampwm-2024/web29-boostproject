@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
+import { useNavigate } from "react-router-dom";
 
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
@@ -9,7 +10,8 @@ type NodeProps = {
   y: number;
   draggable?: boolean;
   children?: ReactNode;
-} & Konva.GroupConfig;
+} & Konva.GroupConfig &
+  KonvaNodeEvents;
 
 type NodeHandlers = {
   dragBoundFunc?: () => Vector2d;
@@ -110,13 +112,32 @@ export type NoteNodeProps = {
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ x, y, name, ...rest }: NoteNodeProps) {
+export function NoteNode({ x, y, name, src, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
+  const navigate = useNavigate();
   const radius = 64;
   return (
-    <Node x={x} y={y} {...rest}>
+    <Node x={x} y={y} onClick={() => navigate(`/note/${src}`)} {...rest}>
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
+    </Node>
+  );
+}
+
+export type SubspaceNodeProps = {
+  x: number;
+  y: number;
+  name: string;
+  src: string;
+} & NodeHandlers;
+
+export function SubspaceNode({ x, y, name, src, ...rest }: SubspaceNodeProps) {
+  const navigate = useNavigate();
+
+  return (
+    <Node x={x} y={y} onClick={() => navigate(`/space/${src}`)} {...rest}>
+      <Node.Circle radius={64} fill="#FFF2CB" />
+      <Node.Text fontSize={16} fontStyle="700" content={name} />
     </Node>
   );
 }

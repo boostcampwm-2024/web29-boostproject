@@ -41,8 +41,8 @@ export default function useY<T extends Y.AbstractType<any> | undefined>(
     };
 
     if (yData) {
-      yData.observe(callback);
-      return () => yData.unobserve(callback);
+      yData.observeDeep(callback);
+      return () => yData.unobserveDeep(callback);
     }
 
     return () => {};
