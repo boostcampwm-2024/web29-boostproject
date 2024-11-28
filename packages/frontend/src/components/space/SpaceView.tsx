@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Layer, Stage } from "react-konva";
-import { Html } from "react-konva-utils";
 
 import * as Dialog from "@radix-ui/react-dialog";
 import Konva from "konva";
