@@ -1,6 +1,7 @@
 import React from "react";
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { prompt } from "@/lib/prompt-dialog";
 
 import CustomContextMenu from "./CustomContextMenu";
 import {
@@ -34,8 +35,15 @@ export default function SpaceContextMenuWrapper({
       return [
         {
           label: `${nodeTypeConfig[selectedNode.type]}명 편집`,
-          action: () => {
-            const nodeNewName = window.prompt("수정할 이름을 입력해주세요.");
+          action: async () => {
+            const { nodeNewName } = await prompt(
+              `${nodeTypeConfig[selectedNode.type]}명 편집`,
+              "수정할 이름을 입력해주세요.",
+              {
+                name: "nodeNewName",
+                label: "이름",
+              },
+            );
             if (!nodeNewName) return;
             onNodeUpdate(selectedNode.id, { name: nodeNewName });
             clearSelection();
