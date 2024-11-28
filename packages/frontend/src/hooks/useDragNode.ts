@@ -59,7 +59,10 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     }
 
     animationFrameId.current = requestAnimationFrame(() => {
-      const overlapNodes = findOverlapNodes(position, nodes);
+      const filteredNodes = nodes.filter(
+        (node) => node.id !== dragState.startNode?.id,
+      );
+      const overlapNodes = findOverlapNodes(position, filteredNodes);
       const selectedNode =
         overlapNodes.length > 0
           ? findNearestNode(position, overlapNodes)
@@ -111,6 +114,8 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       type === "image" ||
       type === "url"
     ) {
+      if (type === "image" || type === "url")
+        window.alert("아직 지원하지 않는 타입이에요.");
       setDropPosition(null);
       return;
     }
