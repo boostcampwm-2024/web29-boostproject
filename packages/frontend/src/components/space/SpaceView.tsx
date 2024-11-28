@@ -209,6 +209,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   };
 
   const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
+    e.evt.preventDefault(); // 브라우저 컨텍스트메뉴 표시 방지
     clearSelection();
 
     const { target } = e;
