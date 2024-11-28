@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useLayoutEffect, useRef } from "react";
 import { Group, Label, Path, Tag, Text } from "react-konva";
 
 import Konva from "konva";
@@ -18,8 +18,12 @@ const PointerCursor = memo(({ color, position, label }: PointerCursorProps) => {
   const tween = useCallback((position: { x: number; y: number }) => {
     const { current } = ref;
 
-    if (current?.visible()) {
-      current?.to({
+    if (!current) {
+      return;
+    }
+
+    if (current.visible()) {
+      current.to({
         x: position.x,
         y: position.y,
         duration: 0.1,
@@ -27,13 +31,16 @@ const PointerCursor = memo(({ color, position, label }: PointerCursorProps) => {
 
       return;
     }
-    current?.visible(true);
-    current?.position(position);
+
+    current.visible(true);
+    current.position(position);
   }, []);
 
-  if (position) {
-    tween({ ...position });
-  }
+  useLayoutEffect(() => {
+    if (position?.x !== undefined && position?.y !== undefined) {
+      tween({ x: position.x, y: position.y });
+    }
+  }, [position?.x, position?.y, tween]);
 
   if (!position) {
     return null;
