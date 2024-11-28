@@ -60,15 +60,15 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     }));
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (isMoving: boolean = false) => {
     const { startNode, dragPosition, overlapNode } = dragState;
     if (!startNode || !dragPosition) return;
 
-    if (!overlapNode) {
+    if (!overlapNode && !isMoving) {
       setDropPosition(dragPosition);
     }
 
-    if (overlapNode && overlapNode.id !== startNode.id) {
+    if (overlapNode && overlapNode.id !== startNode.id && !isMoving) {
       setDropPosition(null);
       spaceActions.createEdge(startNode, overlapNode);
     }

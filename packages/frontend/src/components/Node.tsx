@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { Circle, Group, Text } from "react-konva";
+import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
+import { useNavigate } from "react-router-dom";
 
 import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
 type NodeProps = {
@@ -11,14 +11,12 @@ type NodeProps = {
   y: number;
   draggable?: boolean;
   children?: ReactNode;
-} & Konva.GroupConfig;
+} & Konva.GroupConfig &
+  KonvaNodeEvents;
 
 type NodeHandlers = {
-  onDragStart: () => void;
-  onDragMove: (e: KonvaEventObject<DragEvent>) => void;
-  onDragEnd: () => void;
   dragBoundFunc?: () => Vector2d;
-};
+} & KonvaNodeEvents;
 
 export default function Node({
   id,
@@ -38,10 +36,17 @@ export default function Node({
 type NodeCircleProps = {
   radius: number;
   fill: string;
+  shadowColor?: string;
 };
 
-Node.Circle = function NodeCircle({ radius, fill }: NodeCircleProps) {
-  return <Circle x={0} y={0} radius={radius} fill={fill} />;
+Node.Circle = function NodeCircle({
+  radius,
+  fill,
+  shadowColor = "#F9D46B",
+}: NodeCircleProps) {
+  return (
+    <Circle x={0} y={0} radius={radius} fill={fill} shadowColor={shadowColor} />
+  );
 };
 
 type NodeTextProps = {
@@ -111,13 +116,38 @@ export type NoteNodeProps = {
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ id, x, y, name, ...rest }: NoteNodeProps) {
+export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
+  const navigate = useNavigate();
   const radius = 64;
   return (
-    <Node id={id} x={x} y={y} {...rest}>
+    <Node
+      id={id}
+      x={x}
+      y={y}
+      onClick={() => navigate(`/note/${src}`)}
+      {...rest}
+    >
       <Node.Circle radius={radius} fill="#FFF2CB" />
       <Node.Text fontSize={16} content={name} />
+    </Node>
+  );
+}
+
+export type SubspaceNodeProps = {
+  x: number;
+  y: number;
+  name: string;
+  src: string;
+} & NodeHandlers;
+
+export function SubspaceNode({ x, y, name, src, ...rest }: SubspaceNodeProps) {
+  const navigate = useNavigate();
+
+  return (
+    <Node x={x} y={y} onClick={() => navigate(`/space/${src}`)} {...rest}>
+      <Node.Circle radius={64} fill="#FFF2CB" />
+      <Node.Text fontSize={16} fontStyle="700" content={name} />
     </Node>
   );
 }
