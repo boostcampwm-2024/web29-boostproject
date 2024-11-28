@@ -1,4 +1,9 @@
-import { FormEventHandler, ReactNode, useSyncExternalStore } from "react";
+import {
+  FormEventHandler,
+  ReactNode,
+  isValidElement,
+  useSyncExternalStore,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -94,7 +99,9 @@ export function PromptDialogPortal() {
         <DialogHeader>
           {data?.title && <DialogTitle>{data?.title}</DialogTitle>}
           {data?.description && (
-            <DialogDescription>{data.description}</DialogDescription>
+            <DialogDescription asChild={isValidElement(data.description)}>
+              {data.description}
+            </DialogDescription>
           )}
         </DialogHeader>
         {Boolean(data?.fields?.length) && (

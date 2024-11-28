@@ -33,9 +33,16 @@ export default function SpacePageHeader() {
             className="ml-2"
             variant="outline"
             onClick={() => {
-              prompt(
-                "공유",
-                `아래 주소를 공유해주세요.\n\n${window.location.href}`,
+              Promise.resolve(
+                prompt(
+                  "공유",
+                  <>
+                    <p>아래 주소를 공유해주세요</p>
+                    <pre className="p-2 rounded bg-muted text-muted-foreground mt-4 select-all text-wrap">
+                      {window.location.href}
+                    </pre>
+                  </>,
+                ),
               );
             }}
           >
