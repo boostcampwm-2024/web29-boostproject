@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { Layer, Stage } from "react-konva";
+import { Group, Layer, Stage } from "react-konva";
+import { Html } from "react-konva-utils";
 
-import * as Dialog from "@radix-ui/react-dialog";
+import * as Popover from "@radix-ui/react-popover";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
@@ -146,6 +147,40 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     };
   }, [autofitTo]);
 
+  const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
+    // e.evt.preventDefault(); // 브라우저 컨텍스트메뉴 표시 방지
+    clearSelection();
+
+    const { target } = e;
+
+    if (target.attrs.name === "edge") {
+      const edgeId = target.attrs.id;
+      if (!edgeId) return;
+
+      selectEdge({ id: edgeId });
+      return;
+    }
+
+    const group = target.findAncestor("Group");
+
+    const nodeId = group?.attrs?.id as string | undefined;
+
+    if (!nodes || !nodeId) return;
+
+    const nodeMap = nodes as Record<string, Node>;
+    const node = nodeMap[nodeId];
+
+    if (
+      !node ||
+      node.type === "url" ||
+      node.type === "image" ||
+      node.type === "head"
+    )
+      return;
+
+    selectNode({ id: nodeId, type: node.type });
+  };
+
   const nodeComponents = {
     head: (node: Node) => (
       <HeadNode
@@ -180,6 +215,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onMouseUp={move.callbacks.endHold}
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
+        onContextMenu={handleContextMenu}
       />
     ),
     subspace: (node: Node) => (
@@ -204,42 +240,9 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onMouseUp={move.callbacks.endHold}
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
+        onContextMenu={handleContextMenu}
       />
     ),
-  };
-
-  const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
-    e.evt.preventDefault(); // 브라우저 컨텍스트메뉴 표시 방지
-    clearSelection();
-
-    const { target } = e;
-
-    if (target.attrs.name === "edge") {
-      const edgeId = target.attrs.id;
-      if (!edgeId) return;
-
-      selectEdge({ id: edgeId });
-      return;
-    }
-
-    const group = target.findAncestor("Group");
-
-    const nodeId = group?.attrs?.id as string | undefined;
-
-    if (!nodes || !nodeId) return;
-
-    const nodeMap = nodes as Record<string, Node>;
-    const node = nodeMap[nodeId];
-
-    if (
-      !node ||
-      node.type === "url" ||
-      node.type === "image" ||
-      node.type === "head"
-    )
-      return;
-
-    selectNode({ id: nodeId, type: node.type });
   };
 
   const gooeyNodeCreatingRenderer = drag.isActive &&
@@ -283,29 +286,32 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         from={edge.from}
         to={edge.to}
         nodes={nodes}
+        onContextMenu={handleContextMenu}
       />
     ));
 
-  const paletteRenderer = !moveState.isMoving && dropPosition && (
-    <Dialog.Root open onOpenChange={(open) => !open && setDropPosition(null)}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="hidden" />
-        <Dialog.Content
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          className="fixed p-0 bg-transparent border-none shadow-none data-[state=open]:animate-in data-[state=open]:fade-in-0 z-50 focus:outline-none"
-          style={{
-            left: `${dropPosition.x + stageSize.width / 2}px`, // stage offset 보정 (Html 포탈을 쓰지 않으므로 보정 필요)
-            top: `${dropPosition.y + stageSize.height / 2}px`,
-            transform: "translate(-50%, -50%)",
-          }}
+  const paletteRenderer = (
+    <Group x={dropPosition?.x} y={dropPosition?.y}>
+      <Html>
+        <Popover.Root
+          open={!moveState.isMoving && Boolean(dropPosition)}
+          onOpenChange={(open) => !open && setDropPosition(null)}
         >
-          <PaletteMenu
-            items={["note", "subspace"]}
-            onSelect={handlePaletteSelect}
-          />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          <Popover.Anchor />
+          <Popover.Portal>
+            <Popover.Content
+              className="-translate-y-1/2"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+              <PaletteMenu
+                items={["note", "subspace"]}
+                onSelect={handlePaletteSelect}
+              />
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
+      </Html>
+    </Group>
   );
 
   return (
@@ -321,7 +327,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onEdgeDelete: deleteEdge,
       }}
     >
-      {paletteRenderer}
       <Stage
         width={stageSize.width}
         height={stageSize.height}
@@ -329,7 +334,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         offsetY={-stageSize.height / 2}
         ref={stageRef}
         onWheel={zoomSpace}
-        onContextMenu={handleContextMenu}
         draggable
       >
         <Layer>
@@ -339,6 +343,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
           {nearIndicatorRenderer}
           {nodesRenderer}
           {edgesRenderer}
+          {paletteRenderer}
         </Layer>
         <PointerLayer />
       </Stage>
