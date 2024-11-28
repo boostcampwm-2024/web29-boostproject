@@ -56,11 +56,9 @@ function SpaceBreadcrumbItem({ spacePath, isPage }: SpaceBreadcrumbItemProps) {
   if (isPage) {
     return (
       <BreadcrumbItem>
-        {isPage && (
-          <BreadcrumbPage className="truncate max-w-20">
-            {spacePath.name}
-          </BreadcrumbPage>
-        )}
+        <BreadcrumbPage className="truncate max-w-20">
+          {spacePath.name}
+        </BreadcrumbPage>
       </BreadcrumbItem>
     );
   }
