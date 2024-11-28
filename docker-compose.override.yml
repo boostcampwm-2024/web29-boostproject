@@ -8,7 +8,7 @@ services:
       - "6379:6379"
     networks:
       - app-network
-    command: redis-server --bind 0.0.0.0
+    command: redis-server --bind 0.0.0.0 --requirepass 1234
 
   mysql:
     image: mysql:8.0
@@ -52,12 +52,13 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=dev_db
       - MYSQL_PASSWORD=1234
-      - MYSQL_USERNAME=honey
+      - MYSQL_USER=honey
       - NODE_ENV=dev
-      - ELASTIC_NODE=http://elsatic:9200
+      - ELASTIC_NODE=http://elasticsearch:9200
       - ELASTIC_USERNAME=honey
       - ELASTIC_PASSWORD=1234
       - REDIS_HOST=redis-container
+      - REDIS_PASSWORD=1234
       - REDIS_PORT=6379
       - REDIS_TTL=3600
       - MONGO_HOST=mongodb-container
@@ -154,6 +155,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - KIBANA_HOST=http://kibana:5601
+      - LOG_FORMAT=json
     networks:
       - app-network
     depends_on:

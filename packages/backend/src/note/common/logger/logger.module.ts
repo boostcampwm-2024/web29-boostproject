@@ -5,9 +5,23 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
+import { LoggerService } from './logger.service';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ElasticsearchModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        node: configService.get<string>('ELASTIC_NODE') as string,
+        auth: {
+          username: configService.get<string>('ELASTIC_USERNAME') as string,
+          password: configService.get<string>('ELASTIC_PASSWORD') as string,
+        },
+      }),
+    }),
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({
@@ -50,6 +64,7 @@ import 'winston-daily-rotate-file';
       ],
     }),
   ],
-  exports: [WinstonModule],
+  providers: [LoggerService],
+  exports: [WinstonModule, LoggerService],
 })
 export class LoggerModule {}

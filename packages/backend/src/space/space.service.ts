@@ -5,7 +5,7 @@ import { Space } from './space.entity';
 import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
 import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
-import { SpaceData, Node } from 'temp/types';
+import { SpaceData, Node } from 'shared/types';
 import { SpaceValidationService } from './space.validation.service';
 
 @Injectable()
@@ -90,7 +90,7 @@ export class SpaceService {
     }
   }
 
-  async existsByUrlPath(urlPath: string): Promise<boolean> {
+  async existsByUrlPath(urlPath: string) {
     const count = await this.spaceRepository.count({
       where: [{ urlPath }],
     });

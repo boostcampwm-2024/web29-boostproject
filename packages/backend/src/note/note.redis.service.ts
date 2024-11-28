@@ -12,6 +12,7 @@ export class NoteRedisService {
     this.redis = new Redis({
       host: this.configService.get('REDIS_HOST'),
       port: this.configService.get('REDIS_PORT'),
+      password: this.configService.get('REDIS_PASSWORD'),
       keyPrefix: 'note:',
     });
   }

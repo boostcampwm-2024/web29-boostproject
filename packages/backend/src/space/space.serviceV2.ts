@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
-import { SpaceData, Node } from 'temp/types';
+import { SpaceData, Node } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { SpaceDocument } from 'src/collaborative/collaborative.type';
 import { SpaceValidationServiceV2 } from './space.validation.serviceV2';
+import { SpaceDocument } from '../collaborative/schemas/space.schema';
 
 @Injectable()
 export class SpaceServiceV2 {
   constructor(
     private readonly snowflakeService: SnowflakeService,
     private readonly spaceValidationService: SpaceValidationServiceV2,
-
-    @InjectModel('Space')
+    @InjectModel(SpaceDocument.name)
     private readonly spaceModel: Model<SpaceDocument>,
   ) {}
   async findById(id: string) {
@@ -56,6 +55,6 @@ export class SpaceServiceV2 {
   }
 
   async existsByUrlPath(urlPath: string) {
-    this.spaceModel.findOne({ urlPath }).exec();
+    return this.spaceModel.findOne({ urlPath }).exec();
   }
 }

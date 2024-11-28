@@ -10,7 +10,7 @@ import { RedisModule } from './redis/redis.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { LoggerModule } from './note/common/logger/logger.module';
-import { Space, SpaceSchema } from './schema/space.schema';
+import { CollaborativeModule } from './collaborative/collaborative.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -64,7 +64,7 @@ import { Space, SpaceSchema } from './schema/space.schema';
     NoteModule,
     RedisModule,
     LoggerModule,
-    MongooseModule.forFeature([{ name: Space.name, schema: SpaceSchema }]),
+    CollaborativeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

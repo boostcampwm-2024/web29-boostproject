@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SpaceServiceV2 } from '../space/space.serviceV2';
 import { SpaceRedisService } from '../space/space.redis.service';
 import { NoteServiceV2 } from '../note/note.serviceV2';
 import { NoteRedisService } from '../note/note.redis.service';
 
 @Injectable()
-export class collaborativeService {
+export class CollaborativeService {
   constructor(
     private readonly spaceService: SpaceServiceV2,
     private readonly spaceRedisService: SpaceRedisService,

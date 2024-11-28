@@ -6,13 +6,9 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { SpaceService } from 'src/space/space.service';
-
 import { NoteService } from 'src/note/note.service';
-
 import { parseSocketUrl } from 'src/note/common/utils/socket.util';
-
 import { WebsocketStatus } from 'src/note/common/constants/websocket.constants';
-
 import { Server, WebSocket } from 'ws';
 import { Request } from 'express';
 import {

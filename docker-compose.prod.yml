@@ -136,6 +136,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - KIBANA_HOST=http://kibana:5601
+      - LOG_FORMAT=json
     networks:
       - app-network
     depends_on:
@@ -149,5 +150,4 @@ networks:
 volumes:
   filebeat_data:
   metricbeat_data:
-  mongo_data:
   elasticsearch_data:
