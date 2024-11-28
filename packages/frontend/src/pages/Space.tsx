@@ -1,28 +1,31 @@
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 
-import YjsSpaceView from "@/components/space/YjsSpaceView";
+import SpacePageHeader from "@/components/space/SpacePageHeader";
+import SpaceView from "@/components/space/SpaceView";
+import useYjsConnection from "@/hooks/yjs/useYjsConnection";
+import { YjsStoreProvider } from "@/store/yjs";
 
 interface SpacePageParams extends Record<string, string | undefined> {
-  entrySpaceId?: string;
+  spaceId?: string;
 }
 
 export default function SpacePage() {
-  const { entrySpaceId } = useParams<SpacePageParams>();
+  const { spaceId } = useParams<SpacePageParams>();
 
-  if (!entrySpaceId) {
+  if (!spaceId) {
     throw new Error("");
   }
 
+  const { yDoc, yProvider, setYDoc, setYProvider } = useYjsConnection(spaceId);
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div
-      className="text-sm"
-      style={{ width: "100%", height: "100%" }}
-      ref={containerRef}
-    >
-      <YjsSpaceView spaceId={entrySpaceId} autofitTo={containerRef} />
-    </div>
+    <YjsStoreProvider value={{ yDoc, yProvider, setYDoc, setYProvider }}>
+      <div className="w-full h-full" ref={containerRef}>
+        <SpaceView autofitTo={containerRef} />
+        <SpacePageHeader />
+      </div>
+    </YjsStoreProvider>
   );
 }
