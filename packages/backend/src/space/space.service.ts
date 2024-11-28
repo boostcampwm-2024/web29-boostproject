@@ -7,8 +7,7 @@ import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { SpaceData, Node } from 'shared/types';
 import { SpaceValidationService } from './space.validation.service';
-import { LoggerService } from 'src/common/logger/logger.service';
-
+import { Logger } from '@nestjs/common';
 @Injectable()
 export class SpaceService {
   constructor(
@@ -16,12 +15,12 @@ export class SpaceService {
     private readonly spaceRepository: Repository<Space>,
     private readonly snowflakeService: SnowflakeService,
     private readonly spaceValidationService: SpaceValidationService,
-    private readonly logger: LoggerService,
+    private readonly logger = new Logger(SpaceService.name),
   ) {}
 
   async findByUrlPath(urlPath: string) {
     try {
-      this.logger.info('Finding space by URL path', {
+      this.logger.log('Finding space by URL path', {
         method: 'findByUrlPath',
         urlPath,
       });
@@ -30,7 +29,7 @@ export class SpaceService {
         where: { urlPath },
       });
 
-      this.logger.info('Space find operation completed', {
+      this.logger.log('Space find operation completed', {
         method: 'findByUrlPath',
         urlPath,
         found: !!result,
@@ -54,7 +53,7 @@ export class SpaceService {
     parentContextNodeId: string | null,
   ) {
     try {
-      this.logger.info('Creating new space', {
+      this.logger.log('Creating new space', {
         method: 'create',
         userId,
         spaceName,
@@ -91,7 +90,7 @@ export class SpaceService {
 
       const space = await this.spaceRepository.save(spaceDto);
 
-      this.logger.info('Space created successfully', {
+      this.logger.log('Space created successfully', {
         method: 'create',
         spaceId: space.id,
         urlPath: space.urlPath,
@@ -112,7 +111,7 @@ export class SpaceService {
 
   async updateByEdges(id: string, edges: string) {
     try {
-      this.logger.info('Updating space edges', {
+      this.logger.log('Updating space edges', {
         method: 'updateByEdges',
         spaceId: id,
         edgesLength: edges.length,
@@ -130,7 +129,7 @@ export class SpaceService {
       space.edges = JSON.stringify(edges);
       const updatedSpace = await this.spaceRepository.save(space);
 
-      this.logger.info('Space edges updated successfully', {
+      this.logger.log('Space edges updated successfully', {
         method: 'updateByEdges',
         spaceId: id,
       });
@@ -149,7 +148,7 @@ export class SpaceService {
 
   async updateByNodes(id: string, nodes: string) {
     try {
-      this.logger.info('Updating space nodes', {
+      this.logger.log('Updating space nodes', {
         method: 'updateByNodes',
         spaceId: id,
         nodesLength: nodes.length,
@@ -167,7 +166,7 @@ export class SpaceService {
       space.nodes = JSON.stringify(nodes);
       const updatedSpace = await this.spaceRepository.save(space);
 
-      this.logger.info('Space nodes updated successfully', {
+      this.logger.log('Space nodes updated successfully', {
         method: 'updateByNodes',
         spaceId: id,
       });
@@ -186,7 +185,7 @@ export class SpaceService {
 
   async existsByUrlPath(urlPath: string) {
     try {
-      this.logger.info('Checking space existence by URL path', {
+      this.logger.log('Checking space existence by URL path', {
         method: 'existsByUrlPath',
         urlPath,
       });
@@ -195,7 +194,7 @@ export class SpaceService {
         where: [{ urlPath }],
       });
 
-      this.logger.info('Space existence check completed', {
+      this.logger.log('Space existence check completed', {
         method: 'existsByUrlPath',
         urlPath,
         exists: count > 0,

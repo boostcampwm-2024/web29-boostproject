@@ -16,14 +16,14 @@ import {
 import * as Y from 'yjs';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { CollaborativeService } from 'src/collaborative/collaborative.service';
-import { LoggerService } from 'src/common/logger/logger.service';
+import { Logger } from '@nestjs/common';
 const SPACE = 'space';
 
 @WebSocketGateway(9002)
 export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly collaborativeService: CollaborativeService,
-    private readonly logger: LoggerService,
+    private readonly logger = new Logger(YjsGatewayV2.name),
   ) {}
 
   @WebSocketServer()
@@ -33,21 +33,10 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const url = request.url || '';
       const { urlType, urlId } = parseSocketUrl(url);
-      this.logger.info('WebSocket connection attempt', {
-        method: 'handleConnection',
-        url: request.url,
-        urlType,
-        urlId,
-        remoteAddress: request.socket.remoteAddress,
-      });
+      this.logger.log(`WebSocket connection attempt - ${urlType}:${urlId}`);
+
       if (!this.validateUrl(urlType, urlId)) {
-        this.logger.error('Invalid WebSocket URL', {
-          method: 'handleConnection',
-          url: request.url,
-          urlType,
-          urlId,
-          error: ERROR_MESSAGES.SOCKET.INVALID_URL,
-        });
+        this.logger.error(`Invalid WebSocket URL - ${urlType}:${urlId}`);
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,
           ERROR_MESSAGES.SOCKET.INVALID_URL,
@@ -58,20 +47,12 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
         ? await this.initializeSpace(connection, request, urlId as string)
         : await this.initializeNote(connection, request, urlId as string);
     } catch (error) {
-      this.logger.error('WebSocket connection failed', {
-        method: 'handleConnection',
-        error: error.message,
-        stack: error.stack,
-        url: request.url,
-      });
+      this.logger.error(`WebSocket connection failed: ${error.message}`);
     }
   }
 
   handleDisconnect(connection: WebSocket) {
-    this.logger.info('WebSocket disconnected', {
-      method: 'handleDisconnect',
-      timestamp: new Date().toISOString(),
-    });
+    this.logger.log('WebSocket disconnected');
   }
 
   private validateUrl(urlType: string | null, urlId: string | null): boolean {
@@ -91,48 +72,23 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
       bindState: (docName: string, ydoc: Y.Doc) => {
         try {
           const yContext = ydoc.getMap('context');
-          this.logger.info('Space bindState called', {
-            method: 'bindState',
-            docName,
-            urlId,
-            contextSize: yContext.size,
-          });
+          this.logger.log(`Space bindState called for ${docName}`);
         } catch (error) {
-          this.logger.error('Error in space bindState', {
-            method: 'bindState',
-            docName,
-            urlId,
-            error: error.message,
-            stack: error.stack,
-          });
+          this.logger.error(`Error in space bindState: ${error.message}`);
         }
       },
       writeState: (docName: string, ydoc: Y.Doc) => {
         try {
           const yContext = ydoc.getMap('context');
-          this.logger.info('Space writeState called', {
-            method: 'writeState',
-            docName,
-            urlId,
-            contextSize: yContext.size,
-          });
+          this.logger.log(`Space writeState called for ${docName}`);
+
           this.collaborativeService.updateBySpace(
             urlId,
             JSON.stringify(yContext),
           );
-          this.logger.info('Space state updated successfully', {
-            method: 'writeState',
-            docName,
-            urlId,
-          });
+          this.logger.log('Space state updated successfully');
         } catch (error) {
-          this.logger.error('Error in space writeState', {
-            method: 'writeState',
-            docName,
-            urlId,
-            error: error.message,
-            stack: error.stack,
-          });
+          this.logger.error(`Error in space writeState: ${error.message}`);
         }
         return Promise.resolve();
       },
@@ -142,10 +98,7 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
       try {
         const space = await this.collaborativeService.findBySpace(urlId);
         if (!space) {
-          this.logger.error('Space not found during initialization', {
-            method: 'setContentInitializor',
-            urlId,
-          });
+          this.logger.error(`Space not found during initialization: ${urlId}`);
           return;
         }
 
@@ -155,25 +108,11 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
           nodes: JSON.parse(space.nodes),
         };
 
-        this.logger.info('Space content initialization started', {
-          method: 'setContentInitializor',
-          urlId,
-          edgesCount: Object.keys(parsedSpace.edges).length,
-          nodesCount: Object.keys(parsedSpace.nodes).length,
-        });
+        this.logger.log('Space content initialization started');
         this.setYSpace(ydoc, parsedSpace);
-
-        this.logger.info('Space content initialized successfully', {
-          method: 'setContentInitializor',
-          urlId,
-        });
+        this.logger.log('Space content initialized successfully');
       } catch (error) {
-        this.logger.error('Error initializing space content', {
-          method: 'setContentInitializor',
-          urlId,
-          error: error.message,
-          stack: error.stack,
-        });
+        this.logger.error(`Error initializing space content: ${error.message}`);
       }
       return Promise.resolve();
     });
@@ -205,18 +144,11 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     try {
-      this.logger.info('Initializing note connection', {
-        method: 'initializeNote',
-        urlId,
-      });
+      this.logger.log(`Initializing note connection for ${urlId}`);
 
       const note = await this.collaborativeService.findByNote(urlId);
       if (!note) {
-        this.logger.error('Note not found', {
-          method: 'initializeNote',
-          urlId,
-          error: ERROR_MESSAGES.NOTE.NOT_FOUND,
-        });
+        this.logger.error(`Note not found: ${urlId}`);
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,
           ERROR_MESSAGES.NOTE.NOT_FOUND,
@@ -233,21 +165,10 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
                 Buffer.from(note.content, 'base64'),
               );
               Y.applyUpdate(ydoc, updates);
-              this.logger.info('Note state bound successfully', {
-                method: 'bindState',
-                docName,
-                urlId,
-                hasContent: true,
-              });
+              this.logger.log(`Note state bound successfully for ${docName}`);
             }
           } catch (error) {
-            this.logger.error('Error binding note state', {
-              method: 'bindState',
-              docName,
-              urlId,
-              error: error.message,
-              stack: error.stack,
-            });
+            this.logger.error(`Error binding note state: ${error.message}`);
           }
         },
         writeState: async (docName: string, ydoc: Y.Doc) => {
@@ -255,38 +176,17 @@ export class YjsGatewayV2 implements OnGatewayConnection, OnGatewayDisconnect {
             const updates = Y.encodeStateAsUpdate(ydoc);
             const encodedUpdates = Buffer.from(updates).toString('base64');
             await this.collaborativeService.updateByNote(urlId, encodedUpdates);
-
-            this.logger.info('Note state updated successfully', {
-              method: 'writeState',
-              docName,
-              urlId,
-              updateSize: updates.length,
-            });
+            this.logger.log(`Note state updated successfully for ${docName}`);
           } catch (error) {
-            this.logger.error('Error writing note state', {
-              method: 'writeState',
-              docName,
-              urlId,
-              error: error.message,
-              stack: error.stack,
-            });
+            this.logger.error(`Error writing note state: ${error.message}`);
           }
         },
       });
 
       setupWSConnection(connection, request);
-      this.logger.info('Note connection initialized successfully', {
-        method: 'initializeNote',
-        urlId,
-        status: 'connected',
-      });
+      this.logger.log('Note connection initialized successfully');
     } catch (error) {
-      this.logger.error('Error in note initialization', {
-        method: 'initializeNote',
-        urlId,
-        error: error.message,
-        stack: error.stack,
-      });
+      this.logger.error(`Error in note initialization: ${error.message}`);
     }
   }
 }

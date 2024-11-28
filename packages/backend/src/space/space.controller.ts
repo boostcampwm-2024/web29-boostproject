@@ -15,14 +15,14 @@ import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SpaceServiceV2 } from './space.serviceV2';
 import { LoggerService } from 'src/common/logger/logger.service';
-
+import { Logger } from '@nestjs/common';
 @ApiTags('space')
 @Controller('space')
 export class SpaceController {
   constructor(
     private readonly SpaceService: SpaceService,
     private readonly SpaceServiceV2: SpaceServiceV2,
-    private readonly logger: LoggerService,
+    private readonly logger = new Logger(SpaceController.name),
   ) {}
 
   @Version('2')
@@ -32,7 +32,7 @@ export class SpaceController {
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   async createSubSpace(@Body() createSpaceDto: CreateSpaceDto) {
     try {
-      this.logger.info('Creating new space', {
+      this.logger.log('Creating new space', {
         method: 'createSubSpace',
         userId: createSpaceDto.userId,
         spaceName: createSpaceDto.spaceName,
@@ -73,7 +73,7 @@ export class SpaceController {
         );
       }
 
-      this.logger.info('Space created successfully', {
+      this.logger.log('Space created successfully', {
         method: 'createSubSpace',
         userId,
         spaceName,
@@ -95,20 +95,20 @@ export class SpaceController {
   @Get('/:urlPath')
   async getSpace(@Param('urlPath') urlPath: string) {
     try {
-      this.logger.info('Fetching space', {
+      this.logger.log('Fetching space', {
         method: 'getSpace',
         urlPath,
       });
 
       const result = await this.SpaceService.existsByUrlPath(urlPath);
 
-      this.logger.info('Space fetch completed', {
+      this.logger.log('Space fetch completed', {
         method: 'getSpace',
         urlPath,
         found: !!result,
       });
 
-      return result;
+      return result ? true : false;
     } catch (error) {
       this.logger.error(ERROR_MESSAGES.SPACE.UPDATE_FAILED, {
         method: 'getSpace',
@@ -121,23 +121,23 @@ export class SpaceController {
   }
 
   @Version('2')
-  @Get('test/:urlPath')
+  @Get('/:urlPath')
   async getSpaceV2(@Param('urlPath') urlPath: string) {
     try {
-      this.logger.info('Fetching space V2', {
+      this.logger.log('Fetching space V2', {
         method: 'getSpaceV2',
         urlPath,
       });
 
       const result = await this.SpaceServiceV2.existsByUrlPath(urlPath);
 
-      this.logger.info('Space V2 fetch completed', {
+      this.logger.log('Space V2 fetch completed', {
         method: 'getSpaceV2',
         urlPath,
         found: !!result,
       });
 
-      return result;
+      return result ? true : false;
     } catch (error) {
       this.logger.error(ERROR_MESSAGES.SPACE.UPDATE_FAILED, {
         method: 'getSpaceV2',
@@ -150,13 +150,13 @@ export class SpaceController {
   }
 
   @Version('3')
-  @Post('test')
+  @Post()
   @ApiOperation({ summary: '스페이스 생성' })
   @ApiResponse({ status: 201, description: '스페이스 생성 성공' })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   async createSpaceV3(@Body() createSpaceDto: CreateSpaceDto) {
     try {
-      this.logger.info('Creating new space V3', {
+      this.logger.log('Creating new space V3', {
         method: 'createSpaceV3',
         userId: createSpaceDto.userId,
         spaceName: createSpaceDto.spaceName,
@@ -197,7 +197,7 @@ export class SpaceController {
         );
       }
 
-      this.logger.info('Space V3 created successfully', {
+      this.logger.log('Space V3 created successfully', {
         method: 'createSubSpaceV3',
         userId,
         spaceName,
