@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { SpaceService } from './space.service';
 import { SpaceController } from './space.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Space } from './space.entity';
@@ -24,12 +23,11 @@ import { SpaceValidationServiceV2 } from './space.validation.serviceV2';
   controllers: [SpaceController],
   providers: [
     SnowflakeService,
-    SpaceService,
     SpaceServiceV2,
     SpaceValidationService,
     SpaceValidationServiceV2,
     SpaceRedisService,
   ],
-  exports: [SpaceService, SpaceRedisService, SpaceServiceV2],
+  exports: [SpaceRedisService, SpaceServiceV2],
 })
 export class SpaceModule {}

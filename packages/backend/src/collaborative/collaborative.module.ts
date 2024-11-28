@@ -5,7 +5,7 @@ import { CollaborativeService } from './collaborative.service';
 import { LoggerModule } from 'src/common/logger/logger.module';
 
 @Module({
-  imports: [NoteModule, SpaceModule, LoggerModule],
+  imports: [NoteModule, SpaceModule],
   providers: [CollaborativeService],
   exports: [CollaborativeService],
 })
