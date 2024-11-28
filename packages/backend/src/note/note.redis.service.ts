@@ -17,8 +17,8 @@ export class NoteRedisService {
     });
   }
 
-  async setNote(id: string, data: string): Promise<void> {
-    await this.redis.set(id, JSON.stringify(data), 'EX', this.NOTE_TTL);
+  async setNote(id: string, data: string) {
+    return await this.redis.set(id, JSON.stringify(data), 'EX', this.NOTE_TTL);
   }
 
   async getNote(id: string): Promise<NoteDocument | null> {
