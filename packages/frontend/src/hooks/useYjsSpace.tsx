@@ -62,7 +62,22 @@ export default function useYjsSpace() {
       return;
     }
 
+    const edges = Array.from(yEdges.entries()).map(([id, edge]) => ({
+      id,
+      ...edge,
+    }));
+
+    const isSameEdgeExist = edges.some(
+      (edge) =>
+        (edge.from === toNodeId && edge.to === fromNodeId) ||
+        (edge.from === fromNodeId && edge.to === toNodeId),
+    );
+
+    if (isSameEdgeExist) return;
+
     const edgeId = generateUniqueId();
+
+    if (isSameEdgeExist) return;
 
     yDoc.transact(() => {
       yEdges.set(edgeId, {
