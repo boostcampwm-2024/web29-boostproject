@@ -276,6 +276,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     edges &&
     Object.entries(edges).map(([edgeId, edge]) => (
       <Edge
+        id={edgeId}
         key={edgeId || `${edge.from.id}-${edge.to.id}`}
         from={edge.from}
         to={edge.to}
