@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from 'src/note/common/logger/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class SpaceRedisService {

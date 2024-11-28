@@ -3,7 +3,7 @@ import { SpaceServiceV2 } from '../space/space.serviceV2';
 import { SpaceRedisService } from '../space/space.redis.service';
 import { NoteServiceV2 } from '../note/note.serviceV2';
 import { NoteRedisService } from '../note/note.redis.service';
-import { LoggerService } from 'src/note/common/logger/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class CollaborativeService {

@@ -49,14 +49,11 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
 
   const nodesArray = nodes ? Object.values(nodes) : [];
 
-<<<<<<< HEAD
-=======
   const { move, moveState } = useMoveNode({
     nodes: nodesArray,
     spaceActions: { updateNode },
   });
 
->>>>>>> dev
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       if (type === "note") {

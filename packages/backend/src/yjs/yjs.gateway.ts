@@ -7,8 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { SpaceService } from 'src/space/space.service';
 import { NoteService } from 'src/note/note.service';
-import { parseSocketUrl } from 'src/note/common/utils/socket.util';
-import { WebsocketStatus } from 'src/note/common/constants/websocket.constants';
+import { parseSocketUrl } from 'src/common/utils/socket.util';
+import { WebsocketStatus } from 'src/common/constants/websocket.constants';
 import { Server, WebSocket } from 'ws';
 import { Request } from 'express';
 import {
@@ -17,7 +17,7 @@ import {
   setContentInitializor,
 } from 'y-websocket/bin/utils';
 import * as Y from 'yjs';
-import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
+import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 const SPACE = 'space';
 
 @WebSocketGateway(9001)

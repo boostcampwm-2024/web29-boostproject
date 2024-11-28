@@ -3,7 +3,7 @@ import { SpaceService } from './space.service';
 import { SpaceController } from './space.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Space } from './space.entity';
-import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
+import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { SpaceValidationService } from './space.validation.service';
 import { SpaceRedisService } from './space.redis.service';
 import { SpaceServiceV2 } from './space.serviceV2';
@@ -13,7 +13,7 @@ import {
   SpaceSchema,
 } from '../collaborative/schemas/space.schema';
 import { SpaceValidationServiceV2 } from './space.validation.serviceV2';
-import { LoggerModule } from 'src/note/common/logger/logger.module';
+import { LoggerModule } from 'src/common/logger/logger.module';
 
 @Module({
   imports: [

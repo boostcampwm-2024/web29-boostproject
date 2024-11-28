@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
+import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
-import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
+import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { Note } from './note.entity';
 
 @Injectable()

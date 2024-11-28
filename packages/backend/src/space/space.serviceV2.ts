@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
+import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { SpaceData, Node } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';

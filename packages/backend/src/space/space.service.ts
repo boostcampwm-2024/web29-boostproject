@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from './space.entity';
-import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
-import { SnowflakeService } from 'src/note/common/utils/snowflake.service';
+import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { SpaceData, Node } from 'shared/types';
 import { SpaceValidationService } from './space.validation.service';
-import { LoggerService } from 'src/note/common/logger/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class SpaceService {

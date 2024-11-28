@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create.space.dto';
-import { GUEST_USER_ID } from 'src/note/common/constants/space.constants';
-import { ERROR_MESSAGES } from 'src/note/common/constants/error.message.constants';
+import { GUEST_USER_ID } from 'src/common/constants/space.constants';
+import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SpaceServiceV2 } from './space.serviceV2';
-import { LoggerService } from 'src/note/common/logger/logger.service';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @ApiTags('space')
 @Controller('space')
