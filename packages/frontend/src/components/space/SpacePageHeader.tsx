@@ -1,6 +1,7 @@
 import { prompt } from "@/lib/prompt-dialog";
 
 import SpaceBreadcrumb from "../SpaceBreadcrumb";
+import SpaceShareAlertContent from "../SpaceShareAlertContent";
 import SpaceUsersIndicator from "../SpaceUsersIndicator";
 import { Button } from "../ui/button";
 
@@ -33,17 +34,7 @@ export default function SpacePageHeader() {
             className="ml-2"
             variant="outline"
             onClick={() => {
-              Promise.resolve(
-                prompt(
-                  "공유",
-                  <>
-                    <p>아래 주소를 공유해주세요</p>
-                    <pre className="p-2 rounded bg-muted text-muted-foreground mt-4 select-all text-wrap">
-                      {window.location.href}
-                    </pre>
-                  </>,
-                ),
-              );
+              Promise.resolve(prompt("공유", <SpaceShareAlertContent />));
             }}
           >
             공유
