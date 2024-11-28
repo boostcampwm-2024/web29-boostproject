@@ -35,7 +35,7 @@ export default function useYjsAwarenessStates<
     (onStoreChange: () => void) => {
       const handleOnChange = () => {
         const states = new Map(awareness?.states as Map<number, S>);
-        const localState = { ...awareness?.getLocalState() } as S;
+        const localState = awareness?.getLocalState() as S;
 
         storeRef.current = { states, localState };
         onStoreChange();
