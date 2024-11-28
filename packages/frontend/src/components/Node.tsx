@@ -135,17 +135,31 @@ export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
 }
 
 export type SubspaceNodeProps = {
+  id: string;
   x: number;
   y: number;
   name: string;
   src: string;
 } & NodeHandlers;
 
-export function SubspaceNode({ x, y, name, src, ...rest }: SubspaceNodeProps) {
+export function SubspaceNode({
+  id,
+  x,
+  y,
+  name,
+  src,
+  ...rest
+}: SubspaceNodeProps) {
   const navigate = useNavigate();
 
   return (
-    <Node x={x} y={y} onClick={() => navigate(`/space/${src}`)} {...rest}>
+    <Node
+      id={id}
+      x={x}
+      y={y}
+      onClick={() => navigate(`/space/${src}`)}
+      {...rest}
+    >
       <Node.Circle radius={64} fill="#FFF2CB" />
       <Node.Text fontSize={16} fontStyle="700" content={name} />
     </Node>

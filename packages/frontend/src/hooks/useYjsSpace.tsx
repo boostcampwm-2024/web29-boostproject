@@ -96,7 +96,8 @@ export default function useYjsSpace() {
   };
 
   const deleteEdge = (edgeId: Node["id"]) => {
-    if (!yDoc || !yNodes || !yEdges) {
+    const yEdges = yContext?.get("edges") as Y.Map<EdgeWithId> | undefined;
+    if (!yDoc || !yEdges) {
       return;
     }
 
