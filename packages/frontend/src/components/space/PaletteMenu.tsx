@@ -4,6 +4,7 @@ import { Folder, Image, Link, LucideIcon, NotebookPen, X } from "lucide-react";
 import { Node } from "shared/types";
 
 import { circle, hexagon } from "@/assets/shapes";
+import { prompt } from "@/lib/prompt-dialog";
 
 export type PaletteButtonType = Exclude<Node["type"], "head"> | "close";
 type Position = { top: number; left: number };
@@ -117,13 +118,19 @@ export default function PaletteMenu({ items, onSelect }: PaletteMenuProps) {
   }
 
   const centerOffset = CONTAINER_SIZE / 2 - BUTTON_SIZE / 2;
-  const handleButtonClick = (type: PaletteButtonType) => {
+  const handleButtonClick = async (type: PaletteButtonType) => {
     if (type === "note" || type === "subspace") {
       const message = {
-        note: "노트 제목을 입력해주세요.",
-        subspace: "스페이스 이름을 입력해주세요.",
+        note: "새로운 노트",
+        subspace: "새로운 서브스페이스",
       };
-      const name = window.prompt(message[type]);
+
+      const { name } = await prompt(message[type], null, {
+        label: "제목",
+        name: "name",
+        placeholder: "제목을 입력하세요",
+      }).catch(() => ({ name: undefined }));
+
       if (name) onSelect(type, name);
 
       return;

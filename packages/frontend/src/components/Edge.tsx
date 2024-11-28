@@ -21,7 +21,13 @@ function calculateOffsets(
   return { offsetX, offsetY };
 }
 
-export default function Edge({ from, to, id, ...rest }: EdgeProps) {
+export default function Edge({
+  from,
+  to,
+  id,
+  onContextMenu,
+  ...rest
+}: EdgeProps) {
   const [points, setPoints] = useState<number[]>([]);
   const [isHovered, setIsHovered] = useState(false);
   const RADIUS = 64;
@@ -43,6 +49,7 @@ export default function Edge({ from, to, id, ...rest }: EdgeProps) {
     <Group
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onContextMenu={onContextMenu}
     >
       <Line
         points={points}
