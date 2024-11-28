@@ -5,6 +5,7 @@ import { Html } from "react-konva-utils";
 import Konva from "konva";
 import type { Node } from "shared/types";
 
+import { createNote } from "@/api/note";
 import { createSpace } from "@/api/space";
 import Edge from "@/components/Edge";
 import { HeadNode, NoteNode, SubspaceNode } from "@/components/Node";
@@ -38,18 +39,21 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
     createNode: (type, parentNode, position, name = "New Note") => {
       if (type === "note") {
-        let src = "";
-        // FIXME: note 생성 후 id 입력
-        defineNode(
-          {
-            type,
-            x: position.x,
-            y: position.y,
-            name,
-            src,
-          },
-          parentNode.id,
-        );
+        createNote({
+          userId: "honeyflow",
+          noteName: name,
+        }).then((res) => {
+          defineNode(
+            {
+              type,
+              x: position.x,
+              y: position.y,
+              name,
+              src: res.urlPath.toString(),
+            },
+            parentNode.id,
+          );
+        });
 
         return;
       }
@@ -87,7 +91,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         parentNode.id,
       );
     },
-
     createEdge: (fromNode, toNode) => {
       defineEdge(fromNode.id, toNode.id);
     },
@@ -113,7 +116,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         x={node.x}
         y={node.y}
         name={node.name}
-        src=""
+        src={node.src}
         onDragStart={() => handlers.onDragStart(node)}
         onDragMove={handlers.onDragMove}
         onDragEnd={handlers.onDragEnd}
