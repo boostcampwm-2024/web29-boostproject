@@ -51,15 +51,14 @@ export function useZoomSpace({
   const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
 
-    const isTrackpadGesture =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_PIXEL && event.evt.ctrlKey;
-    const isCommandWheelZoom =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.metaKey;
     const isControlWheelZoom =
       event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.ctrlKey;
+    const isTrackpadGesture =
+      event.evt.deltaMode === WheelEvent.DOM_DELTA_PIXEL && event.evt.ctrlKey;
 
-    // command + 휠이나 트랙패드만 허용하고 ctrl + 휠은 차단
-    if ((!isTrackpadGesture && !isCommandWheelZoom) || isControlWheelZoom) {
+    // NOTE - 마우스휠 동작 방향 반대로 수정할 수 있는지 검토 필요
+    // [ctrl + 마우스휠] 또는 [트랙패드 제스처]만 허용
+    if (!isControlWheelZoom && !isTrackpadGesture) {
       return;
     }
 
