@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Layer, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import type { Node } from "shared/types";
@@ -209,7 +210,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   };
 
   const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
-    e.evt.preventDefault(); // 브라우저 컨텍스트메뉴 표시 방지
     clearSelection();
 
     const { target } = e;
@@ -287,23 +287,25 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     ));
 
   const paletteRenderer = !moveState.isMoving && dropPosition && (
-    <Html>
-      <div
-        style={{
-          position: "absolute",
-          left: dropPosition.x,
-          top: dropPosition.y,
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "auto",
-        }}
-      >
-        <PaletteMenu
-          // items={["note", "image", "url", "subspace"]}
-          items={["note", "subspace"]}
-          onSelect={handlePaletteSelect}
-        />
-      </div>
-    </Html>
+    <Dialog.Root open onOpenChange={(open) => !open && setDropPosition(null)}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="hidden" />
+        <Dialog.Content
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="fixed p-0 bg-transparent border-none shadow-none data-[state=open]:animate-in data-[state=open]:fade-in-0 z-50 focus:outline-none"
+          style={{
+            left: `${dropPosition.x + stageSize.width / 2}px`, // stage offset 보정 (Html 포탈을 쓰지 않으므로 보정 필요)
+            top: `${dropPosition.y + stageSize.height / 2}px`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <PaletteMenu
+            items={["note", "subspace"]}
+            onSelect={handlePaletteSelect}
+          />
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 
   return (
@@ -319,6 +321,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onEdgeDelete: deleteEdge,
       }}
     >
+      {paletteRenderer}
       <Stage
         width={stageSize.width}
         height={stageSize.height}
@@ -328,14 +331,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onWheel={zoomSpace}
         onContextMenu={handleContextMenu}
         draggable
-        onClick={(e) => {
-          const stage = e.target.getStage();
-          if (stage && stage.isDragging()) return;
-
-          if (e.target === stage) {
-            setDropPosition(null);
-          }
-        }}
       >
         <Layer>
           {moveState.isMoving
@@ -344,7 +339,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
           {nearIndicatorRenderer}
           {nodesRenderer}
           {edgesRenderer}
-          {paletteRenderer}
         </Layer>
         <PointerLayer />
       </Stage>
