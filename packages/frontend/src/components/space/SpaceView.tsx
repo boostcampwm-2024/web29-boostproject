@@ -298,7 +298,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         }}
       >
         <PaletteMenu
-          items={["note", "image", "url", "subspace"]}
+          // items={["note", "image", "url", "subspace"]}
+          items={["note", "subspace"]}
           onSelect={handlePaletteSelect}
         />
       </div>

@@ -88,7 +88,7 @@ export function createSafeContext<T>(defaultValue?: T) {
 }
 
 export function generateUniqueId() {
-  return Math.random().toString(36);
+  return Math.random().toString(36).slice(2);
 }
 
 // 노출과 명도는 유지, 색상만 랜덤

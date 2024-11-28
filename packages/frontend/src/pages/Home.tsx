@@ -31,7 +31,9 @@ type CreateSpaceButtonProps = {
 
 function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
   const [spaceName, setSpaceName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
   const handleCreateSpace = (e: FormEvent) => {
     e.preventDefault();
     const targetSpaceName = spaceName.trim();
@@ -41,6 +43,8 @@ function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
       return;
     }
 
+    setIsLoading(true);
+
     requestCreateSpace(targetSpaceName)
       .then((res) => {
         const { urlPath } = res;
@@ -48,6 +52,9 @@ function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
       })
       .catch((error) => {
         setError(`스페이스 생성에 실패했어요. (${error})`);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -77,9 +84,21 @@ function CreateSpaceButton({ navigate }: CreateSpaceButtonProps) {
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <DialogFooter className="mt-4">
             <DialogClose asChild>
-              <Button variant="ghost">취소</Button>
+              <Button
+                variant="ghost"
+                disabled={isLoading}
+                aria-disabled={isLoading}
+              >
+                취소
+              </Button>
             </DialogClose>
-            <Button type="submit">생성</Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              aria-disabled={isLoading}
+            >
+              생성
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
