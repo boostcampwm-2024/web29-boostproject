@@ -145,6 +145,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
       },
     },
     dropPosition,
+    setDropPosition,
     handlePaletteSelect,
   };
 }

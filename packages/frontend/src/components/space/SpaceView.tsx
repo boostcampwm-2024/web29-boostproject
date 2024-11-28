@@ -54,63 +54,64 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     spaceActions: { updateNode },
   });
 
-  const { drag, dropPosition, handlePaletteSelect } = useDragNode(nodesArray, {
-    createNode: (type, parentNode, position, name = "New Note") => {
-      if (type === "note") {
-        createNote({
-          userId: "honeyflow",
-          noteName: name,
-        }).then((res) => {
-          defineNode(
-            {
-              type,
-              x: position.x,
-              y: position.y,
-              name,
-              src: res.urlPath.toString(),
-            },
-            parentNode.id,
-          );
-        });
-        return;
-      }
+  const { drag, dropPosition, setDropPosition, handlePaletteSelect } =
+    useDragNode(nodesArray, {
+      createNode: (type, parentNode, position, name = "New Note") => {
+        if (type === "note") {
+          createNote({
+            userId: "honeyflow",
+            noteName: name,
+          }).then((res) => {
+            defineNode(
+              {
+                type,
+                x: position.x,
+                y: position.y,
+                name,
+                src: res.urlPath.toString(),
+              },
+              parentNode.id,
+            );
+          });
+          return;
+        }
 
-      if (type === "subspace") {
-        createSpace({
-          spaceName: name,
-          userId: "honeyflow",
-          parentContextNodeId: spaceId,
-        }).then((res) => {
-          const [urlPath] = res.urlPath;
-          defineNode(
-            {
-              type,
-              x: position.x,
-              y: position.y,
-              name,
-              src: urlPath,
-            },
-            parentNode.id,
-          );
-        });
-        return;
-      }
+        if (type === "subspace") {
+          createSpace({
+            spaceName: name,
+            userId: "honeyflow",
+            parentContextNodeId: spaceId,
+          }).then((res) => {
+            const [urlPath] = res.urlPath;
+            defineNode(
+              {
+                type,
+                x: position.x,
+                y: position.y,
+                name,
+                src: urlPath,
+              },
+              parentNode.id,
+            );
+          });
+          return;
+        }
 
-      defineNode(
-        {
-          type,
-          x: position.x,
-          y: position.y,
-          name,
-          src: "",
-        },
-        parentNode.id,
-      );
-    },
-    createEdge: (fromNode, toNode) => {
-      defineEdge(fromNode.id, toNode.id);
-    },
-  });
+        defineNode(
+          {
+            type,
+            x: position.x,
+            y: position.y,
+            name,
+            src: "",
+          },
+          parentNode.id,
+        );
+      },
+      createEdge: (fromNode, toNode) => {
+        defineEdge(fromNode.id, toNode.id);
+      },
+    });
 
   const { selectedNode, selectNode, selectedEdge, selectEdge, clearSelection } =
     useSpaceSelection();
@@ -326,6 +327,14 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onWheel={zoomSpace}
         onContextMenu={handleContextMenu}
         draggable
+        onClick={(e) => {
+          const stage = e.target.getStage();
+          if (stage && stage.isDragging()) return;
+
+          if (e.target === stage) {
+            setDropPosition(null);
+          }
+        }}
       >
         <Layer>
           {moveState.isMoving
