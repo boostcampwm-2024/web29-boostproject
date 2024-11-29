@@ -50,9 +50,11 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       if (type === 'note') {
         // note
-        const updates = Y.encodeStateAsUpdate(ydoc);
-        const encodedUpdates = Buffer.from(updates).toString('base64');
-        await this.noteService.updateContent(id, encodedUpdates);
+        const note = await this.noteService.findById(id);
+        if (note?.content) {
+          const updates = new Uint8Array(Buffer.from(note.content, 'base64'));
+          Y.applyUpdate(ydoc, updates);
+        }
       }
 
       if (type === 'space') {
@@ -104,6 +106,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       if (type === 'note') {
+        this.logger.log(`note writeState: docName: ${id}`);
         const updates = Y.encodeStateAsUpdate(ydoc);
         const encodedUpdates = Buffer.from(updates).toString('base64');
         await this.noteService.updateContent(id, encodedUpdates);
