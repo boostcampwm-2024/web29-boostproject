@@ -3,8 +3,6 @@ import { RedisService } from './redis.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as redisStore from 'cache-manager-redis-store';
-import { LoggerModule } from 'src/common/logger/logger.module';
-import { LoggerService } from 'src/common/logger/logger.service';
 
 const cacheModule = CacheModule.registerAsync({
   imports: [ConfigModule],
