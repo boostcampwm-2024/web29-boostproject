@@ -1,6 +1,5 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { LoggerService } from '../logger/logger.service';
 import { join } from 'path';
 
 export const getTypeOrmConfig = async (

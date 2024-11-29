@@ -1,6 +1,5 @@
 import { ConfigService } from '@nestjs/config';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
-import { LoggerService } from '../logger/logger.service';
 
 export const getMongooseConfig = (
   configService: ConfigService,
