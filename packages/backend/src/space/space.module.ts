@@ -4,10 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { SpaceRedisService } from './space.redis.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  SpaceDocument,
-  SpaceSchema,
-} from '../collaborative/schemas/space.schema';
+import { SpaceDocument, SpaceSchema } from './space.schema';
 import { SpaceValidationService } from './space.validation.serviceV2';
 import { SpaceService } from './space.service';
 

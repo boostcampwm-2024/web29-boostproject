@@ -1,6 +1,0 @@
-server.host: "0.0.0.0"
-server.publicBaseUrl: "http://localhost:5601"
-elasticsearch.hosts: ["http://elasticsearch:9200"]
-elasticsearch.username: "honey"
-elasticsearch.password: "1234"
-xpack.security.enabled: false

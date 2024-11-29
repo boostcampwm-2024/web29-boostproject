@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { SpaceDocument } from 'src/collaborative/schemas/space.schema';
+import { SpaceDocument } from 'src/space/space.schema';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { MAX_SPACES } from 'src/common/constants/space.constants';
 

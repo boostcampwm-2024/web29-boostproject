@@ -5,7 +5,7 @@ import { SpaceData, Node, BreadcrumbItem } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SpaceValidationService } from './space.validation.serviceV2';
-import { SpaceDocument } from '../collaborative/schemas/space.schema';
+import { SpaceDocument } from './space.schema';
 
 @Injectable()
 export class SpaceService {

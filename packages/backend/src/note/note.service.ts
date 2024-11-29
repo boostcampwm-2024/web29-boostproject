@@ -1,62 +1,55 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import { NoteDocument } from 'src/collaborative/schemas/note.schema';
+import { NoteDocument } from 'src/note/note.schema';
 import { Model } from 'mongoose';
-import { SpaceDocument } from 'src/collaborative/schemas/space.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class NoteService {
   constructor(
-    private readonly snowflakeService: SnowflakeService
     @InjectModel(NoteDocument.name)
-    private readonly spaceModel: Model<SpaceDocument>,
+    private readonly noteModel: Model<NoteDocument>,
   ) {}
 
   async create(userId: string, noteName: string) {
-    const note = await this.noteRepository.save({
-      id: this.snowflakeService.generateId(),
+    const note = new this.noteModel({
+      id: uuid(),
       userId,
-      urlPath: uuid(),
       name: noteName,
     });
-    return note.urlPath;
+    return note.id;
   }
 
-  async findById(urlPath: string) {
-    const result = await this.noteRepository.findOne({
-      where: { urlPath },
-    });
-    return result;
+  async findById(id: string) {
+    return this.noteModel.findOne({ id }).exec();
   }
 
-  async updateName(urlPath: string, newName: string): Promise<Note> {
-    const note = await this.findById(urlPath);
+  async updateName(id: string, newName: string) {
+    const note = await this.findById(id);
     if (!note) {
       throw new BadRequestException(ERROR_MESSAGES.NOTE.NOT_FOUND);
     }
 
+    note.name = newName;
+
     try {
-      note.name = newName;
-      return await this.noteRepository.save(note);
+      return await note.save();
     } catch (error) {
       throw new BadRequestException(ERROR_MESSAGES.NOTE.UPDATE_FAILED);
     }
   }
 
-  async updateContent(urlPath: string, newContent: string): Promise<Note> {
-    const note = await this.findById(urlPath);
+  async updateContent(id: string, newContent: string) {
+    const note = await this.findById(id);
     if (!note) {
       throw new BadRequestException(ERROR_MESSAGES.NOTE.NOT_FOUND);
     }
 
+    note.content = newContent;
+
     try {
-      note.content = newContent;
-      return await this.noteRepository.save(note);
+      return await note.save();
     } catch (error) {
       throw new BadRequestException(ERROR_MESSAGES.NOTE.UPDATE_FAILED);
     }

@@ -3,10 +3,7 @@ import { NoteController } from './note.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { NoteRedisService } from './note.redis.service';
-import {
-  NoteDocument,
-  NoteSchema,
-} from 'src/collaborative/schemas/note.schema';
+import { NoteDocument, NoteSchema } from 'src/note/note.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'src/common/logger/logger.module';
 import { NoteService } from './note.service';
