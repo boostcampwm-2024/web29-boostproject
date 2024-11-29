@@ -12,8 +12,7 @@ type useMilkdownCollabProps = {
   roomName: string;
 };
 
-const template = `# 제목을 입력해 주세요
-> 여러 명과 동시에 마크다운 에디터를 활용할 수 있습니다.`;
+const template = `# `;
 
 export default function useMilkdownCollab({
   editor,

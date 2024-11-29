@@ -22,6 +22,8 @@ import {
 } from "@prosemirror-adapter/react";
 import { basicSetup } from "codemirror";
 
+import { placeholder, placeholderCtx } from "@/lib/milkdown-plugin-placeholder";
+
 const check = html`
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -40,10 +42,12 @@ const check = html`
 `;
 
 type useMilkdownEditorProps = {
+  placeholderValue?: string;
   BlockView: ReactPluginViewComponent;
 };
 
 export default function useMilkdownEditor({
+  placeholderValue = "제목을 입력하세요",
   BlockView,
 }: useMilkdownEditorProps) {
   const pluginViewFactory = usePluginViewFactory();
@@ -52,6 +56,7 @@ export default function useMilkdownEditor({
     return Editor.make()
       .config((ctx: Ctx) => {
         ctx.set(rootCtx, root);
+        ctx.set(placeholderCtx, placeholderValue);
         ctx.set(block.key, {
           view: pluginViewFactory({
             component: BlockView,
@@ -70,6 +75,7 @@ export default function useMilkdownEditor({
       .config(nord)
       .use(commonmark)
       .use(gfm)
+      .use(placeholder)
       .use(codeBlockComponent)
       .use(block)
       .use(cursor)
