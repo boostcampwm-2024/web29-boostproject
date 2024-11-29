@@ -1,23 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { SpaceServiceV2 } from '../space/space.serviceV2';
+import { Injectable, Logger } from '@nestjs/common';
+import { SpaceService } from '../space/space.service';
 import { SpaceRedisService } from '../space/space.redis.service';
-import { NoteServiceV2 } from '../note/note.serviceV2';
+import { NoteService } from '../note/note.service';
 import { NoteRedisService } from '../note/note.redis.service';
-import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class CollaborativeService {
+  private readonly logger = new Logger(CollaborativeService.name);
   constructor(
-    private readonly spaceService: SpaceServiceV2,
+    private readonly spaceService: SpaceService,
     private readonly spaceRedisService: SpaceRedisService,
-    private readonly noteService: NoteServiceV2,
+    private readonly noteService: NoteService,
     private readonly noteRedisService: NoteRedisService,
-    private readonly logger: LoggerService,
   ) {}
 
+  async hasBySpace(id: string) {
+    this.logger.log('has space in Redis', {
+      method: 'updateBySpace',
+      spaceId: id,
+    });
+    return this.spaceRedisService.hasSpace(id);
+  }
+  async hasByNote(id: string) {
+    this.logger.log('has note in Redis', {
+      method: 'updateBynote',
+      spaceId: id,
+    });
+    return this.noteRedisService.hasNote(id);
+  }
   async updateBySpace(id: string, space: string) {
     try {
-      this.logger.info('Updating space in Redis', {
+      this.logger.log('Updating space in Redis', {
         method: 'updateBySpace',
         spaceId: id,
         length: space.length,
@@ -25,7 +38,7 @@ export class CollaborativeService {
 
       const result = await this.spaceRedisService.setSpace(id, space);
 
-      this.logger.info('Space updated in Redis successfully', {
+      this.logger.log('Space updated in Redis successfully', {
         method: 'updateBySpace',
         spaceId: id,
         success: !!result,
@@ -45,14 +58,14 @@ export class CollaborativeService {
 
   async findBySpace(id: string) {
     try {
-      this.logger.info('Finding space by ID', {
+      this.logger.log('Finding space by ID', {
         method: 'findBySpace',
         spaceId: id,
       });
 
       const space = await this.spaceService.existsByUrlPath(id);
 
-      this.logger.info('Space find operation completed', {
+      this.logger.log('Space find operation completed', {
         method: 'findBySpace',
         spaceId: id,
         found: !!space,
@@ -72,7 +85,7 @@ export class CollaborativeService {
 
   async updateByNote(id: string, note: string) {
     try {
-      this.logger.info('Updating note in Redis', {
+      this.logger.log('Updating note in Redis', {
         method: 'updateByNote',
         noteId: id,
         length: note.length,
@@ -80,7 +93,7 @@ export class CollaborativeService {
 
       const result = await this.noteRedisService.setNote(id, note);
 
-      this.logger.info('Note updated in Redis successfully', {
+      this.logger.log('Note updated in Redis successfully', {
         method: 'updateByNote',
         noteId: id,
         success: !!result,
@@ -100,14 +113,14 @@ export class CollaborativeService {
 
   async findByNote(id: string) {
     try {
-      this.logger.info('Finding note by ID', {
+      this.logger.log('Finding note by ID', {
         method: 'findByNote',
         noteId: id,
       });
 
       const note = await this.noteService.findById(id);
 
-      this.logger.info('Note find operation completed', {
+      this.logger.log('Note find operation completed', {
         method: 'findByNote',
         noteId: id,
         found: !!note,

@@ -25,4 +25,8 @@ export class NoteRedisService {
     const data = await this.redis.get(id);
     return data ? JSON.parse(data) : null;
   }
+  async hasNote(id: string): Promise<boolean> {
+    const exists = await this.redis.exists(id);
+    return exists === 1;
+  }
 }

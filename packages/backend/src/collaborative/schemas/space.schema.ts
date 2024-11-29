@@ -6,17 +6,14 @@ import { Document } from 'mongoose';
   versionKey: false,
 })
 export class SpaceDocument extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   id: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, index: true })
   parentSpaceId: string | null;
 
   @Prop({ required: true })
   userId: string;
-
-  @Prop({ required: true })
-  urlPath: string;
 
   @Prop({ required: true })
   name: string;

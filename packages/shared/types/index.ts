@@ -28,3 +28,11 @@ export type SpaceAwarenessState = {
   color: string;
   pointer?: { x: number; y: number };
 };
+
+export type BreadcrumbItem = {
+  name: string;
+  url: string;
+};
+export type BreadCrumb = {
+  urlPaths: [];
+};

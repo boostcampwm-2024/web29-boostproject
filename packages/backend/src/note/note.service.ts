@@ -4,14 +4,17 @@ import { Repository } from 'typeorm';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import { Note } from './note.entity';
+import { NoteDocument } from 'src/collaborative/schemas/note.schema';
+import { Model } from 'mongoose';
+import { SpaceDocument } from 'src/collaborative/schemas/space.schema';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class NoteService {
   constructor(
-    @InjectRepository(Note)
-    private readonly noteRepository: Repository<Note>,
-    private readonly snowflakeService: SnowflakeService,
+    private readonly snowflakeService: SnowflakeService
+    @InjectModel(NoteDocument.name)
+    private readonly spaceModel: Model<SpaceDocument>,
   ) {}
 
   async create(userId: string, noteName: string) {

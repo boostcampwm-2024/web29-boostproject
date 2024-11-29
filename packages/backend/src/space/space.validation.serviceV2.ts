@@ -6,7 +6,7 @@ import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 import { MAX_SPACES } from 'src/common/constants/space.constants';
 
 @Injectable()
-export class SpaceValidationServiceV2 {
+export class SpaceValidationService {
   constructor(
     @InjectModel('SpaceDocument')
     private readonly spaceModel: Model<SpaceDocument>,

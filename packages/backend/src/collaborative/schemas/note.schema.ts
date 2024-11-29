@@ -6,14 +6,11 @@ import { Document } from 'mongoose';
   versionKey: false,
 })
 export class NoteDocument extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   id: string;
 
   @Prop({ required: true })
   userId: string;
-
-  @Prop({ required: true })
-  urlPath: string;
 
   @Prop({ required: true })
   name: string;

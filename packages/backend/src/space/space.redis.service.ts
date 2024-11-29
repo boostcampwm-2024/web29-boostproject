@@ -83,4 +83,8 @@ export class SpaceRedisService {
       throw error;
     }
   }
+  async hasSpace(id: string): Promise<boolean> {
+    const exists = await this.redis.exists(id);
+    return exists === 1;
+  }
 }
