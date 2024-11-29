@@ -7,7 +7,7 @@ import {
   codeBlockComponent,
   codeBlockConfig,
 } from "@milkdown/kit/component/code-block";
-import { Editor, defaultValueCtx, rootCtx } from "@milkdown/kit/core";
+import { Editor, rootCtx } from "@milkdown/kit/core";
 import { Ctx } from "@milkdown/kit/ctx";
 import { block } from "@milkdown/kit/plugin/block";
 import { cursor } from "@milkdown/kit/plugin/cursor";
@@ -40,12 +40,10 @@ const check = html`
 `;
 
 type useMilkdownEditorProps = {
-  initialMarkdown?: string;
   BlockView: ReactPluginViewComponent;
 };
 
 export default function useMilkdownEditor({
-  initialMarkdown = "# Note",
   BlockView,
 }: useMilkdownEditorProps) {
   const pluginViewFactory = usePluginViewFactory();
@@ -54,7 +52,6 @@ export default function useMilkdownEditor({
     return Editor.make()
       .config((ctx: Ctx) => {
         ctx.set(rootCtx, root);
-        ctx.set(defaultValueCtx, initialMarkdown);
         ctx.set(block.key, {
           view: pluginViewFactory({
             component: BlockView,
