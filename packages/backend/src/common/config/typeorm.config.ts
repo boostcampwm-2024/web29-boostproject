@@ -5,17 +5,11 @@ import { join } from 'path';
 
 export const getTypeOrmConfig = async (
   configService: ConfigService,
-  logger: LoggerService,
 ): Promise<TypeOrmModuleOptions> => {
   const host = configService.get<string>('MYSQL_HOST');
   const port = configService.get<number>('MYSQL_PORT');
   const database = configService.get<string>('MYSQL_DATABASE');
-  logger.info('Initializing MySQL connection', {
-    module: 'AppModule',
-    host,
-    port,
-    database,
-  });
+
   return {
     type: 'mysql',
     host,
