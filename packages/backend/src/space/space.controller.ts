@@ -135,8 +135,9 @@ export class SpaceController {
         error: ERROR_MESSAGES.SPACE.NOT_FOUND,
       });
       throw new HttpException(
-        ERROR_MESSAGES.SPACE.NOT_FOUND
+        ERROR_MESSAGES.SPACE.NOT_FOUND,
         HttpStatus.NOT_FOUND,
-    )}
+      );
+    }
   }
 }

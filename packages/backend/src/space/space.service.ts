@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { v4 as uuid } from 'uuid';
-import { SpaceData, Node, BreadcrumbItem } from 'shared/types';
+import { SpaceData, Node, BreadcrumbItem, BreadCrumb } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SpaceValidationService } from './space.validation.serviceV2';
@@ -58,5 +58,25 @@ export class SpaceService {
   async existsById(id: string) {
     return this.spaceModel.findOne({ id }).exec();
   }
-  async getBreadcrumb(id: string) {}
+  async getBreadcrumb(id: string) {
+    const breadcrumb: BreadcrumbItem[] = [];
+
+    let currentSpace = await this.spaceModel.findOne({ id }).exec();
+
+    while (currentSpace) {
+      breadcrumb.unshift({
+        name: currentSpace.name,
+        url: currentSpace.id,
+      });
+      if (!currentSpace.parentSpaceId) {
+        break;
+      }
+
+      currentSpace = await this.spaceModel
+        .findOne({ id: currentSpace.parentSpaceId })
+        .exec();
+    }
+
+    return breadcrumb;
+  }
 }
