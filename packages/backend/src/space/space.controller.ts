@@ -38,7 +38,7 @@ export class SpaceController {
         found: !!result,
       });
 
-      return result ? true : false;
+      return result;
     } catch (error) {
       this.logger.error(ERROR_MESSAGES.SPACE.UPDATE_FAILED, {
         method: 'getSpaceid',

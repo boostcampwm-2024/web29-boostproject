@@ -19,14 +19,16 @@ export class CollaborativeService {
       method: 'updateBySpace',
       spaceId: id,
     });
-    return this.spaceRedisService.hasSpace(id);
+    const reulst = this.spaceRedisService.hasSpace(id);
+    return this.spaceService.existsById(id);
   }
   async hasByNote(id: string) {
     this.logger.log('has note in Redis', {
       method: 'updateBynote',
       spaceId: id,
     });
-    return this.noteRedisService.hasNote(id);
+    const result = this.noteRedisService.hasNote(id);
+    return this.noteService.existsById(id);
   }
   async updateBySpace(id: string, space: string) {
     try {

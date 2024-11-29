@@ -25,21 +25,10 @@ export class NoteService {
     return this.noteModel.findOne({ id }).exec();
   }
 
-  async updateName(id: string, newName: string) {
-    const note = await this.findById(id);
-    if (!note) {
-      throw new BadRequestException(ERROR_MESSAGES.NOTE.NOT_FOUND);
-    }
-
-    note.name = newName;
-
-    try {
-      return await note.save();
-    } catch (error) {
-      throw new BadRequestException(ERROR_MESSAGES.NOTE.UPDATE_FAILED);
-    }
+  async existsById(id: string) {
+    const note = await this.noteModel.findOne({ id }).exec();
+    return note ? true : false;
   }
-
   async updateContent(id: string, newContent: string) {
     const note = await this.findById(id);
     if (!note) {

@@ -56,7 +56,8 @@ export class SpaceService {
   }
 
   async existsById(id: string) {
-    return this.spaceModel.findOne({ id }).exec();
+    const space = await this.spaceModel.findOne({ id }).exec();
+    return space ? true : false;
   }
   async getBreadcrumb(id: string) {
     const breadcrumb: BreadcrumbItem[] = [];

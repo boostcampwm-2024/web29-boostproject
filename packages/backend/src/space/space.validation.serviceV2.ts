@@ -30,7 +30,7 @@ export class SpaceValidationService {
   async validateParentNodeExists(parentContextNodeId: string | null) {
     if (parentContextNodeId) {
       const space = await this.spaceModel.findOne({
-        urlPath: parentContextNodeId,
+        id: parentContextNodeId,
       });
       if (!space) {
         throw new Error(ERROR_MESSAGES.SPACE.PARENT_NOT_FOUND);
