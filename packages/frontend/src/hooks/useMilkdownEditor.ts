@@ -12,6 +12,7 @@ import { Ctx } from "@milkdown/kit/ctx";
 import { block } from "@milkdown/kit/plugin/block";
 import { cursor } from "@milkdown/kit/plugin/cursor";
 import { commonmark } from "@milkdown/kit/preset/commonmark";
+import { gfm } from "@milkdown/kit/preset/gfm";
 import { collab } from "@milkdown/plugin-collab";
 import { useEditor } from "@milkdown/react";
 import { nord } from "@milkdown/theme-nord";
@@ -71,6 +72,7 @@ export default function useMilkdownEditor({
       })
       .config(nord)
       .use(commonmark)
+      .use(gfm)
       .use(codeBlockComponent)
       .use(block)
       .use(cursor)
