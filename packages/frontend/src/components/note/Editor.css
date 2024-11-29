@@ -64,7 +64,6 @@
   pointer-events: none;
   font-weight: 700;
   font-size: 36px;
-  /* Using default height value of p element in chrome */
   line-height: 40px;
 }
 

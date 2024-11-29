@@ -33,7 +33,7 @@ export default function useMilkdownCollab({
     wsProvider.once("synced", async (isSynced: boolean) => {
       if (isSynced) {
         collabService.applyTemplate(template);
-        console.log(`성공적으로 연결됨: ${wsProvider.url}`);
+        console.log(`Successfully connected: ${wsProvider.url}`);
       }
     });
 
