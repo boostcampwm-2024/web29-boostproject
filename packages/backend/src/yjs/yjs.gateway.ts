@@ -30,13 +30,102 @@ const SPACE = 'space';
 
 import { SpaceData } from 'shared/types';
 
+function parseDocName(docName: string) {
+  const [type, id] = docName.split(':');
+
+  if (type === 'space' || type === 'note') {
+    return { type: type as 'space' | 'note', id };
+  }
+
+  throw new Error('Invalid docName');
+}
+
 @WebSocketGateway(9001)
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(YjsGateway.name);
+
+  async bindPersistenceState(docName: string, ydoc: Y.Doc) {
+    const { type, id } = parseDocName(docName);
+
+    try {
+      if (type === 'note') {
+        // note
+        const note = await this.noteService.findById(id);
+        if (note?.content) {
+          const updates = new Uint8Array(Buffer.from(note.content, 'base64'));
+          Y.applyUpdate(ydoc, updates);
+        }
+      }
+
+      if (type === 'space') {
+        // space
+        const space = await this.spaceService.findById(id);
+        if (!space) {
+          return;
+        }
+
+        this.logger.log(
+          `space bindState: docName: ${id} ydoc:${JSON.stringify(ydoc)}`,
+        );
+
+        const parsedSpace = {
+          ...space,
+          edges: JSON.parse(space.edges),
+          nodes: JSON.parse(space.nodes),
+        };
+        this.setYSpace(ydoc, parsedSpace);
+      }
+    } catch (e) {
+      this.logger.error(`error while bindState`, e);
+    }
+  }
+
+  async writePersistenceState(docName: string, ydoc: Y.Doc) {
+    const { type, id } = parseDocName(docName);
+
+    try {
+      if (type === 'space') {
+        const yContext = ydoc.getMap('context');
+        const yEdges = yContext.get('edges');
+        const yNodes = yContext.get('nodes');
+
+        this.logger.log(
+          `space writeState: docName: ${id} ydoc:${JSON.stringify(yContext)}`,
+        );
+
+        Promise.all([
+          this.spaceService.updateByEdges(
+            id,
+            JSON.parse(JSON.stringify(yEdges)),
+          ),
+          this.spaceService.updateByNodes(
+            id,
+            JSON.parse(JSON.stringify(yNodes)),
+          ),
+        ]);
+      }
+
+      if (type === 'note') {
+        this.logger.log(`note writeState: docName: ${id}`);
+        const updates = Y.encodeStateAsUpdate(ydoc);
+        const encodedUpdates = Buffer.from(updates).toString('base64');
+        await this.noteService.updateContent(id, encodedUpdates);
+      }
+    } catch (e) {
+      this.logger.error(`writeState`);
+    }
+  }
+
   constructor(
     private readonly spaceService: SpaceService,
     private readonly noteService: NoteService,
-  ) {}
+  ) {
+    setPersistence({
+      provider: '',
+      bindState: this.bindPersistenceState.bind(this),
+      writeState: this.writePersistenceState.bind(this),
+    });
+  }
 
   @WebSocketServer()
   server: Server;
@@ -80,64 +169,19 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     request: Request,
     urlId: string,
   ) {
-    setPersistence({
-      provider: '',
-      bindState: (docName: string, ydoc: Y.Doc) => {
-        try {
-          const yContext = ydoc.getMap('context');
-          this.logger.log(
-            `space bindState: docName: ${docName} urlId: ${urlId} ydoc:${JSON.stringify(yContext)}`,
-          );
-        } catch (e) {
-          this.logger.error(`writeState`);
-        }
-      },
-      writeState: (docName: string, ydoc: Y.Doc) => {
-        try {
-          const yContext = ydoc.getMap('context');
-          const yEdges = yContext.get('edges');
-          const yNodes = yContext.get('nodes');
-
-          this.logger.log(
-            `space writeState: docName: ${docName} urlId: ${urlId} ydoc:${JSON.stringify(yContext)}`,
-          );
-          this.spaceService.updateByEdges(
-            urlId,
-            JSON.parse(JSON.stringify(yEdges)),
-          );
-          this.spaceService.updateByNodes(
-            urlId,
-            JSON.parse(JSON.stringify(yNodes)),
-          );
-        } catch (e) {
-          this.logger.error(`writeState`);
-        }
-
-        return Promise.resolve();
-      },
-    });
-
-    setContentInitializor(async (ydoc) => {
+    (async () => {
+      // FIXME: 이거 존재하는지만 체크하는 로직으로 변경해야 할 것 같아요
       const space = await this.spaceService.findById(urlId);
       if (!space) {
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,
           ERROR_MESSAGES.SPACE.NOT_FOUND,
         );
-        return;
       }
-
-      const parsedSpace = {
-        ...space,
-        edges: JSON.parse(space.edges),
-        nodes: JSON.parse(space.nodes),
-      };
-      this.setYSpace(ydoc, parsedSpace);
-      return Promise.resolve();
-    });
+    })();
 
     setupWSConnection(connection, request, {
-      docName: urlId,
+      docName: 'space:' + urlId,
     });
   }
 
@@ -167,31 +211,20 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.log(`initializeNote `);
-    const note = await this.noteService.findById(urlId);
-    if (!note) {
-      connection.close(
-        WebsocketStatus.POLICY_VIOLATION,
-        ERROR_MESSAGES.NOTE.NOT_FOUND,
-      );
-      return;
-    }
+    (async () => {
+      // FIXME: 이거 존재하는지만 체크하는 로직으로 변경해야 할 것 같아요
+      const note = await this.noteService.findById(urlId);
+      if (!note) {
+        connection.close(
+          WebsocketStatus.POLICY_VIOLATION,
+          ERROR_MESSAGES.NOTE.NOT_FOUND,
+        );
+      }
+    })();
 
-    setPersistence({
-      provider: '',
-      bindState: async (docName: string, ydoc: Y.Doc) => {
-        if (note.content) {
-          const updates = new Uint8Array(Buffer.from(note.content, 'base64'));
-          Y.applyUpdate(ydoc, updates);
-        }
-      },
-      writeState: async (docName: string, ydoc: Y.Doc) => {
-        const updates = Y.encodeStateAsUpdate(ydoc);
-        const encodedUpdates = Buffer.from(updates).toString('base64');
-        await this.noteService.updateContent(urlId, encodedUpdates);
-      },
+    setupWSConnection(connection, request, {
+      docName: 'note:' + urlId,
     });
-
-    setupWSConnection(connection, request);
     this.logger.log(`connection complete`);
   }
 }
