@@ -5,31 +5,95 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { SpaceService } from 'src/space/space.service';
-import { NoteService } from 'src/note/note.service';
 import { parseSocketUrl } from 'src/common/utils/socket.util';
 import { WebsocketStatus } from 'src/common/constants/websocket.constants';
 import { Server, WebSocket } from 'ws';
 import { Request } from 'express';
-import {
-  setupWSConnection,
-  setPersistence,
-  setContentInitializor,
-} from 'y-websocket/bin/utils';
+import { setupWSConnection, setPersistence } from 'y-websocket/bin/utils';
 import * as Y from 'yjs';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-const SPACE = 'space';
+import { CollaborativeService } from 'src/collaborative/collaborative.service';
+
+function parseDocName(docName: string) {
+  const [type, id] = docName.split(':');
+
+  if (type === 'space' || type === 'note') {
+    return { type: type as 'space' | 'note', id };
+  }
+
+  throw new Error('Invalid docName');
+}
 
 @WebSocketGateway(9001)
 export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(YjsGateway.name);
-  constructor(
-    private readonly spaceService: SpaceService,
-    private readonly noteService: NoteService,
-  ) {}
 
+  constructor(private readonly collaborativeService: CollaborativeService) {
+    setPersistence({
+      provider: '',
+      bindState: this.bindPersistenceState.bind(this),
+      writeState: this.writePersistenceState.bind(this),
+    });
+  }
   @WebSocketServer()
   server: Server;
+
+  async bindPersistenceState(docName: string, ydoc: Y.Doc) {
+    const { type, id } = parseDocName(docName);
+    try {
+      if (type === 'note') {
+        const note = await this.collaborativeService.findByNote(id);
+        if (note?.content) {
+          const updates = new Uint8Array(Buffer.from(note.content, 'base64'));
+          Y.applyUpdate(ydoc, updates);
+        }
+      }
+      if (type === 'space') {
+        const space = await this.collaborativeService.findBySpace(id);
+        if (!space) {
+          return;
+        }
+        this.logger.log(
+          `space bindState: docName: ${id} ydoc:${JSON.stringify(ydoc)}`,
+        );
+        const parsedSpace = {
+          ...space,
+          edges: JSON.parse(space.edges),
+          nodes: JSON.parse(space.nodes),
+        };
+        this.setYSpace(ydoc, parsedSpace);
+      }
+    } catch (e) {
+      this.logger.error(`error while bindState`, e);
+    }
+  }
+
+  async writePersistenceState(docName: string, ydoc: Y.Doc) {
+    const { type, id } = parseDocName(docName);
+
+    try {
+      if (type === 'space') {
+        const yContext = ydoc.getMap('context');
+
+        this.logger.log(
+          `space writeState: docName: ${id} ydoc:${JSON.stringify(yContext.toJSON)}`,
+        );
+        await this.collaborativeService.updateBySpace(
+          id,
+          JSON.stringify(yContext.toJSON),
+        );
+      }
+
+      if (type === 'note') {
+        this.logger.log(`note writeState: docName: ${id}`);
+        const updates = Y.encodeStateAsUpdate(ydoc);
+        const encodedUpdates = Buffer.from(updates).toString('base64');
+        await this.collaborativeService.updateByNote(id, encodedUpdates);
+      }
+    } catch (e) {
+      this.logger.error(`writeState`);
+    }
+  }
 
   async handleConnection(connection: WebSocket, request: Request) {
     this.logger.log('connection start');
@@ -38,7 +102,6 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { urlType, urlId } = parseSocketUrl(url);
       this.logger.log(`url ${request.url}`);
       this.logger.log(`Parsed URL - Type: ${urlType}, ID: ${urlId}`);
-      this.logger.log(`Parsed URL - Type: ${urlType}, ID: ${urlId}`);
       if (!this.validateUrl(urlType, urlId)) {
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,
@@ -46,7 +109,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         );
         return;
       }
-      urlType === SPACE
+      urlType === 'space'
         ? await this.initializeSpace(connection, request, urlId as string)
         : await this.initializeNote(connection, request, urlId as string);
     } catch (error) {
@@ -54,7 +117,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleDisconnect() {
+  handleDisconnect(connection: WebSocket) {
     this.logger.log(`connection end`);
   }
 
@@ -70,67 +133,27 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     request: Request,
     urlId: string,
   ) {
-    setPersistence({
-      provider: '',
-      bindState: (docName: string, ydoc: Y.Doc) => {
-        try {
-          const yContext = ydoc.getMap('context');
-          this.logger.log(
-            `space bindState: docName: ${docName} urlId: ${urlId} ydoc:${JSON.stringify(yContext)}`,
-          );
-        } catch (e) {
-          this.logger.error(`writeState`);
-        }
-      },
-      writeState: (docName: string, ydoc: Y.Doc) => {
-        try {
-          const yContext = ydoc.getMap('context');
-
-          this.logger.log(
-            `space writeState: docName: ${docName} urlId: ${urlId} ydoc:${JSON.stringify(yContext)}`,
-          );
-          this.spaceService.update(urlId, JSON.parse(JSON.stringify(yContext)));
-        } catch (e) {
-          this.logger.error(`writeState`);
-        }
-
-        return Promise.resolve();
-      },
-    });
-
-    setContentInitializor(async (ydoc) => {
-      const space = await this.spaceService.findById(urlId);
+    (async () => {
+      const space = await this.collaborativeService.hasBySpace(urlId);
       if (!space) {
         connection.close(
           WebsocketStatus.POLICY_VIOLATION,
           ERROR_MESSAGES.SPACE.NOT_FOUND,
         );
-        return;
       }
-
-      const parsedSpace = {
-        ...space,
-        edges: JSON.parse(space.edges),
-        nodes: JSON.parse(space.nodes),
-      };
-      this.setYSpace(ydoc, parsedSpace);
-      return Promise.resolve();
-    });
+    })();
 
     setupWSConnection(connection, request, {
-      docName: urlId,
+      docName: 'space:' + urlId,
     });
   }
 
   private async setYSpace(ydoc: Y.Doc, parsedSpace) {
     const yContext = ydoc.getMap('context');
-
     const yEdges = new Y.Map();
     const yNodes = new Y.Map();
-
     const edges = parsedSpace.edges;
     const nodes = parsedSpace.nodes;
-
     Object.entries(edges).forEach(([edgeId, edge]) => {
       yEdges.set(edgeId, edge);
     });
@@ -148,31 +171,19 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.log(`initializeNote `);
-    const note = await this.noteService.findById(urlId);
-    if (!note) {
-      connection.close(
-        WebsocketStatus.POLICY_VIOLATION,
-        ERROR_MESSAGES.NOTE.NOT_FOUND,
-      );
-      return;
-    }
+    (async () => {
+      const note = await this.collaborativeService.hasByNote(urlId);
+      if (!note) {
+        connection.close(
+          WebsocketStatus.POLICY_VIOLATION,
+          ERROR_MESSAGES.NOTE.NOT_FOUND,
+        );
+      }
+    })();
 
-    setPersistence({
-      provider: '',
-      bindState: async (docName: string, ydoc: Y.Doc) => {
-        if (note.content) {
-          const updates = new Uint8Array(Buffer.from(note.content, 'base64'));
-          Y.applyUpdate(ydoc, updates);
-        }
-      },
-      writeState: async (docName: string, ydoc: Y.Doc) => {
-        const updates = Y.encodeStateAsUpdate(ydoc);
-        const encodedUpdates = Buffer.from(updates).toString('base64');
-        await this.noteService.updateContent(urlId, encodedUpdates);
-      },
+    setupWSConnection(connection, request, {
+      docName: 'note:' + urlId,
     });
-
-    setupWSConnection(connection, request);
     this.logger.log(`connection complete`);
   }
 }
