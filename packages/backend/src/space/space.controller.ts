@@ -29,15 +29,12 @@ export class SpaceController {
         method: 'getSpace',
         id,
       });
-
       const result = await this.spaceService.existsById(id);
-
       this.logger.log('Space fetch completed', {
         method: 'getSpaceid',
         id,
         found: !!result,
       });
-
       return result;
     } catch (error) {
       this.logger.error(ERROR_MESSAGES.SPACE.UPDATE_FAILED, {
@@ -51,11 +48,12 @@ export class SpaceController {
   }
 
   @Version('1')
-  @Get('/breadcrum/:id')
+  @Get('/breadcrumb/:id')
   async getBreadcrumb(@Param('id') id: string) {
     const result = await this.spaceService.getBreadcrumb(id);
     return result;
   }
+
   @Version('3')
   @Post()
   @ApiOperation({ summary: '스페이스 생성' })

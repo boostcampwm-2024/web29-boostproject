@@ -50,7 +50,7 @@ function configureSwagger(app: any) {
   const config = new DocumentBuilder()
     .setTitle('API 문서')
     .setDescription('API 설명')
-    .setVersion('1.0')
+    .setVersion('2.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

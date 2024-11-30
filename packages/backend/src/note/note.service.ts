@@ -22,7 +22,7 @@ export class NoteService {
   }
 
   async findById(id: string) {
-    return this.noteModel.findOne({ id }).exec();
+    return await this.noteModel.findOne({ id }).exec();
   }
 
   async existsById(id: string) {

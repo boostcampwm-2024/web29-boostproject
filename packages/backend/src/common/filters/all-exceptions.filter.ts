@@ -12,9 +12,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-
     const message = exception.message || 'Internal server error';
-
     response.status(status).json({
       statusCode: status,
       message,

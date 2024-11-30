@@ -65,7 +65,7 @@ export class CollaborativeService {
         spaceId: id,
       });
 
-      const space = await this.spaceService.existsById(id);
+      const space = this.spaceService.findById(id);
 
       this.logger.log('Space find operation completed', {
         method: 'findBySpace',

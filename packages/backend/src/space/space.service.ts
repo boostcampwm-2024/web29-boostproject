@@ -1,7 +1,6 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { SpaceData, Node, BreadcrumbItem, BreadCrumb } from 'shared/types';
+import { SpaceData, Node, BreadcrumbItem } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SpaceValidationService } from './space.validation.serviceV2';

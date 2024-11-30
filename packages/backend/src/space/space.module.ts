@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { SpaceController } from './space.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
 import { SpaceRedisService } from './space.redis.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SpaceDocument, SpaceSchema } from './space.schema';
@@ -15,12 +13,7 @@ import { SpaceService } from './space.service';
     ]),
   ],
   controllers: [SpaceController],
-  providers: [
-    SnowflakeService,
-    SpaceService,
-    SpaceValidationService,
-    SpaceRedisService,
-  ],
+  providers: [SpaceService, SpaceValidationService, SpaceRedisService],
   exports: [SpaceService, SpaceRedisService],
 })
 export class SpaceModule {}
