@@ -40,11 +40,7 @@ jobs:
 
             # 이전 컨테이너 정리
             docker stop db-healthcheck || true && docker rm db-healthcheck || true
-            docker stop kibana || true && docker rm kibana || true
-            docker stop metricbeat || true && docker rm metricbeat || true
-            docker stop filebeat || true && docker rm filebeat || true
             docker stop backend || true && docker rm backend || true
-            docker stop elasticsearch || true && docker rm elasticsearch || true
             docker stop frontend || true && docker rm frontend || true
 
             # 새 컨테이너 실행
