@@ -66,15 +66,16 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (type === 'space') {
         this.logger.debug(`스페이스 데이터 가져오기 시작 - id: ${id}`);
         const space = await this.collaborativeService.findBySpace(id);
-        if (!space) {
+        const spaceObject = space?.toObject();
+        if (!spaceObject) {
           this.logger.warn(`스페이스 데이터가 존재하지 않음 - id: ${id}`);
           return;
         }
         this.logger.debug(`스페이스 데이터 분석 및 업데이트 준비 - id: ${id}`);
         const parsedSpace = {
-          ...space.toObject(),
-          edges: JSON.parse(space.edges),
-          nodes: JSON.parse(space.nodes),
+          ...spaceObject,
+          edges: JSON.parse(spaceObject.edges),
+          nodes: JSON.parse(spaceObject.nodes),
         };
         this.logger.debug(
           `분석된 스페이스 데이터 - edges: ${JSON.stringify(parsedSpace.edges)}, nodes: ${JSON.stringify(parsedSpace.nodes)}`,

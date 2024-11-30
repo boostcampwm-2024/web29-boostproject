@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { SpaceService } from '../space/space.service';
 import { SpaceRedisService } from '../space/space.redis.service';
 import { NoteService } from '../note/note.service';
 import { NoteRedisService } from '../note/note.redis.service';
+import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 
 @Injectable()
 export class CollaborativeService {
@@ -51,7 +52,19 @@ export class CollaborativeService {
         length: space.length,
       });
 
-      const result = await this.spaceRedisService.setSpace(id, space);
+      let spaceJsonData;
+      try {
+        spaceJsonData = JSON.parse(space);
+      } catch (error) {
+        throw new Error(`Invalid space JSON data: ${error.message}`);
+      }
+
+      const updateDto = {
+        edges: spaceJsonData.edges,
+        nodes: spaceJsonData.nodes,
+      };
+
+      const result = await this.spaceService.updateById(id, updateDto);
 
       this.logger.log('Space updated in Redis successfully', {
         method: 'updateBySpace',
@@ -100,29 +113,30 @@ export class CollaborativeService {
 
   async updateByNote(id: string, note: string) {
     try {
-      this.logger.log('Updating note in Redis', {
+      this.logger.log('Updating note in Redis and MongoDB', {
         method: 'updateByNote',
         noteId: id,
         length: note.length,
       });
 
-      const result = await this.noteRedisService.setNote(id, note);
+      await this.noteRedisService.setNote(id, note);
 
-      this.logger.log('Note updated in Redis successfully', {
+      const updatedNote = await this.noteService.updateContent(id, note);
+
+      this.logger.log('Note successfully updated in Redis and MongoDB', {
         method: 'updateByNote',
         noteId: id,
-        success: !!result,
       });
 
-      return result;
+      return updatedNote;
     } catch (error) {
-      this.logger.error('Failed to update note in Redis', {
+      this.logger.error('Failed to update note', {
         method: 'updateByNote',
         noteId: id,
         error: error.message,
         stack: error.stack,
       });
-      throw error;
+      throw new BadRequestException(ERROR_MESSAGES.NOTE.UPDATE_FAILED);
     }
   }
 

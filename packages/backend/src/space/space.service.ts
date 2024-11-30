@@ -20,6 +20,21 @@ export class SpaceService {
     return result;
   }
 
+  async updateById(id: string, data: Partial<SpaceDocument>) {
+    if (!id || !data) {
+      throw new Error('Invalid parameters');
+    }
+
+    const updatedSpace = await this.spaceModel
+      .findOneAndUpdate({ id }, { $set: data }, { new: true })
+      .exec();
+
+    if (!updatedSpace) {
+      throw new Error(`Space with id ${id} not found`);
+    }
+
+    return updatedSpace;
+  }
   async create(
     userId: string,
     spaceName: string,
