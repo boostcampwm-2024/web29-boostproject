@@ -1,4 +1,7 @@
+import { prompt } from "@/lib/prompt-dialog";
+
 import SpaceBreadcrumb from "../SpaceBreadcrumb";
+import SpaceShareAlertContent from "../SpaceShareAlertContent";
 import SpaceUsersIndicator from "../SpaceUsersIndicator";
 import { Button } from "../ui/button";
 
@@ -27,7 +30,13 @@ export default function SpacePageHeader() {
         </div>
         <div className="flex-grow-0 flex flex-row justify-center items-center">
           <SpaceUsersIndicator />
-          <Button className="ml-2" variant="outline">
+          <Button
+            className="ml-2"
+            variant="outline"
+            onClick={() => {
+              Promise.resolve(prompt("공유", <SpaceShareAlertContent />));
+            }}
+          >
             공유
           </Button>
         </div>
