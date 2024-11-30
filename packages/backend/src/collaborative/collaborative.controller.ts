@@ -34,4 +34,28 @@ export class CollaborativeController {
       return updates;
     }
   }
+  @Version('1')
+  @Get('space/has/:id')
+  async hasSpace(@Param('id') id: string) {
+    const result = await this.collaborativeService.hasBySpace(id);
+    return result;
+  }
+  @Version('1')
+  @Get('note/has/:id')
+  async hasNote(@Param('id') id: string) {
+    const result = await this.collaborativeService.hasByNote(id);
+    return result;
+  }
+
+  @Version('1')
+  @Get('space/set/:id')
+  async setSpace(@Param('id') id: string, data) {
+    const space = await this.collaborativeService.setBySpace(id, data);
+    return space;
+  }
+  @Version('1')
+  @Get('note/set/:id')
+  async setNote(@Param('id') id: string, data) {
+    const note = await this.collaborativeService.setByNote(id, data);
+  }
 }

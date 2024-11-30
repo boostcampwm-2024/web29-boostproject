@@ -14,21 +14,34 @@ export class CollaborativeService {
     private readonly noteRedisService: NoteRedisService,
   ) {}
 
+  async setBySpace(id: string, data: any) {
+    this.logger.log('set space in Redis', {
+      method: 'setBySpace',
+      spaceId: id,
+    });
+    return await this.spaceRedisService.setSpace(id, data);
+  }
+  async setByNote(id: string, data: any) {
+    this.logger.log('set note in Redis', {
+      method: 'setBynote',
+      spaceId: id,
+    });
+    return await this.noteRedisService.setNote(id, data);
+  }
   async hasBySpace(id: string) {
     this.logger.log('has space in Redis', {
       method: 'updateBySpace',
       spaceId: id,
     });
-    const reulst = this.spaceRedisService.hasSpace(id);
-    return this.spaceService.existsById(id);
+    return await this.spaceRedisService.hasSpace(id);
   }
   async hasByNote(id: string) {
     this.logger.log('has note in Redis', {
-      method: 'updateBynote',
+      method: 'hasBynote',
       spaceId: id,
     });
     const result = this.noteRedisService.hasNote(id);
-    return this.noteService.existsById(id);
+    return this.noteService.findById(id);
   }
   async updateBySpace(id: string, space: string) {
     try {

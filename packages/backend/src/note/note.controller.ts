@@ -32,9 +32,9 @@ export class NoteController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const urlPath = await this.noteService.create(userId, noteName);
+    const note = await this.noteService.create(userId, noteName);
     return {
-      urlPath,
+      urlPath: note.toObject().id,
     };
   }
 

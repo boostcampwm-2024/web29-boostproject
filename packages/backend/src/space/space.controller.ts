@@ -83,13 +83,13 @@ export class SpaceController {
         );
       }
 
-      const id = await this.spaceService.create(
+      const space = await this.spaceService.create(
         userId,
         spaceName,
         parentContextNodeId,
       );
 
-      if (!id) {
+      if (!space) {
         this.logger.error(ERROR_MESSAGES.SPACE.CREATION_FAILED, {
           method: 'createSpaceV3',
           error: ERROR_MESSAGES.SPACE.CREATION_FAILED,
@@ -106,10 +106,9 @@ export class SpaceController {
         method: 'createSubSpaceV3',
         userId,
         spaceName,
-        id,
+        result: space.toObject().id,
       });
-
-      return id;
+      return { urlPath: space.toObject().id };
     } catch (error) {
       this.logger.error('Unexpected error in space creation V3', {
         method: 'createSubSpaceV3',
@@ -121,7 +120,7 @@ export class SpaceController {
   }
 
   @Version('1')
-  @Put(':/id')
+  @Put('/:id')
   @ApiOperation({ summary: '스페이스 업데이트' })
   @ApiResponse({ status: 201, description: '스페이스 업데이트 성공' })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
