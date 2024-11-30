@@ -52,7 +52,9 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const note = await this.collaborativeService.findByNote(id);
         const noteObject = note?.toObject();
         if (noteObject?.content) {
-          this.logger.debug(`노트 데이터 업데이트 적용 중 - id: ${id}`);
+          this.logger.debug(
+            `노트 데이터 업데이트 적용 중 - id: ${id} content :${noteObject.content}`,
+          );
           const updates = new Uint8Array(
             Buffer.from(noteObject.content, 'base64'),
           );
@@ -162,7 +164,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.debug(`스페이스 초기화 시작 - id: ${urlId}`);
-    const space = await this.collaborativeService.hasBySpace(urlId);
+    const space = await this.collaborativeService.findBySpace(urlId);
     if (!space) {
       this.logger.warn(`스페이스 존재하지 않음 - id: ${urlId}`);
       connection.close(
@@ -203,7 +205,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.debug(`노트 초기화 시작 - id: ${urlId}`);
-    const note = await this.collaborativeService.hasByNote(urlId);
+    const note = await this.collaborativeService.findByNote(urlId);
     if (!note) {
       this.logger.warn(`노트 존재하지 않음 - id: ${urlId}`);
       connection.close(
