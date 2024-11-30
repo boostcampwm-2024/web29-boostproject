@@ -117,3 +117,39 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
     }, delay);
   };
 }
+
+export function copyToClipboard(text: string) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    return;
+  }
+
+  // polyfill
+  const span = document.createElement("span");
+  span.textContent = text;
+
+  span.style.whiteSpace = "pre";
+  span.style.webkitUserSelect = "auto";
+  span.style.userSelect = "all";
+
+  document.body.appendChild(span);
+
+  const selection = window.getSelection();
+  const range = window.document.createRange();
+
+  selection?.removeAllRanges();
+  range.selectNode(span);
+  selection?.addRange(range);
+
+  let isSuccessful = false;
+
+  try {
+    isSuccessful = document.execCommand("copy");
+  } finally {
+    document.body.removeChild(span);
+  }
+
+  if (!isSuccessful) {
+    throw new Error("복사에 실패했습니다");
+  }
+}

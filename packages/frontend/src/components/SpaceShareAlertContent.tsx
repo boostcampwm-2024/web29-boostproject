@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 import { CheckIcon, ClipboardCopyIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, copyToClipboard } from "@/lib/utils";
 
 import { Button } from "./ui/button";
 
@@ -11,8 +11,8 @@ export default function SpaceShareAlertContent() {
   const timeoutRef = useRef<number | null>(null);
 
   const handleClickCopy = () => {
-    async function copyToClipboard() {
-      await navigator.clipboard.writeText(window.location.href);
+    async function copy() {
+      await copyToClipboard(window.location.href);
       setHasCopied(true);
 
       if (timeoutRef.current) {
@@ -24,7 +24,7 @@ export default function SpaceShareAlertContent() {
       }, 2000);
     }
 
-    copyToClipboard();
+    copy();
   };
 
   return (
