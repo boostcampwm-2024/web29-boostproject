@@ -7,7 +7,7 @@ type CreateNoteRequestBody = {
 };
 
 type CreateNoteResponseBody = {
-  urlPath: [string];
+  urlPath: string;
 };
 
 export async function createNote(body: CreateNoteRequestBody) {

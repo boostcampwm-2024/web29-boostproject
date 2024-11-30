@@ -83,14 +83,13 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
             userId: "honeyflow",
             parentContextNodeId: spaceId,
           }).then((res) => {
-            const [urlPath] = res.urlPath;
             defineNode(
               {
                 type,
                 x: position.x,
                 y: position.y,
                 name,
-                src: urlPath,
+                src: res.urlPath.toString(),
               },
               parentNode.id,
             );
