@@ -3,12 +3,18 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
+import {
+  SpaceDocument,
+  NoteDocument,
+} from '../collaborative/collaborative.type';
+export type DocumentType = 'space' | 'note';
+export type Document = SpaceDocument | NoteDocument;
 
 @Injectable()
 export class RedisService {
-  private logger = new Logger(RedisService.name);
-  private redis: Redis;
-
+  private readonly logger = new Logger(RedisService.name);
+  private readonly redis: Redis;
+  private readonly DOCUMENT_TTL = 3600;
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private configService: ConfigService,
@@ -20,24 +26,53 @@ export class RedisService {
     });
   }
 
-  async set(key: string, value: string, ttl: number = 3600): Promise<void> {
-    try {
-      await this.redis.set(key, value, 'EX', ttl);
-      this.logger.log(`Set key: ${key} with value: ${value} and TTL: ${ttl}`);
-    } catch (error) {
-      this.logger.error(`Error setting key: ${key}`, error);
-      throw error;
-    }
+  private getKey(type: DocumentType, id: string): string {
+    return `${type}:${id}`;
   }
 
-  async get(key: string): Promise<string | null> {
-    try {
-      const value = await this.redis.get(key);
-      this.logger.log(`Get key: ${key}, value: ${value}`);
-      return value;
-    } catch (error) {
-      this.logger.error(`Error getting key: ${key}`, error);
-      throw error;
-    }
+  async setDocument<T extends Document>(
+    type: DocumentType,
+    id: string,
+    data: T,
+  ): Promise<void> {
+    const key = this.getKey(type, id);
+    await this.redis.set(key, JSON.stringify(data), 'EX', this.DOCUMENT_TTL);
+  }
+
+  async getDocument<T extends Document>(
+    type: DocumentType,
+    id: string,
+  ): Promise<T | null> {
+    const key = this.getKey(type, id);
+    const data = await this.redis.get(key);
+    return data ? JSON.parse(data) : null;
+  }
+
+  async getAllKeys(type: DocumentType): Promise<string[]> {
+    return await this.redis.keys(`${type}:*`);
+  }
+
+  async setSpace(id: string, data: SpaceDocument): Promise<void> {
+    return this.setDocument('space', id, data);
+  }
+
+  async getSpace(id: string): Promise<SpaceDocument | null> {
+    return this.getDocument<SpaceDocument>('space', id);
+  }
+
+  async getAllSpaceKeys(): Promise<string[]> {
+    return this.getAllKeys('space');
+  }
+
+  async setNote(id: string, data: NoteDocument): Promise<void> {
+    return this.setDocument('note', id, data);
+  }
+
+  async getNote(id: string): Promise<NoteDocument | null> {
+    return this.getDocument<NoteDocument>('note', id);
+  }
+
+  async getAllNoteKeys(): Promise<string[]> {
+    return this.getAllKeys('note');
   }
 }

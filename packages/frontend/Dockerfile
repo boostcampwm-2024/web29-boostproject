@@ -1,4 +1,3 @@
-# 빌드 스테이지
 FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache python3 make g++ && npm install -g pnpm
@@ -14,10 +13,9 @@ COPY ./packages/frontend/index.html ./packages/frontend
 COPY ./packages/frontend/vite.config.ts ./packages/frontend
 RUN cd ./packages/frontend && pnpm build
 
-# 프로덕션 스테이지
 
 FROM nginx:alpine AS production
-# Nginx 전역 설정 먼저 수정
+
 RUN echo 'events { worker_connections 1024; }' > /etc/nginx/nginx.conf && \
     echo 'http {' >> /etc/nginx/nginx.conf && \
     echo '    include /etc/nginx/mime.types;' >> /etc/nginx/nginx.conf && \
@@ -28,7 +26,6 @@ RUN echo 'events { worker_connections 1024; }' > /etc/nginx/nginx.conf && \
     echo '    include /etc/nginx/conf.d/*.conf;' >> /etc/nginx/nginx.conf && \
     echo '}' >> /etc/nginx/nginx.conf
 
-# Nginx 설정 복사
 COPY --from=builder /app/packages/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/packages/frontend/dist /usr/share/nginx/html
 

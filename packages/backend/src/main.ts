@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, VersioningType } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { WsAdapter } from '@nestjs/platform-ws';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -51,7 +50,7 @@ function configureSwagger(app: any) {
   const config = new DocumentBuilder()
     .setTitle('API 문서')
     .setDescription('API 설명')
-    .setVersion('1.0')
+    .setVersion('2.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -8,7 +8,7 @@ services:
       - "6379:6379"
     networks:
       - app-network
-    command: redis-server --bind 0.0.0.0
+    command: redis-server --bind 0.0.0.0 --requirepass 1234
 
   mysql:
     image: mysql:8.0
@@ -54,10 +54,8 @@ services:
       - MYSQL_PASSWORD=1234
       - MYSQL_USER=honey
       - NODE_ENV=dev
-      - ELASTIC_NODE=http://elsatic:9200
-      - ELASTIC_USERNAME=honey
-      - ELASTIC_PASSWORD=1234
       - REDIS_HOST=redis-container
+      - REDIS_PASSWORD=1234
       - REDIS_PORT=6379
       - REDIS_TTL=3600
       - MONGO_HOST=mongodb-container
@@ -111,81 +109,9 @@ services:
       timeout: 5s
       retries: 10
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - app-network
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    container_name: kibana
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    networks:
-      - app-network
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:8.12.0
-    container_name: filebeat
-    user: root
-    volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - filebeat_data:/usr/share/filebeat/data
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - KIBANA_HOST=http://kibana:5601
-    networks:
-      - app-network
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-
-  metricbeat:
-    image: docker.elastic.co/beats/metricbeat:8.12.0
-    container_name: metricbeat
-    user: root
-    volumes:
-      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-      - /proc:/hostfs/proc:ro
-      - /:/hostfs:ro
-      - metricbeat_data:/usr/share/metricbeat/data
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - KIBANA_HOST=http://kibana:5601
-    networks:
-      - app-network
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-
 volumes:
-  filebeat_data:
-  metricbeat_data:
   mysql_data:
   mongo_data:
-  elasticsearch_data:
 
 networks:
   app-network:

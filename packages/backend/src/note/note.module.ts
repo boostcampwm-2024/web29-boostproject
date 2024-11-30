@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
-import { NoteService } from './note.service';
 import { NoteController } from './note.controller';
-import { Note } from './note.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SnowflakeService } from 'src/common/utils/snowflake.service';
+import { NoteRedisService } from './note.redis.service';
+import { NoteDocument, NoteSchema } from 'src/note/note.schema';
+import { MongooseModule } from '@nestjs/mongoose';
+import { NoteService } from './note.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Note])],
-  providers: [NoteService, SnowflakeService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: NoteDocument.name, schema: NoteSchema },
+    ]),
+  ],
+  providers: [NoteService, NoteRedisService],
   controllers: [NoteController],
-  exports: [NoteService],
+  exports: [NoteService, NoteRedisService],
 })
 export class NoteModule {}
