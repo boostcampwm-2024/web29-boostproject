@@ -42,19 +42,17 @@ export default function SpacePage() {
     );
   }
 
-  if (status === "connecting") {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <CircleDashedIcon className="animate-spin w-32 h-32 text-primary" />
-      </div>
-    );
-  }
-
   return (
     <YjsStoreProvider value={{ yDoc, yProvider, setYDoc, setYProvider }}>
       <div className="w-full h-full" ref={containerRef}>
-        <SpaceView spaceId={spaceId} autofitTo={containerRef} />
-        <SpacePageHeader />
+        {status === "connecting" ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <CircleDashedIcon className="animate-spin w-32 h-32 text-primary" />
+          </div>
+        ) : (
+          <SpaceView spaceId={spaceId} autofitTo={containerRef} />
+        )}
+        <SpacePageHeader spaceId={spaceId} />
       </div>
     </YjsStoreProvider>
   );
