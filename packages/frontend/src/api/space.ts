@@ -1,6 +1,6 @@
 import { BreadcrumbItem } from "shared/types";
 
-import { API_V1_URL, API_V3_URL } from "./constants";
+import { API_V1_URL, API_V2_URL } from "./constants";
 import http from "./http";
 
 type CreateSpaceRequestBody = {
@@ -10,12 +10,12 @@ type CreateSpaceRequestBody = {
 };
 
 type CreateSpaceResponseBody = {
-  urlPath: [string];
+  urlPath: string;
 };
 
 export async function createSpace(body: CreateSpaceRequestBody) {
   const response = await http.post<CreateSpaceResponseBody>(
-    `${API_V3_URL}/space`,
+    `${API_V2_URL}/space`,
     { body: JSON.stringify(body) },
   );
   return response.data;
