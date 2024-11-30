@@ -54,7 +54,7 @@ export class SpaceController {
     return result;
   }
 
-  @Version('3')
+  @Version('2')
   @Post()
   @ApiOperation({ summary: '스페이스 생성' })
   @ApiResponse({ status: 201, description: '스페이스 생성 성공' })

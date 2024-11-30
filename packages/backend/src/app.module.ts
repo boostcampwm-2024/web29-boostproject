@@ -39,6 +39,7 @@ export class AppModule implements OnModuleInit {
   constructor() {}
 
   async onModuleInit() {
+    this.logger.debug('Application initilized For Debug');
     this.logger.log('Application initialized', {
       module: 'AppModule',
       environment: process.env.NODE_ENV,
