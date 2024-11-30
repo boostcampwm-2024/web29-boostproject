@@ -61,7 +61,7 @@ export class SpaceController {
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   async createSpaceV3(@Body() createSpaceDto: CreateSpaceDto) {
     try {
-      this.logger.log('Creating new space V3', {
+      this.logger.log('Creating new space', {
         method: 'createSpaceV3',
         userId: createSpaceDto.userId,
         spaceName: createSpaceDto.spaceName,
@@ -109,7 +109,7 @@ export class SpaceController {
         id,
       });
 
-      return { id };
+      return id;
     } catch (error) {
       this.logger.error('Unexpected error in space creation V3', {
         method: 'createSubSpaceV3',
