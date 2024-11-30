@@ -23,7 +23,7 @@ export class SpaceController {
 
   @Version('1')
   @Get('/:id')
-  async getSpaceid(@Param('id') id: string) {
+  async existsBySpace(@Param('id') id: string) {
     try {
       this.logger.log('Fetching space id', {
         method: 'getSpace',
@@ -103,7 +103,7 @@ export class SpaceController {
       }
 
       this.logger.log('Space V3 created successfully', {
-        method: 'createSubSpaceV3',
+        method: 'createSpaceV3',
         userId,
         spaceName,
         result: space.toObject().id,
@@ -111,7 +111,7 @@ export class SpaceController {
       return { urlPath: space.toObject().id };
     } catch (error) {
       this.logger.error('Unexpected error in space creation V3', {
-        method: 'createSubSpaceV3',
+        method: 'createSpaceV3',
         error: error.message,
         stack: error.stack,
       });
