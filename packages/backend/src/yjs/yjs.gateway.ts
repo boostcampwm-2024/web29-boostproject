@@ -29,6 +29,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(YjsGateway.name);
 
   constructor(private readonly collaborativeService: CollaborativeService) {
+    this.logger.debug('constructor start');
     setPersistence({
       provider: '',
       bindState: this.bindPersistenceState.bind(this),

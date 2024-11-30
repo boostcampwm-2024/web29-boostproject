@@ -54,9 +54,6 @@ services:
       - MYSQL_PASSWORD=1234
       - MYSQL_USER=honey
       - NODE_ENV=dev
-      - ELASTIC_NODE=http://elasticsearch:9200
-      - ELASTIC_USERNAME=honey
-      - ELASTIC_PASSWORD=1234
       - REDIS_HOST=redis-container
       - REDIS_PASSWORD=1234
       - REDIS_PORT=6379
