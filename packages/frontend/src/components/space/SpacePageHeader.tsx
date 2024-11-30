@@ -38,7 +38,7 @@ export default function SpacePageHeader({ spaceId }: SpacePageHeaderProps) {
             className="ml-2"
             variant="outline"
             onClick={() => {
-              Promise.resolve(prompt("공유", <SpaceShareAlertContent />));
+              prompt("공유", <SpaceShareAlertContent />).catch(() => {});
             }}
           >
             공유
