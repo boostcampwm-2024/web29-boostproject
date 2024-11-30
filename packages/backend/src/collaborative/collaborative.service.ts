@@ -41,7 +41,6 @@ export class CollaborativeService {
       method: 'hasBynote',
       spaceId: id,
     });
-    const result = this.noteRedisService.hasNote(id);
     return await this.noteService.findById(id);
   }
   async updateBySpace(id: string, space: string) {
@@ -60,8 +59,8 @@ export class CollaborativeService {
       }
 
       const updateDto = {
-        edges: spaceJsonData.edges,
-        nodes: spaceJsonData.nodes,
+        edges: JSON.stringify(spaceJsonData.edges),
+        nodes: JSON.stringify(spaceJsonData.nodes),
       };
 
       const result = await this.spaceService.updateById(id, updateDto);
@@ -118,8 +117,6 @@ export class CollaborativeService {
         noteId: id,
         length: note.length,
       });
-
-      await this.noteRedisService.setNote(id, note);
 
       const updatedNote = await this.noteService.updateContent(id, note);
 
