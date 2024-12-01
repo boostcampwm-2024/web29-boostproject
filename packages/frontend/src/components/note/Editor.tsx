@@ -4,6 +4,7 @@ import { Milkdown, MilkdownProvider } from "@milkdown/react";
 import "@milkdown/theme-nord/style.css";
 import { ProsemirrorAdapterProvider } from "@prosemirror-adapter/react";
 
+import { WS_URL } from "@/api/constants";
 import useMilkdownCollab from "@/hooks/useMilkdownCollab";
 import useMilkdownEditor from "@/hooks/useMilkdownEditor";
 
@@ -19,7 +20,7 @@ function MilkdownEditor() {
 
   useMilkdownCollab({
     editor: loading ? null : get() || null,
-    websocketUrl: `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/ws/note`,
+    websocketUrl: `${WS_URL}/note`,
     roomName: noteId || "",
   });
   return <Milkdown />;

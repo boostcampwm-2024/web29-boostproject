@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 
+import { WS_URL } from "@/api/constants";
 import { generateUserColor } from "@/lib/utils";
 
 export default function useYjsConnection(docName: string) {
@@ -17,11 +18,7 @@ export default function useYjsConnection(docName: string) {
     setStatus("connecting");
 
     const doc = new Y.Doc();
-    const provider = new WebsocketProvider(
-      `ws://${import.meta.env.DEV ? "localhost" : "www.honeyflow.life"}/ws/space`,
-      docName,
-      doc,
-    );
+    const provider = new WebsocketProvider(`${WS_URL}/space`, docName, doc);
 
     setYDoc(doc);
     setYProvider(provider);

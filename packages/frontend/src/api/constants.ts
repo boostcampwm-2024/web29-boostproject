@@ -5,3 +5,5 @@ export const API_V1_URL = import.meta.env.DEV
 export const API_V2_URL = import.meta.env.DEV
   ? "http://localhost/api/v2"
   : "/api/v2";
+
+export const WS_URL = import.meta.env.DEV ? "ws://localhost/ws" : "/ws";
