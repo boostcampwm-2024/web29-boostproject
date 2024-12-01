@@ -8,6 +8,7 @@ export const getMongooseConfig = (
   const user = configService.get<string>('MONGO_USER');
   const pass = configService.get<string>('MONGO_PASSWORD');
   const dbName = configService.get<string>('MONGO_DB');
+
   const uri = `mongodb://${user}:${pass}@${host}:27017/${dbName}`;
 
   return {

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { SpaceModule } from 'src/space/space.module';
-import { NoteModule } from 'src/note/note.module';
-import { CollaborativeModule } from 'src/collaborative/collaborative.module';
+
+import { CollaborativeModule } from '../collaborative/collaborative.module';
+import { NoteModule } from '../note/note.module';
+import { SpaceModule } from '../space/space.module';
 import { YjsGateway } from './yjs.gateway';
+
 @Module({
   imports: [SpaceModule, NoteModule, CollaborativeModule],
   providers: [YjsGateway],

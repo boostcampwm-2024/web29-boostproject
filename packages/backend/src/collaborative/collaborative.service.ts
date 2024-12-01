@@ -1,26 +1,21 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { SpaceService } from '../space/space.service';
+
+import { ERROR_MESSAGES } from '../common/constants/error.message.constants';
 import { NoteService } from '../note/note.service';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+import { SpaceService } from '../space/space.service';
 
 @Injectable()
 export class CollaborativeService {
   private readonly logger = new Logger(CollaborativeService.name);
+
   constructor(
     private readonly spaceService: SpaceService,
     private readonly noteService: NoteService,
   ) {}
 
-  async hasByNote(id: string) {
-    this.logger.log('has note in Redis', {
-      method: 'hasBynote',
-      spaceId: id,
-    });
-    return await this.noteService.findById(id);
-  }
   async updateBySpace(id: string, space: string) {
     try {
-      this.logger.log('Updating space in Redis', {
+      this.logger.log('스페이스 정보 업데이트 시작', {
         method: 'updateBySpace',
         spaceId: id,
         length: space.length,
@@ -30,7 +25,7 @@ export class CollaborativeService {
       try {
         spaceJsonData = JSON.parse(space);
       } catch (error) {
-        throw new Error(`Invalid space JSON data: ${error.message}`);
+        throw new Error(`유효하지 않은 스페이스 JSON 데이터: ${error.message}`);
       }
 
       const updateDto = {
@@ -40,7 +35,7 @@ export class CollaborativeService {
 
       const result = await this.spaceService.updateById(id, updateDto);
 
-      this.logger.log('Space updated in Redis successfully', {
+      this.logger.log('스페이스 정보 업데이트 완료', {
         method: 'updateBySpace',
         spaceId: id,
         success: !!result,
@@ -48,7 +43,7 @@ export class CollaborativeService {
 
       return result;
     } catch (error) {
-      this.logger.error('Failed to update space in Redis', {
+      this.logger.error('스페이스 정보 업데이트 실패', {
         method: 'updateBySpace',
         spaceId: id,
         error: error.message,
@@ -60,14 +55,14 @@ export class CollaborativeService {
 
   async findBySpace(id: string) {
     try {
-      this.logger.log('Finding space by ID', {
+      this.logger.log('스페이스 정보 조회 시작', {
         method: 'findBySpace',
         spaceId: id,
       });
 
-      const space = this.spaceService.findById(id);
+      const space = await this.spaceService.findById(id);
 
-      this.logger.log('Space find operation completed', {
+      this.logger.log('스페이스 정보 조회 완료', {
         method: 'findBySpace',
         spaceId: id,
         found: !!space,
@@ -75,7 +70,7 @@ export class CollaborativeService {
 
       return space;
     } catch (error) {
-      this.logger.error('Failed to find space', {
+      this.logger.error('스페이스 정보 조회 실패', {
         method: 'findBySpace',
         spaceId: id,
         error: error.message,
@@ -87,7 +82,7 @@ export class CollaborativeService {
 
   async updateByNote(id: string, note: string) {
     try {
-      this.logger.log('Updating note in Redis and MongoDB', {
+      this.logger.log('노트 내용 업데이트 시작', {
         method: 'updateByNote',
         noteId: id,
         length: note.length,
@@ -95,14 +90,14 @@ export class CollaborativeService {
 
       const updatedNote = await this.noteService.updateContent(id, note);
 
-      this.logger.log('Note successfully updated in Redis and MongoDB', {
+      this.logger.log('노트 내용 업데이트 완료', {
         method: 'updateByNote',
         noteId: id,
       });
 
       return updatedNote;
     } catch (error) {
-      this.logger.error('Failed to update note', {
+      this.logger.error('노트 내용 업데이트 실패', {
         method: 'updateByNote',
         noteId: id,
         error: error.message,
@@ -114,14 +109,14 @@ export class CollaborativeService {
 
   async findByNote(id: string) {
     try {
-      this.logger.log('Finding note by ID', {
+      this.logger.log('노트 조회 시작', {
         method: 'findByNote',
         noteId: id,
       });
 
       const note = await this.noteService.findById(id);
 
-      this.logger.log('Note find operation completed', {
+      this.logger.log('노트 조회 완료', {
         method: 'findByNote',
         noteId: id,
         found: !!note,
@@ -129,7 +124,7 @@ export class CollaborativeService {
 
       return note;
     } catch (error) {
-      this.logger.error('Failed to find note', {
+      this.logger.error('노트 조회 실패', {
         method: 'findByNote',
         noteId: id,
         error: error.message,

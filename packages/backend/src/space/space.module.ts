@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+
 import { SpaceController } from './space.controller';
 import { SpaceDocument, SpaceSchema } from './space.schema';
-import { SpaceValidationService } from './space.validation.service';
 import { SpaceService } from './space.service';
+import { SpaceValidationService } from './space.validation.service';
 
 @Module({
   imports: [

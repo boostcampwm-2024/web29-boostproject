@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
-import { SpaceData, Node, BreadcrumbItem } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { SpaceValidationService } from './space.validation.service';
+import { BreadcrumbItem, Node, SpaceData } from 'shared/types';
+import { v4 as uuid } from 'uuid';
+
 import { SpaceDocument } from './space.schema';
+import { SpaceValidationService } from './space.validation.service';
 
 @Injectable()
 export class SpaceService {
@@ -17,13 +18,16 @@ export class SpaceService {
   ) {}
 
   async findById(id: string) {
+    this.logger.log(`ID가 ${id}인 스페이스를 조회합니다.`);
     const result = await this.spaceModel.findOne({ id }).exec();
     return result;
   }
 
   async updateById(id: string, data: Partial<SpaceDocument>) {
+    this.logger.log(`ID가 ${id}인 스페이스를 업데이트합니다.`);
+
     if (!id || !data) {
-      throw new Error('Invalid parameters');
+      throw new Error('유효하지 않은 매개변수입니다.');
     }
 
     const updatedSpace = await this.spaceModel
@@ -31,19 +35,27 @@ export class SpaceService {
       .exec();
 
     if (!updatedSpace) {
-      throw new Error(`Space with id ${id} not found`);
+      throw new Error(`ID가 ${id}인 스페이스를 찾을 수 없습니다.`);
     }
 
     return updatedSpace;
   }
+
   async create(
     userId: string,
     spaceName: string,
     parentContextNodeId: string | null,
   ) {
+    this.logger.log('새로운 스페이스를 생성합니다.', {
+      userId,
+      spaceName,
+      parentContextNodeId,
+    });
+
     const Edges: SpaceData['edges'] = {};
     const Nodes: SpaceData['nodes'] = {};
     const nodeUuid = uuid();
+
     const headNode: Node = {
       id: nodeUuid,
       x: 0,
@@ -52,6 +64,7 @@ export class SpaceService {
       name: spaceName,
       src: nodeUuid,
     };
+
     Nodes[headNode.id] = headNode;
 
     await this.spaceValidationService.validateSpaceLimit(userId);
@@ -63,21 +76,26 @@ export class SpaceService {
       id: nodeUuid,
       parentSpaceId:
         parentContextNodeId === null ? undefined : parentContextNodeId,
-      userId: userId,
+      userId,
       name: spaceName,
       edges: JSON.stringify(Edges),
       nodes: JSON.stringify(Nodes),
     };
+
     return this.spaceModel.create(spaceDto);
   }
 
   async existsById(id: string) {
-    const space = await this.spaceModel.findOne({ id }).exec();
-    return space ? true : false;
-  }
-  async getBreadcrumb(id: string) {
-    const breadcrumb: BreadcrumbItem[] = [];
+    this.logger.log(`ID가 ${id}인 스페이스의 존재 여부를 확인합니다.`);
 
+    const space = await this.spaceModel.findOne({ id }).exec();
+    return !!space;
+  }
+
+  async getBreadcrumb(id: string) {
+    this.logger.log(`ID가 ${id}인 스페이스의 경로를 조회합니다.`);
+
+    const breadcrumb: BreadcrumbItem[] = [];
     let currentSpace = await this.spaceModel.findOne({ id }).exec();
 
     while (currentSpace) {
@@ -85,6 +103,7 @@ export class SpaceService {
         name: currentSpace.name,
         url: currentSpace.id,
       });
+
       if (!currentSpace.parentSpaceId) {
         break;
       }

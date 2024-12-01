@@ -8,13 +8,15 @@ export const getTypeOrmConfig = async (
   const host = configService.get<string>('MYSQL_HOST');
   const port = configService.get<number>('MYSQL_PORT');
   const database = configService.get<string>('MYSQL_DATABASE');
+  const username = configService.get<string>('MYSQL_USER');
+  const password = configService.get<string>('MYSQL_PASSWORD');
 
   return {
     type: 'mysql',
     host,
     port,
-    username: configService.get<string>('MYSQL_USER'),
-    password: configService.get<string>('MYSQL_PASSWORD'),
+    username,
+    password,
     database,
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
     synchronize: process.env.NODE_ENV !== 'production',
