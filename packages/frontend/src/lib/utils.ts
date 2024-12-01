@@ -118,10 +118,9 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
   };
 }
 
-export function copyToClipboard(text: string) {
+export async function copyToClipboard(text: string) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
-    return;
+    return navigator.clipboard.writeText(text);
   }
 
   // polyfill
@@ -150,6 +149,8 @@ export function copyToClipboard(text: string) {
   }
 
   if (!isSuccessful) {
-    throw new Error("복사에 실패했습니다");
+    return Promise.reject(new Error("복사에 실패했습니다"));
   }
+
+  return Promise.resolve();
 }
