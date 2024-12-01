@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { SpaceService } from '../space/space.service';
-import { SpaceRedisService } from '../space/space.redis.service';
 import { NoteService } from '../note/note.service';
-import { NoteRedisService } from '../note/note.redis.service';
 import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
 
 @Injectable()
@@ -10,32 +8,9 @@ export class CollaborativeService {
   private readonly logger = new Logger(CollaborativeService.name);
   constructor(
     private readonly spaceService: SpaceService,
-    private readonly spaceRedisService: SpaceRedisService,
     private readonly noteService: NoteService,
-    private readonly noteRedisService: NoteRedisService,
   ) {}
 
-  async setBySpace(id: string, data: any) {
-    this.logger.log('set space in Redis', {
-      method: 'setBySpace',
-      spaceId: id,
-    });
-    return await this.spaceRedisService.setSpace(id, data);
-  }
-  async setByNote(id: string, data: any) {
-    this.logger.log('set note in Redis', {
-      method: 'setBynote',
-      spaceId: id,
-    });
-    return await this.noteRedisService.setNote(id, data);
-  }
-  async hasBySpace(id: string) {
-    this.logger.log('has space in Redis', {
-      method: 'updateBySpace',
-      spaceId: id,
-    });
-    return await this.spaceRedisService.hasSpace(id);
-  }
   async hasByNote(id: string) {
     this.logger.log('has note in Redis', {
       method: 'hasBynote',

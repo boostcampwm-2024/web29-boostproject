@@ -6,7 +6,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { YjsModule } from './yjs/yjs.module';
 import { NoteModule } from './note/note.module';
-import { RedisModule } from './redis/redis.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CollaborativeModule } from './collaborative/collaborative.module';
 import { getMongooseConfig } from './common/config/mongo.config';
@@ -28,7 +27,6 @@ import { getTypeOrmConfig } from './common/config/typeorm.config';
     SpaceModule,
     YjsModule,
     NoteModule,
-    RedisModule,
     CollaborativeModule,
   ],
   controllers: [AppController],

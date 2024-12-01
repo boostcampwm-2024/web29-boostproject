@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { NoteController } from './note.controller';
-import { NoteRedisService } from './note.redis.service';
 import { NoteDocument, NoteSchema } from 'src/note/note.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NoteService } from './note.service';
@@ -11,8 +10,8 @@ import { NoteService } from './note.service';
       { name: NoteDocument.name, schema: NoteSchema },
     ]),
   ],
-  providers: [NoteService, NoteRedisService],
+  providers: [NoteService],
   controllers: [NoteController],
-  exports: [NoteService, NoteRedisService],
+  exports: [NoteService],
 })
 export class NoteModule {}

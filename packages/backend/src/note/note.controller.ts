@@ -35,7 +35,6 @@ export class NoteController {
       userId,
       noteName,
     });
-
     if (userId !== GUEST_USER_ID || !noteName) {
       this.logger.error('노트 생성 요청 실패 - 잘못된 요청', {
         method: 'createNote',
@@ -48,7 +47,6 @@ export class NoteController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     try {
       const note = await this.noteService.create(userId, noteName);
       this.logger.log('노트 생성 성공', {
@@ -83,26 +81,13 @@ export class NoteController {
       method: 'getSpace',
       id,
     });
-
     try {
-      const result = await this.noteService.findById(id);
+      const result = await this.noteService.existsById(id);
       this.logger.log('노트 조회 완료', {
         method: 'getSpace',
         id,
-        found: !!result,
+        found: result,
       });
-
-      if (!result) {
-        this.logger.error('노트 조회 실패 - 노트가 존재하지 않음', {
-          method: 'getSpace',
-          id,
-          error: ERROR_MESSAGES.NOTE.NOT_FOUND,
-        });
-        throw new HttpException(
-          ERROR_MESSAGES.NOTE.NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-        );
-      }
 
       return result ? true : false;
     } catch (error) {

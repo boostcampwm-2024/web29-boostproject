@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { SpaceData, Node, BreadcrumbItem } from 'shared/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { SpaceValidationService } from './space.validation.serviceV2';
+import { SpaceValidationService } from './space.validation.service';
 import { SpaceDocument } from './space.schema';
 
 @Injectable()
