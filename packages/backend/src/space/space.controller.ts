@@ -62,7 +62,7 @@ export class SpaceController {
   async createSpaceV3(@Body() createSpaceDto: CreateSpaceDto) {
     try {
       this.logger.log('Creating new space', {
-        method: 'createSpaceV3',
+        method: 'createSpaceV2',
         userId: createSpaceDto.userId,
         spaceName: createSpaceDto.spaceName,
         parentContextNodeId: createSpaceDto.parentContextNodeId,

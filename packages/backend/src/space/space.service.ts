@@ -9,6 +9,7 @@ import { SpaceDocument } from './space.schema';
 @Injectable()
 export class SpaceService {
   private readonly logger = new Logger(SpaceService.name);
+
   constructor(
     private readonly spaceValidationService: SpaceValidationService,
     @InjectModel(SpaceDocument.name)
@@ -42,13 +43,14 @@ export class SpaceService {
   ) {
     const Edges: SpaceData['edges'] = {};
     const Nodes: SpaceData['nodes'] = {};
+    const nodeUuid = uuid();
     const headNode: Node = {
-      id: uuid(),
+      id: nodeUuid,
       x: 0,
       y: 0,
       type: 'head',
       name: spaceName,
-      src: uuid(),
+      src: nodeUuid,
     };
     Nodes[headNode.id] = headNode;
 
@@ -58,7 +60,7 @@ export class SpaceService {
     );
 
     const spaceDto = {
-      id: headNode.src,
+      id: nodeUuid,
       parentSpaceId:
         parentContextNodeId === null ? undefined : parentContextNodeId,
       userId: userId,
