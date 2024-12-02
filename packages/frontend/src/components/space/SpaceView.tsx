@@ -179,6 +179,14 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     selectNode({ id: nodeId, type: node.type });
   };
 
+  const handleHover = (e: KonvaEventObject<MouseEvent>) => {
+    const isEnter = e.type === "mouseenter";
+    const cursorStyle = isEnter ? "pointer" : "default";
+
+    const container = e.target.getStage()?.container();
+    if (container) container.style.cursor = cursorStyle;
+  };
+
   const nodeComponents = {
     head: (node: Node) => (
       <HeadNode
@@ -214,6 +222,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
         onContextMenu={handleContextMenu}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleHover}
       />
     ),
     subspace: (node: Node) => (
@@ -239,6 +249,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
         onContextMenu={handleContextMenu}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleHover}
       />
     ),
   };
