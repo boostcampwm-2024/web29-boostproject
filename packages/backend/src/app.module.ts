@@ -9,6 +9,7 @@ import { getTypeOrmConfig } from './common/config/typeorm.config';
 import { NoteModule } from './note/note.module';
 import { SpaceModule } from './space/space.module';
 import { YjsModule } from './yjs/yjs.module';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { YjsModule } from './yjs/yjs.module';
     SpaceModule,
     YjsModule,
     NoteModule,
+    TestModule,
     CollaborativeModule,
   ],
 })
