@@ -275,7 +275,9 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
 
   const nearIndicatorRenderer = !moveState.isMoving &&
     drag.position &&
-    drag.overlapNode && (
+    drag.startNode &&
+    drag.overlapNode &&
+    drag.overlapNode.id !== drag.startNode.id && (
       <MemoizedNearIndicator overlapNode={drag.overlapNode} />
     );
 
