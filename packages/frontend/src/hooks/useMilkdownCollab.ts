@@ -12,6 +12,8 @@ type useMilkdownCollabProps = {
   roomName: string;
 };
 
+const template = `# `;
+
 export default function useMilkdownCollab({
   editor,
   websocketUrl,
@@ -21,19 +23,21 @@ export default function useMilkdownCollab({
     if (!editor) return undefined;
 
     const doc = new Y.Doc();
+
     const wsProvider = new WebsocketProvider(websocketUrl, roomName, doc, {
       connect: true,
     });
 
+    let collabService: CollabService;
+
     wsProvider.once("synced", async (isSynced: boolean) => {
       if (isSynced) {
-        console.log(`성공적으로 연결됨: ${wsProvider.url}`);
+        collabService.applyTemplate(template);
+        console.log(`Successfully connected: ${wsProvider.url}`);
       }
     });
 
-    let collabService: CollabService;
-
-    // NOTE - flushSync가 lifecycle 내에서 발생하는 것을 방지하기 위해 settimeout으로 묶어서 micro task로 취급되게 함
+    // NOTE - flushSync가 lifecycle 내에서 발생하는 것을 방지하기 위해 setTimeout으로 묶어서 micro task로 취급되게 함
     setTimeout(() => {
       editor.action((ctx: Ctx) => {
         collabService = ctx.get(collabServiceCtx);

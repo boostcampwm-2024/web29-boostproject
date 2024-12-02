@@ -7,11 +7,12 @@ import {
   codeBlockComponent,
   codeBlockConfig,
 } from "@milkdown/kit/component/code-block";
-import { Editor, defaultValueCtx, rootCtx } from "@milkdown/kit/core";
+import { Editor, rootCtx } from "@milkdown/kit/core";
 import { Ctx } from "@milkdown/kit/ctx";
 import { block } from "@milkdown/kit/plugin/block";
 import { cursor } from "@milkdown/kit/plugin/cursor";
 import { commonmark } from "@milkdown/kit/preset/commonmark";
+import { gfm } from "@milkdown/kit/preset/gfm";
 import { collab } from "@milkdown/plugin-collab";
 import { useEditor } from "@milkdown/react";
 import { nord } from "@milkdown/theme-nord";
@@ -20,6 +21,8 @@ import {
   usePluginViewFactory,
 } from "@prosemirror-adapter/react";
 import { basicSetup } from "codemirror";
+
+import { placeholder, placeholderCtx } from "@/lib/milkdown-plugin-placeholder";
 
 const check = html`
   <svg
@@ -39,12 +42,12 @@ const check = html`
 `;
 
 type useMilkdownEditorProps = {
-  initialMarkdown?: string;
+  placeholderValue?: string;
   BlockView: ReactPluginViewComponent;
 };
 
 export default function useMilkdownEditor({
-  initialMarkdown = "# Note",
+  placeholderValue = "제목을 입력하세요",
   BlockView,
 }: useMilkdownEditorProps) {
   const pluginViewFactory = usePluginViewFactory();
@@ -53,7 +56,7 @@ export default function useMilkdownEditor({
     return Editor.make()
       .config((ctx: Ctx) => {
         ctx.set(rootCtx, root);
-        ctx.set(defaultValueCtx, initialMarkdown);
+        ctx.set(placeholderCtx, placeholderValue);
         ctx.set(block.key, {
           view: pluginViewFactory({
             component: BlockView,
@@ -71,6 +74,8 @@ export default function useMilkdownEditor({
       })
       .config(nord)
       .use(commonmark)
+      .use(gfm)
+      .use(placeholder)
       .use(codeBlockComponent)
       .use(block)
       .use(cursor)
