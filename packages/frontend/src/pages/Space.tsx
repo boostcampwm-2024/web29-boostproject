@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CircleDashedIcon, MoveLeftIcon } from "lucide-react";
 
 import ErrorSection from "@/components/ErrorSection";
+import InteractionGuide from "@/components/space/InteractionGuide";
 import SpacePageHeader from "@/components/space/SpacePageHeader";
 import SpaceView from "@/components/space/SpaceView";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,7 @@ export default function SpacePage() {
 
   return (
     <YjsStoreProvider value={{ yDoc, yProvider, setYDoc, setYProvider }}>
-      <div className="w-full h-full" ref={containerRef}>
+      <div className="w-full h-full relative" ref={containerRef}>
         {status === "connecting" ? (
           <div className="flex items-center justify-center w-full h-full">
             <CircleDashedIcon className="animate-spin w-32 h-32 text-primary" />
@@ -53,6 +54,14 @@ export default function SpacePage() {
           <SpaceView spaceId={spaceId} autofitTo={containerRef} />
         )}
         <SpacePageHeader spaceId={spaceId} />
+        <div
+          className="absolute top-7 right-[52px]"
+          style={{
+            top: "calc(4rem + 24px)",
+          }}
+        >
+          <InteractionGuide />
+        </div>
       </div>
     </YjsStoreProvider>
   );
