@@ -65,7 +65,7 @@ export default function useMoveNode({ nodes, spaceActions }: useMoveNodeProps) {
   // onMouseDown, onTouchStart
   const startHold = (node: Node, e: KonvaInteractionEvent) => {
     // 우클릭으로 이벤트가 발생했을 경우 이동모드 활성화 방지
-    if (e.evt.button === 2) {
+    if (e.evt instanceof MouseEvent && e.evt.button === 2) {
       return;
     }
 
