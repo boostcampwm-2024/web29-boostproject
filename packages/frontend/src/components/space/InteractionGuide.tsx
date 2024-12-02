@@ -27,6 +27,16 @@ const interactions = [
     title: "화면 줌",
     description: "ctrl + 마우스 휠 또는 트랙패드 제스처",
   },
+  {
+    id: "node-edit",
+    title: "노드 편집",
+    description: "노드 위에서 우클릭",
+  },
+  {
+    id: "edge-edit",
+    title: "간선 편집",
+    description: "간선 위에서 우클릭",
+  },
 ];
 
 export default function InteractionGuide() {
