@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
+import { Circle, Group, KonvaNodeEvents, Shape, Text } from "react-konva";
 import { useNavigate } from "react-router-dom";
 
 import Konva from "konva";
@@ -99,6 +99,29 @@ Node.Text = function NodeText({
   );
 };
 
+Node.MoreButton = function NodeMoreButton({ onTap }: { onTap: () => void }) {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  if (!isTouch) return null;
+
+  return (
+    <Group onTap={onTap}>
+      <Circle
+        x={45}
+        y={-45}
+        radius={12}
+        fill="#FFFFFF"
+        stroke="#FFB800"
+        strokeWidth={1}
+      />
+    </Group>
+  );
+};
+
 export type HeadNodeProps = {
   id: string;
   name: string;
@@ -143,6 +166,7 @@ export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
     >
       <Node.Circle radius={RADIUS} fill="#FAF9F7" stroke="#DED8D3" />
       <Node.Text width={RADIUS * 2} fontSize={16} content={name} />
+      <Node.MoreButton onTap={() => console.log("터치!")} />
     </Node>
   );
 }
@@ -174,7 +198,12 @@ export function SubspaceNode({
       {...rest}
     >
       <Node.Circle radius={RADIUS} fill="#FFF4BB" stroke="#F9D46B" />
-      <Node.Text width={RADIUS * 2} fontSize={16} fontStyle="700" content={name} />
+      <Node.Text
+        width={RADIUS * 2}
+        fontSize={16}
+        fontStyle="700"
+        content={name}
+      />
     </Node>
   );
 }
