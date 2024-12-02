@@ -1,15 +1,6 @@
 version: "3.8"
 
 services:
-  redis:
-    image: redis:latest
-    container_name: redis-container
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-    command: redis-server --bind 0.0.0.0 --requirepass 1234
-
   mysql:
     image: mysql:8.0
     container_name: mysql-container
@@ -31,7 +22,6 @@ services:
       timeout: 5s
       retries: 3
     command: --bind-address=0.0.0.0
-
   backend:
     build:
       context: .
@@ -43,8 +33,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      redis:
-        condition: service_started
       mongodb:
         condition: service_healthy
     environment:
@@ -54,10 +42,6 @@ services:
       - MYSQL_PASSWORD=1234
       - MYSQL_USER=honey
       - NODE_ENV=dev
-      - REDIS_HOST=redis-container
-      - REDIS_PASSWORD=1234
-      - REDIS_PORT=6379
-      - REDIS_TTL=3600
       - MONGO_HOST=mongodb-container
       - MONGO_USER=honey
       - MONGO_PASSWORD=1234

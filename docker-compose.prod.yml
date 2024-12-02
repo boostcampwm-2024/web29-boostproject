@@ -33,12 +33,6 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
 
-      # Redis 세팅
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_TTL=${REDIS_TTL}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-
       # Mongo 세팅
       - MONGO_HOST=${MONGO_HOST}
       - MONGO_USER=${MONGO_USER}

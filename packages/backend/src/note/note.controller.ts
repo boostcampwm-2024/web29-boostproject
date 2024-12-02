@@ -10,10 +10,11 @@ import {
   Version,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { NoteService } from './note.service';
-import { GUEST_USER_ID } from 'src/common/constants/space.constants';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
+
+import { ERROR_MESSAGES } from '../common/constants/error.message.constants';
+import { GUEST_USER_ID } from '../common/constants/space.constants';
 import { CreateNoteDto } from './dto/note.dto';
+import { NoteService } from './note.service';
 
 @ApiTags('note')
 @Controller('note')
@@ -43,6 +44,7 @@ export class NoteController {
         noteName,
         error: ERROR_MESSAGES.NOTE.BAD_REQUEST,
       });
+
       throw new HttpException(
         ERROR_MESSAGES.NOTE.BAD_REQUEST,
         HttpStatus.BAD_REQUEST,
@@ -51,12 +53,14 @@ export class NoteController {
 
     try {
       const note = await this.noteService.create(userId, noteName);
+
       this.logger.log('노트 생성 성공', {
         method: 'createNote',
         userId,
         noteName,
         noteId: note.toObject().id,
       });
+
       return {
         urlPath: note.toObject().id,
       };
@@ -66,6 +70,7 @@ export class NoteController {
         error: error.message,
         stack: error.stack,
       });
+
       throw new HttpException(
         ERROR_MESSAGES.NOTE.CREATION_FAILED,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -78,40 +83,30 @@ export class NoteController {
   @ApiOperation({ summary: '노트 조회' })
   @ApiResponse({ status: 200, description: '노트 조회 성공' })
   @ApiResponse({ status: 404, description: '노트 조회 실패' })
-  async exsistByNote(@Param('id') id: string) {
+  async existsByNote(@Param('id') id: string) {
     this.logger.log('노트 조회 요청 수신', {
-      method: 'getSpace',
+      method: 'existsByNote',
       id,
     });
 
     try {
-      const result = await this.noteService.findById(id);
+      const result = await this.noteService.existsById(id);
+
       this.logger.log('노트 조회 완료', {
-        method: 'getSpace',
+        method: 'existsByNote',
         id,
-        found: !!result,
+        found: result,
       });
 
-      if (!result) {
-        this.logger.error('노트 조회 실패 - 노트가 존재하지 않음', {
-          method: 'getSpace',
-          id,
-          error: ERROR_MESSAGES.NOTE.NOT_FOUND,
-        });
-        throw new HttpException(
-          ERROR_MESSAGES.NOTE.NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      return result ? true : false;
+      return result;
     } catch (error) {
       this.logger.error('노트 조회 중 예상치 못한 오류 발생', {
-        method: 'getSpace',
+        method: 'existsByNote',
         id,
         error: error.message,
         stack: error.stack,
       });
+
       throw new HttpException(
         ERROR_MESSAGES.NOTE.NOT_FOUND,
         HttpStatus.INTERNAL_SERVER_ERROR,

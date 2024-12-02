@@ -1,18 +1,19 @@
 import { Logger } from '@nestjs/common';
 import {
-  WebSocketGateway,
-  WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { parseSocketUrl } from 'src/common/utils/socket.util';
-import { WebsocketStatus } from 'src/common/constants/websocket.constants';
-import { Server, WebSocket } from 'ws';
 import { Request } from 'express';
-import { setupWSConnection, setPersistence } from 'y-websocket/bin/utils';
+import { Server, WebSocket } from 'ws';
+import { setPersistence, setupWSConnection } from 'y-websocket/bin/utils';
 import * as Y from 'yjs';
-import { ERROR_MESSAGES } from 'src/common/constants/error.message.constants';
-import { CollaborativeService } from 'src/collaborative/collaborative.service';
+
+import { CollaborativeService } from '../collaborative/collaborative.service';
+import { ERROR_MESSAGES } from '../common/constants/error.message.constants';
+import { WebsocketStatus } from '../common/constants/websocket.constants';
+import { parseSocketUrl } from '../common/utils/socket.util';
 
 function parseDocName(docName: string) {
   const [type, id] = docName.split(':');
@@ -36,6 +37,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       writeState: this.writePersistenceState.bind(this),
     });
   }
+
   @WebSocketServer()
   server: Server;
 
@@ -43,6 +45,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.debug(
       `bindPersistenceState: 시작 - docName: ${docName}, ydoc: ${JSON.stringify(ydoc)}`,
     );
+
     const { type, id } = parseDocName(docName);
     this.logger.debug(`문서 이름 분석 결과 - type: ${type}, id: ${id}`);
 
@@ -51,6 +54,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.debug(`노트 데이터 가져오기 시작 - id: ${id}`);
         const note = await this.collaborativeService.findByNote(id);
         const noteObject = note?.toObject();
+
         if (noteObject?.content) {
           this.logger.debug(
             `노트 데이터 업데이트 적용 중 - id: ${id} content :${noteObject.content}`,
@@ -63,23 +67,28 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.logger.debug(`노트 데이터가 비어 있음 - id: ${id}`);
         }
       }
+
       if (type === 'space') {
         this.logger.debug(`스페이스 데이터 가져오기 시작 - id: ${id}`);
         const space = await this.collaborativeService.findBySpace(id);
         const spaceObject = space?.toObject();
+
         if (!spaceObject) {
           this.logger.warn(`스페이스 데이터가 존재하지 않음 - id: ${id}`);
           return;
         }
+
         this.logger.debug(`스페이스 데이터 분석 및 업데이트 준비 - id: ${id}`);
         const parsedSpace = {
           ...spaceObject,
           edges: JSON.parse(spaceObject.edges),
           nodes: JSON.parse(spaceObject.nodes),
         };
+
         this.logger.debug(
           `분석된 스페이스 데이터 - edges: ${JSON.stringify(parsedSpace.edges)}, nodes: ${JSON.stringify(parsedSpace.nodes)}`,
         );
+
         this.setYSpace(ydoc, parsedSpace);
       }
     } catch (e) {
@@ -89,6 +98,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async writePersistenceState(docName: string, ydoc: Y.Doc) {
     this.logger.debug(`writePersistenceState: 시작 - docName: ${docName}`);
+
     const { type, id } = parseDocName(docName);
     this.logger.debug(`문서 이름 분석 결과 - type: ${type}, id: ${id}`);
 
@@ -118,11 +128,14 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(connection: WebSocket, request: Request) {
     this.logger.log('WebSocket 연결 시작');
+
     try {
       const url = request.url || '';
       this.logger.debug(`요청된 URL: ${url}`);
+
       const { urlType, urlId } = parseSocketUrl(url);
       this.logger.debug(`URL 분석 결과 - Type: ${urlType}, ID: ${urlId}`);
+
       if (!this.validateUrl(urlType, urlId)) {
         this.logger.warn(`유효하지 않은 URL - Type: ${urlType}, ID: ${urlId}`);
         connection.close(
@@ -131,9 +144,11 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         );
         return;
       }
+
       this.logger.debug(
         `WebSocket 초기화 시작 - Type: ${urlType}, ID: ${urlId}`,
       );
+
       urlType === 'space'
         ? await this.initializeSpace(connection, request, urlId as string)
         : await this.initializeNote(connection, request, urlId as string);
@@ -143,7 +158,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(connection: WebSocket) {
-    this.logger.log(`WebSocket 연결 종료`);
+    this.logger.log('WebSocket 연결 종료');
   }
 
   private validateUrl(urlType: string | null, urlId: string | null): boolean {
@@ -153,6 +168,7 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       return false;
     }
+
     this.logger.debug(
       `URL 유효성 검사 성공 - urlType: ${urlType}, urlId: ${urlId}`,
     );
@@ -165,7 +181,9 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.debug(`스페이스 초기화 시작 - id: ${urlId}`);
+
     const space = await this.collaborativeService.findBySpace(urlId);
+
     if (!space) {
       this.logger.warn(`스페이스 존재하지 않음 - id: ${urlId}`);
       connection.close(
@@ -174,14 +192,17 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       return;
     }
+
     this.logger.debug(`스페이스 존재 확인 - id: ${urlId}`);
+
     setupWSConnection(connection, request, {
       docName: 'space:' + urlId,
     });
   }
 
   private async setYSpace(ydoc: Y.Doc, parsedSpace) {
-    this.logger.debug(`Yjs 스페이스 설정 시작`);
+    this.logger.debug('Yjs 스페이스 설정 시작');
+
     const yContext = ydoc.getMap('context');
     const yEdges = new Y.Map();
     const yNodes = new Y.Map();
@@ -197,7 +218,8 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     yContext.set('edges', yEdges);
     yContext.set('nodes', yNodes);
-    this.logger.debug(`Yjs 스페이스 설정 완료`);
+
+    this.logger.debug('Yjs 스페이스 설정 완료');
   }
 
   private async initializeNote(
@@ -206,7 +228,9 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     urlId: string,
   ) {
     this.logger.debug(`노트 초기화 시작 - id: ${urlId}`);
+
     const note = await this.collaborativeService.findByNote(urlId);
+
     if (!note) {
       this.logger.warn(`노트 존재하지 않음 - id: ${urlId}`);
       connection.close(
@@ -215,10 +239,13 @@ export class YjsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       return;
     }
+
     this.logger.debug(`노트 존재 확인 - id: ${urlId}`);
+
     setupWSConnection(connection, request, {
       docName: 'note:' + urlId,
     });
+
     this.logger.debug(`노트 초기화 완료 - id: ${urlId}`);
   }
 }
