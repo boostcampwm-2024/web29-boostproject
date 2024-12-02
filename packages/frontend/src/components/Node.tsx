@@ -11,6 +11,7 @@ import {
 import { Vector2d } from "konva/lib/types";
 
 const RADIUS = 64;
+const MORE_BUTTON_RADIUS = 12;
 
 type NodeProps = {
   id: string;
@@ -126,11 +127,17 @@ Node.MoreButton = function NodeMoreButton({ content }: NodeMoreButtonProps) {
     e.cancelBubble = true;
 
     const parentNode = e.target.findAncestor("Group").findAncestor("Group");
+
     if (!parentNode) return;
+
+    const absolutePosition = parentNode.getAbsolutePosition();
 
     const contextMenuEvent = new MouseEvent("contextmenu", {
       button: 2,
       buttons: 2,
+      clientX: absolutePosition.x,
+      clientY: absolutePosition.y,
+      bubbles: true,
     });
 
     parentNode.fire("contextmenu", {
@@ -144,7 +151,7 @@ Node.MoreButton = function NodeMoreButton({ content }: NodeMoreButtonProps) {
       <Circle
         x={0}
         y={0}
-        radius={12}
+        radius={MORE_BUTTON_RADIUS}
         fill="#FFFFFF"
         stroke="#DED8D3"
         strokeWidth={1.5}
@@ -156,10 +163,10 @@ Node.MoreButton = function NodeMoreButton({ content }: NodeMoreButtonProps) {
         text={content}
         align="center"
         verticalAlign="middle"
-        width={24}
-        height={24}
-        offsetX={12}
-        offsetY={12}
+        width={MORE_BUTTON_RADIUS * 2}
+        height={MORE_BUTTON_RADIUS * 2}
+        offsetX={MORE_BUTTON_RADIUS}
+        offsetY={MORE_BUTTON_RADIUS}
       />
     </Group>
   );
