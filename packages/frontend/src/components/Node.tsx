@@ -125,7 +125,11 @@ export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
       id={id}
       x={x}
       y={y}
-      onClick={() => navigate(`/note/${src}`)}
+      onClick={(e) => {
+        if (e.evt.button === 0) {
+          navigate(`/note/${src}`);
+        }
+      }}
       {...rest}
     >
       <Node.Circle radius={radius} fill="#FFF2CB" />
