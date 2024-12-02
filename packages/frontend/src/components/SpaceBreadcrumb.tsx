@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { BreadcrumbItem as BreadcrumbItemData } from "shared/types";
+
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -16,27 +18,27 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-type SpacePath = {
-  name: string;
-  urlPath: string;
-};
+function splitSpacePaths(
+  spacePaths: BreadcrumbItemData[],
+  itemCountToDisplay: number,
+) {
+  const itemCount = spacePaths.length;
 
-function splitSpacePaths(spacePaths: SpacePath[], itemCountToDisplay: number) {
   // 처음 스페이스는 무조건 보여준다.
-  const firstSpacePath = spacePaths[0];
+  const firstSpacePath = itemCount > 1 ? spacePaths[0] : null;
 
   // 중간 스페이스들은 ...으로 표시하고, 클릭 시 드롭다운 메뉴로 보여준다.
-  const hiddenSpacePaths = spacePaths.slice(1, -2);
+  const hiddenSpacePaths = spacePaths.slice(1, -itemCountToDisplay + 1);
 
   // 마지막 (n-1)개 스페이스는 무조건 보여준다.
-  const lastItemCount = Math.min(spacePaths.length, itemCountToDisplay - 1);
-  const shownSpacePaths = spacePaths.slice(-lastItemCount);
+  const shownSpacePathCount = Math.min(itemCount, itemCountToDisplay) - 1;
+  const shownSpacePaths = spacePaths.slice(-shownSpacePathCount);
 
   return [firstSpacePath, hiddenSpacePaths, shownSpacePaths] as const;
 }
 
 type HiddenItemsProps = {
-  spacePaths: SpacePath[];
+  spacePaths: BreadcrumbItemData[];
 };
 
 function HiddenItems({ spacePaths }: HiddenItemsProps) {
@@ -48,9 +50,9 @@ function HiddenItems({ spacePaths }: HiddenItemsProps) {
             <BreadcrumbEllipsis />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {spacePaths.map(({ name, urlPath }) => (
-              <DropdownMenuItem key={urlPath} asChild>
-                <Link to={`/space/${urlPath}`}>{name}</Link>
+            {spacePaths.map(({ name, url }) => (
+              <DropdownMenuItem key={url} asChild>
+                <Link to={`/space/${url}`}>{name}</Link>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -62,7 +64,7 @@ function HiddenItems({ spacePaths }: HiddenItemsProps) {
 }
 
 type SpaceBreadcrumbItemProps = {
-  spacePath: SpacePath;
+  spacePath: BreadcrumbItemData;
   isPage?: boolean;
 };
 
@@ -81,10 +83,7 @@ function SpaceBreadcrumbItem({ spacePath, isPage }: SpaceBreadcrumbItemProps) {
     <>
       <BreadcrumbItem>
         <BreadcrumbLink asChild>
-          <Link
-            className="truncate max-w-20"
-            to={`/space/${spacePath.urlPath}`}
-          >
+          <Link className="truncate max-w-20" to={`/space/${spacePath.url}`}>
             {spacePath.name}
           </Link>
         </BreadcrumbLink>
@@ -95,7 +94,7 @@ function SpaceBreadcrumbItem({ spacePath, isPage }: SpaceBreadcrumbItemProps) {
 }
 
 type SpaceBreadcrumbProps = {
-  spacePaths: SpacePath[];
+  spacePaths: BreadcrumbItemData[];
   itemCountToDisplay?: number;
 };
 
@@ -118,7 +117,7 @@ export default function SpaceBreadcrumb({
         )}
         {shownSpacePaths.map((spacePath, index) => (
           <SpaceBreadcrumbItem
-            key={spacePath.urlPath}
+            key={spacePath.url}
             spacePath={spacePath}
             isPage={index === shownSpacePaths.length - 1}
           />

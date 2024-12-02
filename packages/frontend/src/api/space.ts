@@ -1,4 +1,6 @@
-import { API_V2_URL } from "./constants";
+import { BreadcrumbItem } from "shared/types";
+
+import { API_V1_URL, API_V2_URL } from "./constants";
 import http from "./http";
 
 type CreateSpaceRequestBody = {
@@ -19,12 +21,11 @@ export async function createSpace(body: CreateSpaceRequestBody) {
   return response.data;
 }
 
-// export async function getSpace(spaceId: string) {
-//   // FIXME
-//   throw new Error("Not implemented");
-// }
+type GetBreadcrumbResponseBody = BreadcrumbItem[];
 
-// export async function createSubspace() {
-//   // FIXME
-//   throw new Error("Not implemented");
-// }
+export async function getBreadcrumbOfSpace(spaceUrlPath: string) {
+  const response = await http.get<GetBreadcrumbResponseBody>(
+    `${API_V1_URL}/space/breadcrumb/${spaceUrlPath}`,
+  );
+  return response.data;
+}
