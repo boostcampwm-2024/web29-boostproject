@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 
+const RADIUS = 64;
+
 type NodeProps = {
   id: string;
   x: number;
@@ -36,16 +38,25 @@ export default function Node({
 type NodeCircleProps = {
   radius: number;
   fill: string;
+  stroke?: string;
   shadowColor?: string;
 };
 
 Node.Circle = function NodeCircle({
   radius,
   fill,
+  stroke,
   shadowColor = "#F9D46B",
 }: NodeCircleProps) {
   return (
-    <Circle x={0} y={0} radius={radius} fill={fill} shadowColor={shadowColor} />
+    <Circle
+      x={0}
+      y={0}
+      radius={radius}
+      fill={fill}
+      stroke={stroke}
+      shadowColor={shadowColor}
+    />
   );
 };
 
@@ -94,12 +105,11 @@ export type HeadNodeProps = {
 } & NodeHandlers;
 
 export function HeadNode({ id, name, ...rest }: HeadNodeProps) {
-  const radius = 64;
   return (
     <Node id={id} x={0} y={0} draggable {...rest}>
-      <Node.Circle radius={radius} fill="#FFCC00" />
+      <Node.Circle radius={RADIUS} fill="#FFD000" />
       <Node.Text
-        width={radius * 2}
+        width={RADIUS * 2}
         fontSize={16}
         fontStyle="700"
         content={name}
@@ -119,17 +129,20 @@ export type NoteNodeProps = {
 export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
   // TODO: src 적용 필요
   const navigate = useNavigate();
-  const radius = 64;
   return (
     <Node
       id={id}
       x={x}
       y={y}
-      onClick={() => navigate(`/note/${src}`)}
+      onClick={(e) => {
+        if (e.evt.button === 0) {
+          navigate(`/note/${src}`);
+        }
+      }}
       {...rest}
     >
-      <Node.Circle radius={radius} fill="#FFF2CB" />
-      <Node.Text fontSize={16} content={name} />
+      <Node.Circle radius={RADIUS} fill="#FAF9F7" stroke="#DED8D3" />
+      <Node.Text width={RADIUS * 2} fontSize={16} content={name} />
     </Node>
   );
 }
@@ -160,8 +173,8 @@ export function SubspaceNode({
       onClick={() => navigate(`/space/${src}`)}
       {...rest}
     >
-      <Node.Circle radius={64} fill="#FFF2CB" />
-      <Node.Text fontSize={16} fontStyle="700" content={name} />
+      <Node.Circle radius={RADIUS} fill="#FFF4BB" stroke="#F9D46B" />
+      <Node.Text width={RADIUS * 2} fontSize={16} fontStyle="700" content={name} />
     </Node>
   );
 }

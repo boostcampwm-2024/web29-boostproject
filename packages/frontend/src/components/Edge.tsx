@@ -53,7 +53,7 @@ export default function Edge({
     >
       <Line
         points={points}
-        stroke={"#FFCC00"}
+        stroke={"#D4AD2F"}
         strokeWidth={isHovered ? 5 : 3}
         opacity={isHovered ? 1 : 0.8}
         {...rest}

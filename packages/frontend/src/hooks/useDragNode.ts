@@ -59,10 +59,7 @@ export default function useDragNode(nodes: Node[], spaceActions: spaceActions) {
     }
 
     animationFrameId.current = requestAnimationFrame(() => {
-      const filteredNodes = nodes.filter(
-        (node) => node.id !== dragState.startNode?.id,
-      );
-      const overlapNodes = findOverlapNodes(position, filteredNodes);
+      const overlapNodes = findOverlapNodes(position, nodes);
       const selectedNode =
         overlapNodes.length > 0
           ? findNearestNode(position, overlapNodes)

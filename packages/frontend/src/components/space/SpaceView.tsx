@@ -147,7 +147,6 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   }, [autofitTo]);
 
   const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
-    // e.evt.preventDefault(); // 브라우저 컨텍스트메뉴 표시 방지
     clearSelection();
 
     const { target } = e;
@@ -178,6 +177,14 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       return;
 
     selectNode({ id: nodeId, type: node.type });
+  };
+
+  const handleHover = (e: KonvaEventObject<MouseEvent>) => {
+    const isEnter = e.type === "mouseenter";
+    const cursorStyle = isEnter ? "pointer" : "default";
+
+    const container = e.target.getStage()?.container();
+    if (container) container.style.cursor = cursorStyle;
   };
 
   const nodeComponents = {
@@ -215,6 +222,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
         onContextMenu={handleContextMenu}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleHover}
       />
     ),
     subspace: (node: Node) => (
@@ -240,6 +249,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         onTouchStart={(e) => move.callbacks.startHold(node, e)}
         onTouchEnd={move.callbacks.endHold}
         onContextMenu={handleContextMenu}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleHover}
       />
     ),
   };
@@ -264,7 +275,9 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
 
   const nearIndicatorRenderer = !moveState.isMoving &&
     drag.position &&
-    drag.overlapNode && (
+    drag.startNode &&
+    drag.overlapNode &&
+    drag.overlapNode.id !== drag.startNode.id && (
       <MemoizedNearIndicator overlapNode={drag.overlapNode} />
     );
 
