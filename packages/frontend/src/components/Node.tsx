@@ -36,16 +36,25 @@ export default function Node({
 type NodeCircleProps = {
   radius: number;
   fill: string;
+  stroke?: string;
   shadowColor?: string;
 };
 
 Node.Circle = function NodeCircle({
   radius,
   fill,
+  stroke,
   shadowColor = "#F9D46B",
 }: NodeCircleProps) {
   return (
-    <Circle x={0} y={0} radius={radius} fill={fill} shadowColor={shadowColor} />
+    <Circle
+      x={0}
+      y={0}
+      radius={radius}
+      fill={fill}
+      stroke={stroke}
+      shadowColor={shadowColor}
+    />
   );
 };
 
@@ -97,7 +106,7 @@ export function HeadNode({ id, name, ...rest }: HeadNodeProps) {
   const radius = 64;
   return (
     <Node id={id} x={0} y={0} draggable {...rest}>
-      <Node.Circle radius={radius} fill="#FFCC00" />
+      <Node.Circle radius={radius} fill="#FFD000" />
       <Node.Text
         width={radius * 2}
         fontSize={16}
@@ -128,7 +137,7 @@ export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
       onClick={() => navigate(`/note/${src}`)}
       {...rest}
     >
-      <Node.Circle radius={radius} fill="#FFF2CB" />
+      <Node.Circle radius={radius} fill="#FAF9F7" stroke="#DED8D3" />
       <Node.Text fontSize={16} content={name} />
     </Node>
   );
@@ -160,7 +169,7 @@ export function SubspaceNode({
       onClick={() => navigate(`/space/${src}`)}
       {...rest}
     >
-      <Node.Circle radius={64} fill="#FFF2CB" />
+      <Node.Circle radius={64} fill="#FFF4BB" stroke="#F9D46B" />
       <Node.Text fontSize={16} fontStyle="700" content={name} />
     </Node>
   );
