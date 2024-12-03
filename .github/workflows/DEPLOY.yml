@@ -1,0 +1,55 @@
+name: deploy
+on:
+  push:
+    branches: [dev]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+
+      - name: 타임스탬프 생성
+        id: timestamp
+        run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: SSH로 서버 접속 및 배포
+        uses: appleboy/ssh-action@v0.1.6
+        env:
+          ENV_FILE_CONTENTS: ${{ secrets.ENV_FILE_CONTENTS }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          envs: ENV_FILE_CONTENTS
+          script: |
+            # 작업 디렉토리 생성 및 이동
+            DEPLOY_DIR="/home/${{ secrets.SERVER_USER }}/deploy"
+            TIMESTAMP="${{ steps.timestamp.outputs.timestamp }}"
+            RELEASE_DIR="$DEPLOY_DIR/releases/$TIMESTAMP"
+
+            mkdir -p $RELEASE_DIR
+            cd $RELEASE_DIR
+
+            # 코드 복제
+            git clone -b dev https://github.com/boostcampwm-2024/web29-honeyflow.git .
+
+            # 환경변수 파일 생성
+            echo "$ENV_FILE_CONTENTS" > .env
+
+            # 이전 컨테이너 정리
+            docker stop db-healthcheck || true && docker rm db-healthcheck || true
+            docker stop backend || true && docker rm backend || true
+            docker stop frontend || true && docker rm frontend || true
+
+            # 새 컨테이너 실행
+            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+            # 이전 배포 정리 (최근 3개만 유지)
+            cd $DEPLOY_DIR/releases
+            ls -t | tail -n +4 | xargs -I {} rm -rf {}
+
+            # 사용하지 않는 Docker 이미지 정리
+            sudo docker image prune -af

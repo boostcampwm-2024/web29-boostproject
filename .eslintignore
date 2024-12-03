@@ -1,0 +1,11 @@
+# Backend
+/packages/backend/*
+/packages/backend/**/*
+
+# Build outputs
+**/dist
+**/build
+**/coverage
+
+# Dependencies
+**/node_modules

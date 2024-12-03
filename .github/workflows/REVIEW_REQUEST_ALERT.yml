@@ -1,0 +1,59 @@
+name: BeeBot
+on:
+  pull_request:
+    types: [review_request_removed]
+jobs:
+  notify_automatically_assigned_review_request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 알림 전송 이력이 있는지 확인
+        id: check_notification
+        uses: actions/cache@v3
+        with:
+          path: .notifications
+          key: notifications-${{ github.event.pull_request.number }}
+
+      - name: 리뷰어 목록 가져오기
+        if: steps.check_notification.outputs.cache-hit != 'true'
+        id: reviewers
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const workers = JSON.parse(fs.readFileSync('.github/workflows/reviewers.json'));
+            const mention = context.payload.pull_request.requested_reviewers.map((user) => {
+              const login = user.login;
+              const mappedValue = workers[login];
+              return mappedValue ? `<@${mappedValue}>` : `No mapping found for ${login}`;
+            });
+            return mention.join(', ');
+          result-encoding: string
+
+      - name: 슬랙 알림 전송
+        if: steps.check_notification.outputs.cache-hit != 'true'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL }}
+          payload: |
+            {
+              "text": "[리뷰 요청] 새로운 PR이 등록되었습니다!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "[리뷰 요청] 새로운 PR이 등록되었습니다!\n • 제목: ${{ github.event.pull_request.title }}\n • 리뷰어: ${{ steps.reviewers.outputs.result }} \n • 링크: <${{ github.event.pull_request.html_url }}|리뷰하러 가기>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: 알림 전송 이력 생성
+        if: steps.check_notification.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .notifications
+          touch .notifications/sent

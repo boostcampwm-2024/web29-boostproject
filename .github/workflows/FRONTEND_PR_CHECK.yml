@@ -1,0 +1,91 @@
+name: Frontend PR Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'packages/frontend/**'
+      - 'packages/shared/**'
+
+jobs:
+  build-check:
+    if: contains(github.head_ref, 'dev-fe')
+    runs-on: ubuntu-latest
+    
+    # Checks API 권한
+    permissions:
+      checks: write
+      
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.4.0
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.9.0'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build frontend
+        id: build
+        working-directory: packages/frontend
+        run: pnpm build
+        continue-on-error: true
+
+      - name: Process Build Result
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const buildOutcome = '${{ steps.build.outcome }}';
+            
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              name: 'Frontend Build',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: buildOutcome === 'success' ? 'success' : 'failure',
+              output: {
+                title: buildOutcome === 'success' 
+                  ? '🎉 Frontend Build Successful' 
+                  : '❌ Frontend Build Failed',
+                
+                summary: buildOutcome === 'success'
+                  ? [
+                      '## ✅ Build Status: Success',
+                      '',
+                      '### Build Information:',
+                      '- **Build Time**: ' + new Date().toISOString(),
+                      '- **Branch**: ' + context.ref,
+                      '',
+                      '✨ Ready to be reviewed!'
+                    ].join('\n')
+                  : [
+                      '## ❌ Build Status: Failed',
+                      '',
+                      '### Error Information:',
+                      '- **Build Time**: ' + new Date().toISOString(),
+                      '- **Branch**: ' + context.ref,
+                      '',
+                      '### Next Steps:',
+                      '1. Check the build logs for detailed error messages',
+                      '2. Fix the identified issues',
+                      '3. Push your changes to trigger a new build',
+                      '',
+                      '> Need help? Contact the frontend team.'
+                    ].join('\n'),
+                
+                text: buildOutcome === 'success'
+                  ? '자세한 빌드 로그는 Actions 탭에서 확인하실 수 있습니다.'
+                  : '빌드 실패 원인을 확인하시려면 위의 "Details"를 클릭하세요.'
+              }
+            });
+
+            if (buildOutcome === 'failure') {
+              core.setFailed('Frontend build failed');
+            }
