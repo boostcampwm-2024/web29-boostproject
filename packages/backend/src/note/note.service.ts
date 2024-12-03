@@ -32,11 +32,11 @@ export class NoteService {
   }
 
   async findById(id: string) {
-    this.logger.log(`ID가 ${id}인 노트를 검색 중입니다.`); // 로그 메시지 개선
+    this.logger.log(`ID가 ${id}인 노트를 검색 중입니다.`);
 
     const note = await this.noteModel.findOne({ id }).exec();
 
-    this.logger.debug(`ID가 ${id}인 노트 검색 결과: ${!!note}`); // 로그 메시지 개선
+    this.logger.debug(`ID가 ${id}인 노트 검색 결과: ${!!note}`);
 
     return note;
   }
