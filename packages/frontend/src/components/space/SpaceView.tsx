@@ -146,7 +146,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     };
   }, [autofitTo]);
 
-  const handleContextMenu = (e: KonvaEventObject<MouseEvent>) => {
+  const handleContextMenu = (e: KonvaEventObject<MouseEvent | Event>) => {
     clearSelection();
 
     const { target } = e;
@@ -159,7 +159,9 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
       return;
     }
 
-    const group = target.findAncestor("Group");
+    // Mobile 환경에서는 group을 대상으로 임의로 이벤트 발생시킴
+    const group =
+      target instanceof Konva.Group ? target : target.findAncestor("Group");
 
     const nodeId = group?.attrs?.id as string | undefined;
 
@@ -299,6 +301,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         to={edge.to}
         nodes={nodes}
         onContextMenu={handleContextMenu}
+        onDelete={deleteEdge}
       />
     ));
 
