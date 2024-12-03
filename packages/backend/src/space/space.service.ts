@@ -144,21 +144,25 @@ export class SpaceService {
 
       switch (node.type) {
         case 'note':
-          this.logger.log(`노트 노드 삭제 - ID: ${node.id}`);
-          await this.noteService.deleteById(node.id);
+          this.logger.log(`노트 노드 삭제 - ID: ${node.src}`);
+          if (node.src) {
+            await this.noteService.deleteById(node.src);
+          }
           break;
 
         case 'subspace':
           if (!node.src) {
             this.logger.warn(
-              `서브스페이스 노드에 src가 없습니다 - ID: ${node.id}`,
+              `서브스페이스 노드에 src가 없습니다 - ID: ${node.src}`,
             );
             continue;
           }
           this.logger.log(
-            `서브스페이스 노드 삭제 - ID: ${node.id}, 하위 스페이스 ID: ${node.src}`,
+            `서브스페이스 노드 삭제 - ID: ${node.src}, 하위 스페이스 ID: ${node.src}`,
           );
-          await this.deleteById(node.src);
+          if (node.src) {
+            await this.deleteById(node.src);
+          }
           break;
 
         default:
