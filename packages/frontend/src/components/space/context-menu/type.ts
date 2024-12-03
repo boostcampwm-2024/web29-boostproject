@@ -8,6 +8,7 @@ export type ContextMenuItemConfig = {
 export type SelectedNodeInfo = {
   id: string;
   type: Exclude<Node["type"], "url" | "image" | "head">;
+  src?: string | undefined;
 };
 
 export type SelectedEdgeInfo = {

@@ -1,5 +1,6 @@
 import React from "react";
 
+import { deleteSpace, updateSpace } from "@/api/space";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { prompt } from "@/lib/prompt-dialog";
 
@@ -12,12 +13,14 @@ import {
 
 type SpaceContextMenuWrapperProps = {
   children: React.ReactNode;
+  spaceId: string;
   selection: SelectionState;
   actions: ContextMenuActions;
 };
 
 export default function SpaceContextMenuWrapper({
   children,
+  spaceId,
   selection,
   actions,
 }: SpaceContextMenuWrapperProps) {
@@ -45,13 +48,35 @@ export default function SpaceContextMenuWrapper({
               },
             );
             if (!nodeNewName) return;
+
+            if (selectedNode.type === "subspace" && selectedNode.src) {
+              try {
+                await updateSpace(selectedNode.src, {
+                  userId: "honeyflow",
+                  spaceName: nodeNewName,
+                  parentContextNodeId: spaceId,
+                });
+              } catch (error) {
+                console.error("스페이스 편집 실패:", error);
+              }
+            }
+
             onNodeUpdate(selectedNode.id, { name: nodeNewName });
             clearSelection();
           },
         },
         {
           label: "제거",
-          action: () => {
+          action: async () => {
+            // 서브스페이스인 경우 스페이스도 함께 삭제
+            if (selectedNode.type === "subspace" && selectedNode.src) {
+              try {
+                await deleteSpace(selectedNode.src);
+              } catch (error) {
+                console.error("스페이스 삭제 실패:", error);
+              }
+            }
+
             onNodeDelete(selectedNode.id);
             clearSelection();
           },

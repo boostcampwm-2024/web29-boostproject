@@ -32,11 +32,11 @@ export class NoteService {
   }
 
   async findById(id: string) {
-    this.logger.log(`ID가 ${id}인 노트를 검색 중입니다.`); // 로그 메시지 개선
+    this.logger.log(`ID가 ${id}인 노트를 검색 중입니다.`);
 
     const note = await this.noteModel.findOne({ id }).exec();
 
-    this.logger.debug(`ID가 ${id}인 노트 검색 결과: ${!!note}`); // 로그 메시지 개선
+    this.logger.debug(`ID가 ${id}인 노트 검색 결과: ${!!note}`);
 
     return note;
   }
@@ -78,6 +78,24 @@ export class NoteService {
         error.stack,
       );
       throw new BadRequestException(ERROR_MESSAGES.NOTE.UPDATE_FAILED);
+    }
+  }
+  async deleteById(id: string) {
+    this.logger.log(`ID가 ${id}인 노트를 삭제하는 중입니다.`);
+
+    try {
+      const result = await this.noteModel.deleteOne({ id }).exec();
+
+      if (result.deletedCount === 0) {
+        this.logger.warn(`삭제 실패: ID가 ${id}인 노트를 찾을 수 없습니다.`);
+        throw new BadRequestException(ERROR_MESSAGES.NOTE.NOT_FOUND);
+      }
+
+      this.logger.log(`ID가 ${id}인 노트 삭제 완료.`);
+      return { success: true, message: '노트가 성공적으로 삭제되었습니다.' };
+    } catch (error) {
+      this.logger.error(`ID가 ${id}인 노트 삭제 중 오류 발생.`, error.stack);
+      throw new BadRequestException(ERROR_MESSAGES.NOTE.DELETE_FAILED);
     }
   }
 }

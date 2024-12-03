@@ -5,6 +5,7 @@ export class UpdateSpaceDto {
   userId: string;
   @ApiProperty({ description: '스페이스 이름' })
   spaceName: string;
+
   @ApiProperty({ description: 'Parent Space Id' })
   parentContextNodeId: string | null;
 }

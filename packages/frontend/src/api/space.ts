@@ -29,3 +29,16 @@ export async function getBreadcrumbOfSpace(spaceUrlPath: string) {
   );
   return response.data;
 }
+
+export async function updateSpace(id: string, body: CreateSpaceRequestBody) {
+  const response = await http.put<CreateSpaceResponseBody>(
+    `${API_V1_URL}/space/${id}`,
+    { body: JSON.stringify(body) },
+  );
+  return response.data;
+}
+
+export async function deleteSpace(spaceId: string) {
+  const response = await http.delete(`${API_V1_URL}/space/${spaceId}`);
+  return response;
+}

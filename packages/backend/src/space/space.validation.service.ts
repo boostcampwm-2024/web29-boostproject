@@ -7,7 +7,7 @@ import { MAX_SPACES } from '../common/constants/space.constants';
 import { SpaceDocument } from './space.schema';
 
 @Injectable()
-export class SpaceValidationService {
+export class SpaceValidation {
   constructor(
     @InjectModel(SpaceDocument.name)
     private readonly spaceModel: Model<SpaceDocument>,
