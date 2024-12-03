@@ -17,6 +17,7 @@ import { ERROR_MESSAGES } from '../common/constants/error.message.constants';
 import { GUEST_USER_ID } from '../common/constants/space.constants';
 import { CreateSpaceDto } from './dto/create.space.dto';
 import { SpaceService } from './space.service';
+import { UpdateSpaceDto } from './dto/update.space.dto';
 
 @ApiTags('space')
 @Controller('space')
@@ -143,8 +144,11 @@ export class SpaceController {
   @ApiOperation({ summary: '스페이스 업데이트' })
   @ApiResponse({ status: 201, description: '스페이스 업데이트 성공' })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
-  async updateSpace(@Param('id') id: string) {
-    const result = await this.spaceService.existsById(id);
+  async updateSpaceByName(
+    @Param('id') id: string,
+    @Body() updateSpaceDto: UpdateSpaceDto,
+  ) {
+    const result = await this.spaceService.updateById(id, updateSpaceDto);
 
     if (!result) {
       this.logger.error('스페이스 업데이트 실패 - 스페이스를 찾을 수 없음', {
@@ -158,6 +162,7 @@ export class SpaceController {
       );
     }
   }
+
   @Version('1')
   @Delete('/:id')
   @ApiOperation({ summary: '스페이스 삭제' })

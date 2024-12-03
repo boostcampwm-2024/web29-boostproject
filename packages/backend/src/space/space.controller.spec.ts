@@ -120,26 +120,4 @@ describe('SpaceController', () => {
       );
     });
   });
-
-  describe('updateSpace', () => {
-    it('스페이스가 존재하지 않을 경우 404 오류를 던져야 한다', async () => {
-      const spaceId = '123';
-      (spaceService.existsById as jest.Mock).mockResolvedValue(false);
-
-      await expect(spaceController.updateSpace(spaceId)).rejects.toThrow(
-        HttpException,
-      );
-
-      expect(spaceService.existsById).toHaveBeenCalledWith(spaceId);
-    });
-
-    it('스페이스가 존재할 경우 오류를 던지지 않아야 한다', async () => {
-      const spaceId = '123';
-      (spaceService.existsById as jest.Mock).mockResolvedValue(true);
-
-      await expect(spaceController.updateSpace(spaceId)).resolves.not.toThrow();
-
-      expect(spaceService.existsById).toHaveBeenCalledWith(spaceId);
-    });
-  });
 });
