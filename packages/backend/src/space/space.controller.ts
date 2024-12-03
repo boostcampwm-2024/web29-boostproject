@@ -18,6 +18,7 @@ import { GUEST_USER_ID } from '../common/constants/space.constants';
 import { CreateSpaceDto } from './dto/create.space.dto';
 import { SpaceService } from './space.service';
 import { UpdateSpaceDto } from './dto/update.space.dto';
+import { SpaceDocument } from './space.schema';
 
 @ApiTags('space')
 @Controller('space')
@@ -148,7 +149,13 @@ export class SpaceController {
     @Param('id') id: string,
     @Body() updateSpaceDto: UpdateSpaceDto,
   ) {
-    const result = await this.spaceService.updateById(id, updateSpaceDto);
+    const updateData: Partial<SpaceDocument> = {
+      name: updateSpaceDto.spaceName,
+      parentSpaceId: updateSpaceDto.parentContextNodeId,
+      userId: updateSpaceDto.userId,
+    };
+
+    const result = await this.spaceService.updateById(id, updateData);
 
     if (!result) {
       this.logger.error('스페이스 업데이트 실패 - 스페이스를 찾을 수 없음', {
@@ -161,6 +168,7 @@ export class SpaceController {
         HttpStatus.NOT_FOUND,
       );
     }
+    return result;
   }
 
   @Version('1')

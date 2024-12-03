@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { SpaceDocument } from './space.schema';
 import { SpaceValidation } from './space.validation.service';
 import { NoteService } from 'src/note/note.service';
+import { UpdateSpaceDto } from './dto/update.space.dto';
 
 @Injectable()
 export class SpaceService {
