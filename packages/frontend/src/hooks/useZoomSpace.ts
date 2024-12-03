@@ -46,8 +46,6 @@ export function useZoomSpace({
   minScale = 0.5,
   maxScale = 2.5,
 }: UseZoomSpaceProps) {
-  const animationFrameId = useRef<number | null>(null);
-
   const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
 
@@ -80,16 +78,8 @@ export function useZoomSpace({
       }
 
       const newPosition = calculateNewPosition(pointer, mousePointTo, newScale);
-
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-
-      animationFrameId.current = requestAnimationFrame(() => {
-        stage.scale({ x: newScale, y: newScale });
-        stage.position(newPosition);
-        stage.batchDraw();
-      });
+      stage.scale({ x: newScale, y: newScale });
+      stage.position(newPosition);
     }
   };
 
