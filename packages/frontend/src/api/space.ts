@@ -29,3 +29,8 @@ export async function getBreadcrumbOfSpace(spaceUrlPath: string) {
   );
   return response.data;
 }
+
+export async function deleteSpace(spaceId: string) {
+  const response = await http.delete(`${API_V1_URL}/space/${spaceId}`);
+  return response;
+}
