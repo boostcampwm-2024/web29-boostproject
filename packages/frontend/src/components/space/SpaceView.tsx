@@ -301,6 +301,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         to={edge.to}
         nodes={nodes}
         onContextMenu={handleContextMenu}
+        onDelete={deleteEdge}
       />
     ));
 

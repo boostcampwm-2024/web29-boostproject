@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Circle, Group, Line, Text } from "react-konva";
 
 import Konva from "konva";
-import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
+import { KonvaEventObject } from "konva/lib/Node";
 import type { Edge } from "shared/types";
 
 type EdgeProps = Edge & Konva.LineConfig;
@@ -11,9 +11,7 @@ const BUTTON_RADIUS = 12;
 
 type EdgeEditButtonProps = {
   points: number[];
-  onTap?:
-    | ((evt: KonvaEventObject<PointerEvent, Node<NodeConfig>>) => void)
-    | undefined;
+  onTap: (edgeId: string) => void;
 };
 
 function EdgeEditButton({ points, onTap }: EdgeEditButtonProps) {
@@ -26,10 +24,19 @@ function EdgeEditButton({ points, onTap }: EdgeEditButtonProps) {
   if (!isTouch || points.length < 4) return null;
 
   const handleTap = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
-    if (onTap) {
-      const { target } = e;
-      console.log(target);
-    }
+    const targetGroup = e.target
+      .findAncestor("Group")
+      .findAncestor("Group") as Konva.Group;
+
+    if (!targetGroup) return;
+
+    const targetEdge = targetGroup.children.find(
+      (konvaNode) => konvaNode.attrs.name === "edge",
+    );
+
+    if (!targetEdge) return;
+
+    onTap(targetEdge.attrs.id);
   };
 
   const middleX = (points[0] + points[2]) / 2;
@@ -78,6 +85,7 @@ export default function Edge({
   to,
   id,
   onContextMenu,
+  onDelete,
   ...rest
 }: EdgeProps) {
   const [points, setPoints] = useState<number[]>([]);
@@ -118,7 +126,7 @@ export default function Edge({
         name="edge"
         id={id}
       />
-      <EdgeEditButton points={points} />
+      <EdgeEditButton points={points} onTap={onDelete} />
     </Group>
   );
 }
