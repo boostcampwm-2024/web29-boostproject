@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -148,6 +149,26 @@ export class SpaceController {
     if (!result) {
       this.logger.error('스페이스 업데이트 실패 - 스페이스를 찾을 수 없음', {
         method: 'updateSpace',
+        error: ERROR_MESSAGES.SPACE.NOT_FOUND,
+        id,
+      });
+      throw new HttpException(
+        ERROR_MESSAGES.SPACE.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+  @Version('1')
+  @Delete('/:id')
+  @ApiOperation({ summary: '스페이스 삭제' })
+  @ApiResponse({ status: 201, description: '스페이스 삭제 성공' })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  async deleteSpace(@Param('id') id: string) {
+    const result = await this.spaceService.deleteById(id);
+
+    if (!result) {
+      this.logger.error('스페이스 삭제 실패 - 스페이스를 찾을 수 없음', {
+        method: 'deleteSpace',
         error: ERROR_MESSAGES.SPACE.NOT_FOUND,
         id,
       });

@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 
 import { SpaceDocument } from './space.schema';
 import { SpaceValidationService } from './space.validation.service';
+import { NoteService } from 'src/note/note.service';
 
 @Injectable()
 export class SpaceService {
@@ -13,6 +14,7 @@ export class SpaceService {
 
   constructor(
     private readonly spaceValidationService: SpaceValidationService,
+    private readonly noteService: NoteService,
     @InjectModel(SpaceDocument.name)
     private readonly spaceModel: Model<SpaceDocument>,
   ) {}
@@ -114,5 +116,55 @@ export class SpaceService {
     }
 
     return breadcrumb;
+  }
+  async deleteById(id: string) {
+    this.logger.log(`ID가 ${id}인 스페이스와 그 하위 노드를 삭제합니다.`);
+
+    const space = await this.spaceModel.findOne({ id }).exec();
+
+    if (!space) {
+      this.logger.warn(`삭제 실패: ID가 ${id}인 스페이스를 찾을 수 없습니다.`);
+      throw new Error(`ID가 ${id}인 스페이스를 찾을 수 없습니다.`);
+    }
+
+    const nodes: Record<string, Node> = JSON.parse(space.nodes);
+
+    for (const nodeId in nodes) {
+      const node = nodes[nodeId];
+
+      switch (node.type) {
+        case 'note':
+          this.logger.log(`노트 노드 삭제 - ID: ${node.id}`);
+          await this.noteService.deleteById(node.id);
+          break;
+
+        case 'subspace':
+          this.logger.log(`서브스페이스 노드 삭제 - ID: ${node.id}`);
+          if (node.src) {
+            await this.deleteById(node.src);
+          }
+          break;
+
+        default:
+          this.logger.log(
+            `노드 ID: ${node.id}는 특별한 삭제 작업이 필요하지 않습니다.`,
+          );
+          break;
+      }
+    }
+
+    this.logger.log(`스페이스 삭제 - ID: ${id}`);
+    const result = await this.spaceModel.deleteOne({ id }).exec();
+
+    if (result.deletedCount === 0) {
+      this.logger.warn(`스페이스 삭제 실패 - ID: ${id}`);
+      throw new Error(`ID가 ${id}인 스페이스를 삭제할 수 없습니다.`);
+    }
+
+    this.logger.log(`ID가 ${id}인 스페이스 및 하위 노드 삭제 완료.`);
+    return {
+      success: true,
+      message: '스페이스와 하위 노드가 성공적으로 삭제되었습니다.',
+    };
   }
 }
