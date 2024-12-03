@@ -117,6 +117,7 @@ export class SpaceService {
 
     return breadcrumb;
   }
+
   async deleteById(id: string) {
     this.logger.log(`ID가 ${id}인 스페이스와 그 하위 노드를 삭제합니다.`);
 
@@ -127,10 +128,20 @@ export class SpaceService {
       throw new Error(`ID가 ${id}인 스페이스를 찾을 수 없습니다.`);
     }
 
-    const nodes: Record<string, Node> = JSON.parse(space.nodes);
+    let nodes: Record<string, Node>;
+    try {
+      nodes = JSON.parse(space.nodes);
+      this.logger.debug(`노드 데이터 확인: ${JSON.stringify(nodes)}`);
+    } catch (error) {
+      this.logger.error(`노드 데이터 파싱 실패 - ID: ${id}`, error.stack);
+      throw new Error('노드 데이터 파싱 중 오류가 발생했습니다.');
+    }
 
     for (const nodeId in nodes) {
       const node = nodes[nodeId];
+      this.logger.debug(
+        `노드 순회 - ID: ${nodeId}, 데이터: ${JSON.stringify(node)}`,
+      );
 
       switch (node.type) {
         case 'note':
@@ -139,10 +150,16 @@ export class SpaceService {
           break;
 
         case 'subspace':
-          this.logger.log(`서브스페이스 노드 삭제 - ID: ${node.id}`);
-          if (node.src) {
-            await this.deleteById(node.src);
+          if (!node.src) {
+            this.logger.warn(
+              `서브스페이스 노드에 src가 없습니다 - ID: ${node.id}`,
+            );
+            continue;
           }
+          this.logger.log(
+            `서브스페이스 노드 삭제 - ID: ${node.id}, 하위 스페이스 ID: ${node.src}`,
+          );
+          await this.deleteById(node.src);
           break;
 
         default:
