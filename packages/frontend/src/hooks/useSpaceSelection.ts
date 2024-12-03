@@ -11,10 +11,11 @@ export default function useSpaceSelection() {
     null,
   );
 
-  const selectNode = ({ id, type }: SelectedNodeInfo) => {
+  const selectNode = ({ id, type, src }: SelectedNodeInfo) => {
     setSelectNode({
       id,
       type: type || null,
+      src,
     });
     setSelectedEdge(null);
   };

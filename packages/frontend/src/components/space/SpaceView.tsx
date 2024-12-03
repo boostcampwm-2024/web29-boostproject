@@ -178,7 +178,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
     )
       return;
 
-    selectNode({ id: nodeId, type: node.type });
+    selectNode({ id: nodeId, type: node.type, src: node.src });
   };
 
   const handleHover = (e: KonvaEventObject<MouseEvent>) => {

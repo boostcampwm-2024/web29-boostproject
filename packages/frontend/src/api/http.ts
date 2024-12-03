@@ -32,7 +32,7 @@ async function http<T>(
   }
 
   // json으로 한정
-  const data = (await response.json()) as T;
+  const data = config.method === "DELETE" ? null : await response.json();
 
   return {
     data,

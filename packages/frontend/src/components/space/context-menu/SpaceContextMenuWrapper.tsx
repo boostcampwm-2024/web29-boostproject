@@ -1,5 +1,6 @@
 import React from "react";
 
+import { deleteSpace } from "@/api/space";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { prompt } from "@/lib/prompt-dialog";
 
@@ -51,7 +52,19 @@ export default function SpaceContextMenuWrapper({
         },
         {
           label: "제거",
-          action: () => {
+          action: async () => {
+            // 서브스페이스인 경우 스페이스도 함께 삭제
+            console.log(selectedNode);
+            if (selectedNode.type === "subspace" && selectedNode.src) {
+              try {
+                const result = await deleteSpace(selectedNode.src);
+                console.log(result);
+              } catch (error) {
+                console.error("스페이스 삭제 실패:", error);
+              }
+            }
+
+            // 노드 삭제
             onNodeDelete(selectedNode.id);
             clearSelection();
           },
