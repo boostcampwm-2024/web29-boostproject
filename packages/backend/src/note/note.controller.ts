@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -112,5 +113,20 @@ export class NoteController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Version('1')
+  @Delete('/:id')
+  @ApiOperation({ summary: '노트 조회' })
+  @ApiResponse({ status: 200, description: '노트 조회 성공' })
+  @ApiResponse({ status: 404, description: '노트 조회 실패' })
+  async deleteNote(@Param('id') id: string) {
+    const result = await this.noteService.deleteById(id);
+    this.logger.log('노트 삭제 완료', {
+      method: 'deleteNote',
+      id,
+      result: !!result,
+    });
+    return !!result;
   }
 }
