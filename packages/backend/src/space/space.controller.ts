@@ -167,13 +167,16 @@ export class SpaceController {
     const result = await this.spaceService.deleteById(id);
 
     if (!result) {
-      this.logger.error('스페이스 삭제 실패 - 스페이스를 찾을 수 없음', {
-        method: 'deleteSpace',
-        error: ERROR_MESSAGES.SPACE.NOT_FOUND,
-        id,
-      });
+      this.logger.error(
+        '스페이스 삭제 실패 - 스페이스 삭제에 실패하였습니다.',
+        {
+          method: 'deleteSpace',
+          error: ERROR_MESSAGES.SPACE.DELETE_FAILED,
+          id,
+        },
+      );
       throw new HttpException(
-        ERROR_MESSAGES.SPACE.NOT_FOUND,
+        ERROR_MESSAGES.SPACE.DELETE_FAILED,
         HttpStatus.NOT_FOUND,
       );
     }
