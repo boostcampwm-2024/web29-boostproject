@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SpaceService } from './space.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { SpaceDocument } from './space.schema';
-import { SpaceValidationService } from './space.validation.service';
+import { SpaceValidation } from './space.validation.service';
 import { Model } from 'mongoose';
 
 jest.mock('uuid', () => ({
@@ -12,7 +12,7 @@ jest.mock('uuid', () => ({
 describe('SpaceService', () => {
   let spaceService: SpaceService;
   let spaceModel: Model<SpaceDocument>;
-  let spaceValidationService: SpaceValidationService;
+  let spaceValidation: SpaceValidation;
 
   beforeEach(async () => {
     const mockSpaceModel = {
@@ -26,7 +26,7 @@ describe('SpaceService', () => {
       create: jest.fn(),
     };
 
-    const mockSpaceValidationService = {
+    const mockSpaceValidation = {
       validateSpaceLimit: jest.fn().mockResolvedValue(undefined),
       validateParentNodeExists: jest.fn().mockResolvedValue(undefined),
     };
@@ -39,8 +39,8 @@ describe('SpaceService', () => {
           useValue: mockSpaceModel,
         },
         {
-          provide: SpaceValidationService,
-          useValue: mockSpaceValidationService,
+          provide: SpaceValidation,
+          useValue: mockSpaceValidation,
         },
       ],
     }).compile();
@@ -49,9 +49,7 @@ describe('SpaceService', () => {
     spaceModel = module.get<Model<SpaceDocument>>(
       getModelToken(SpaceDocument.name),
     );
-    spaceValidationService = module.get<SpaceValidationService>(
-      SpaceValidationService,
-    );
+    spaceValidation = module.get<SpaceValidation>(SpaceValidation);
   });
 
   describe('getBreadcrumb', () => {

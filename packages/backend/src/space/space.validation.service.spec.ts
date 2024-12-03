@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SpaceValidationService } from './space.validation.service';
+import { SpaceValidation } from './space.validation.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { SpaceDocument } from './space.schema';
 import { Model } from 'mongoose';
 import { ERROR_MESSAGES } from '../common/constants/error.message.constants';
 import { MAX_SPACES } from '../common/constants/space.constants';
 
-describe('SpaceValidationService', () => {
-  let spaceValidationService: SpaceValidationService;
+describe('SpaceValidation', () => {
+  let spaceValidation: SpaceValidation;
   let spaceModel: Model<SpaceDocument>;
 
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('SpaceValidationService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SpaceValidationService,
+        SpaceValidation,
         {
           provide: getModelToken(SpaceDocument.name),
           useValue: mockSpaceModel,
@@ -26,9 +26,7 @@ describe('SpaceValidationService', () => {
       ],
     }).compile();
 
-    spaceValidationService = module.get<SpaceValidationService>(
-      SpaceValidationService,
-    );
+    spaceValidation = module.get<SpaceValidation>(SpaceValidation);
     spaceModel = module.get<Model<SpaceDocument>>(
       getModelToken(SpaceDocument.name),
     );
@@ -39,7 +37,7 @@ describe('SpaceValidationService', () => {
       (spaceModel.countDocuments as jest.Mock).mockResolvedValue(MAX_SPACES);
 
       await expect(
-        spaceValidationService.validateSpaceLimit('user123'),
+        spaceValidation.validateSpaceLimit('user123'),
       ).rejects.toThrow(ERROR_MESSAGES.SPACE.LIMIT_EXCEEDED);
 
       expect(spaceModel.countDocuments).toHaveBeenCalledWith({
@@ -53,7 +51,7 @@ describe('SpaceValidationService', () => {
       );
 
       await expect(
-        spaceValidationService.validateSpaceLimit('user123'),
+        spaceValidation.validateSpaceLimit('user123'),
       ).resolves.not.toThrow();
 
       expect(spaceModel.countDocuments).toHaveBeenCalledWith({
@@ -65,7 +63,7 @@ describe('SpaceValidationService', () => {
   describe('validateParentNodeExists', () => {
     it('parentContextNodeId가 없으면 예외를 던지지 않아야 한다', async () => {
       await expect(
-        spaceValidationService.validateParentNodeExists(null),
+        spaceValidation.validateParentNodeExists(null),
       ).resolves.not.toThrow();
 
       expect(spaceModel.findOne).not.toHaveBeenCalled();
@@ -75,7 +73,7 @@ describe('SpaceValidationService', () => {
       (spaceModel.findOne as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        spaceValidationService.validateParentNodeExists('parent-id'),
+        spaceValidation.validateParentNodeExists('parent-id'),
       ).rejects.toThrow(ERROR_MESSAGES.SPACE.PARENT_NOT_FOUND);
 
       expect(spaceModel.findOne).toHaveBeenCalledWith({
@@ -89,7 +87,7 @@ describe('SpaceValidationService', () => {
       });
 
       await expect(
-        spaceValidationService.validateParentNodeExists('parent-id'),
+        spaceValidation.validateParentNodeExists('parent-id'),
       ).resolves.not.toThrow();
 
       expect(spaceModel.findOne).toHaveBeenCalledWith({
@@ -103,7 +101,7 @@ describe('SpaceValidationService', () => {
       (spaceModel.findOne as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        spaceValidationService.validateSpaceExists('test-path'),
+        spaceValidation.validateSpaceExists('test-path'),
       ).rejects.toThrow(ERROR_MESSAGES.SPACE.NOT_FOUND);
 
       expect(spaceModel.findOne).toHaveBeenCalledWith({
@@ -115,8 +113,7 @@ describe('SpaceValidationService', () => {
       const mockSpace = { id: 'space-id', name: 'Test Space' };
       (spaceModel.findOne as jest.Mock).mockResolvedValue(mockSpace);
 
-      const result =
-        await spaceValidationService.validateSpaceExists('test-path');
+      const result = await spaceValidation.validateSpaceExists('test-path');
 
       expect(spaceModel.findOne).toHaveBeenCalledWith({
         urlPath: 'test-path',
