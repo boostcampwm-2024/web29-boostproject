@@ -332,6 +332,7 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
 
   return (
     <SpaceContextMenuWrapper
+      spaceId={spaceId}
       selection={{
         selectedNode,
         selectedEdge,
