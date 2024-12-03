@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
