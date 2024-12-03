@@ -3,9 +3,15 @@ import { Circle, Group, KonvaNodeEvents, Text } from "react-konva";
 import { useNavigate } from "react-router-dom";
 
 import Konva from "konva";
+import {
+  KonvaEventObject,
+  Node as KonvaNode,
+  NodeConfig,
+} from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
 const RADIUS = 64;
+const MORE_BUTTON_RADIUS = 12;
 
 type NodeProps = {
   id: string;
@@ -72,6 +78,7 @@ Node.Text = function NodeText({
   fontSize,
   fontStyle,
   width,
+  ...rest
 }: NodeTextProps) {
   const ref = useRef<Konva.Text>(null);
   const [offset, setOffset] = useState<Konva.Vector2d | undefined>(undefined);
@@ -95,7 +102,73 @@ Node.Text = function NodeText({
       align="center"
       wrap="none"
       ellipsis
+      {...rest}
     />
+  );
+};
+
+type NodeMoreButtonProps = {
+  onTap?:
+    | ((evt: KonvaEventObject<PointerEvent, KonvaNode<NodeConfig>>) => void)
+    | undefined;
+  content: string;
+};
+
+Node.MoreButton = function NodeMoreButton({ content }: NodeMoreButtonProps) {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  if (!isTouch) return null;
+
+  const handleTap = (e: KonvaEventObject<Event>) => {
+    e.cancelBubble = true;
+
+    const parentNode = e.target.findAncestor("Group").findAncestor("Group");
+
+    if (!parentNode) return;
+
+    const absolutePosition = parentNode.getAbsolutePosition();
+
+    const contextMenuEvent = new MouseEvent("contextmenu", {
+      button: 2,
+      buttons: 2,
+      clientX: absolutePosition.x,
+      clientY: absolutePosition.y,
+      bubbles: true,
+    });
+
+    parentNode.fire("contextmenu", {
+      evt: contextMenuEvent,
+      target: parentNode,
+    });
+  };
+
+  return (
+    <Group x={RADIUS - 20} y={-RADIUS + 20} onTap={handleTap}>
+      <Circle
+        x={0}
+        y={0}
+        radius={MORE_BUTTON_RADIUS}
+        fill="#FFFFFF"
+        stroke="#DED8D3"
+        strokeWidth={1.5}
+      />
+      <Text
+        x={0}
+        y={1}
+        fontSize={16}
+        text={content}
+        align="center"
+        verticalAlign="middle"
+        width={MORE_BUTTON_RADIUS * 2}
+        height={MORE_BUTTON_RADIUS * 2}
+        offsetX={MORE_BUTTON_RADIUS}
+        offsetY={MORE_BUTTON_RADIUS}
+      />
+    </Group>
   );
 };
 
@@ -126,7 +199,15 @@ export type NoteNodeProps = {
   name: string;
 } & NodeHandlers;
 
-export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
+export function NoteNode({
+  id,
+  x,
+  y,
+  name,
+  src,
+  onContextMenu,
+  ...rest
+}: NoteNodeProps) {
   // TODO: src 적용 필요
   const navigate = useNavigate();
   return (
@@ -139,10 +220,12 @@ export function NoteNode({ id, x, y, name, src, ...rest }: NoteNodeProps) {
           navigate(`/note/${src}`);
         }
       }}
+      onContextMenu={onContextMenu}
       {...rest}
     >
       <Node.Circle radius={RADIUS} fill="#FAF9F7" stroke="#DED8D3" />
       <Node.Text width={RADIUS * 2} fontSize={16} content={name} />
+      <Node.MoreButton onTap={onContextMenu} content="⋮" />
     </Node>
   );
 }
@@ -161,6 +244,7 @@ export function SubspaceNode({
   y,
   name,
   src,
+  onContextMenu,
   ...rest
 }: SubspaceNodeProps) {
   const navigate = useNavigate();
@@ -171,10 +255,17 @@ export function SubspaceNode({
       x={x}
       y={y}
       onClick={() => navigate(`/space/${src}`)}
+      onContextMenu={onContextMenu}
       {...rest}
     >
       <Node.Circle radius={RADIUS} fill="#FFF4BB" stroke="#F9D46B" />
-      <Node.Text width={RADIUS * 2} fontSize={16} fontStyle="700" content={name} />
+      <Node.Text
+        width={RADIUS * 2}
+        fontSize={16}
+        fontStyle="700"
+        content={name}
+      />
+      <Node.MoreButton onTap={onContextMenu} content="⋮" />
     </Node>
   );
 }
