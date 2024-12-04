@@ -42,9 +42,9 @@ interface UseZoomSpaceProps {
 
 export function useZoomSpace({
   stageRef,
-  scaleBy = 1.05,
+  scaleBy = 1.018,
   minScale = 0.5,
-  maxScale = 2.5,
+  maxScale = 3,
 }: UseZoomSpaceProps) {
   const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
     event.evt.preventDefault();
