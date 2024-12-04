@@ -361,8 +361,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
             ? gooeyNodeMovingRenderer
             : gooeyNodeCreatingRenderer}
           {nearIndicatorRenderer}
-          {nodesRenderer}
           {edgesRenderer}
+          {nodesRenderer}
           {paletteRenderer}
         </Layer>
         <PointerLayer />
