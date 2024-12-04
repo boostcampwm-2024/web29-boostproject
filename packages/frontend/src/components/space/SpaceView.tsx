@@ -36,7 +36,9 @@ const dragBoundFunc = function (this: Konva.Node) {
 export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
   const stageRef = React.useRef<Konva.Stage>(null);
   const stageSize = useAutofit(autofitTo); // useAutofit 호출
-  const { zoomSpace } = useZoomSpace({ stageRef });
+  const { zoomSpace, handleTouchMove, handleTouchEnd } = useZoomSpace({
+    stageRef,
+  });
 
   const {
     nodes,
@@ -350,6 +352,8 @@ export default function SpaceView({ spaceId, autofitTo }: SpaceViewProps) {
         offsetY={-stageSize.height / 2}
         ref={stageRef}
         onWheel={zoomSpace}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         draggable
       >
         <Layer>

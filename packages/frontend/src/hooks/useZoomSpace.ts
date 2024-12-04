@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -46,6 +46,7 @@ export function useZoomSpace({
   minScale = 0.5,
   maxScale = 3,
 }: UseZoomSpaceProps) {
+  const lastDistRef = useRef<number | null>(null);
 
   const moveView = (event: KonvaEventObject<WheelEvent>) => {
     if (stageRef.current !== null) {
@@ -100,10 +101,52 @@ export function useZoomSpace({
       }
     }
   };
+
+  // 핀치 줌 로직
+  const handleTouchMove = (event: KonvaEventObject<TouchEvent>) => {
+    if (stageRef.current !== null && event.evt.touches.length === 2) {
+      const stage = stageRef.current;
+      const touch1 = event.evt.touches[0];
+      const touch2 = event.evt.touches[1];
+
+      // 두 손가락 사이 거리 계산
+      const dist = Math.sqrt(
+        (touch1.clientX - touch2.clientX) ** 2 +
+          (touch1.clientY - touch2.clientY) ** 2,
+      );
+
+      if (lastDistRef.current !== null) {
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        if (!pointer) return;
+
+        const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+
+        // 확대/축소 비율 계산
+        const scaleChange = lastDistRef.current / dist;
+        let newScale = oldScale * scaleChange;
+
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+        if (newScale !== oldScale) {
+          const newPosition = calculateNewPosition(
+            pointer,
+            mousePointTo,
+            newScale,
+          );
+          stage.scale({ x: newScale, y: newScale });
+          stage.position(newPosition);
+        }
       }
 
+      lastDistRef.current = dist;
     }
   };
 
-  return { zoomSpace };
+  const handleTouchEnd = () => {
+    lastDistRef.current = null;
+  };
+
+  return { zoomSpace, handleTouchMove, handleTouchEnd };
 }
