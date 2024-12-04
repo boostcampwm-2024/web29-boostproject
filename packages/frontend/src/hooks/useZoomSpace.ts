@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -16,10 +16,10 @@ const getMousePointTo = (
 
 const calculateNewScale = (
   oldScale: number,
-  deltaY: number,
+  direction: number,
   scaleBy: number,
 ) => {
-  return deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+  return direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 };
 
 const calculateNewPosition = (
@@ -42,46 +42,111 @@ interface UseZoomSpaceProps {
 
 export function useZoomSpace({
   stageRef,
-  scaleBy = 1.05,
+  scaleBy = 1.018,
   minScale = 0.5,
-  maxScale = 2.5,
+  maxScale = 3,
 }: UseZoomSpaceProps) {
-  const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
-    event.evt.preventDefault();
+  const lastDistRef = useRef<number | null>(null);
 
-    const isControlWheelZoom =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.ctrlKey;
-    const isTrackpadGesture =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_PIXEL && event.evt.ctrlKey;
-
-    // NOTE - 마우스휠 동작 방향 반대로 수정할 수 있는지 검토 필요
-    // [ctrl + 마우스휠] 또는 [트랙패드 제스처]만 허용
-    if (!isControlWheelZoom && !isTrackpadGesture) {
-      return;
-    }
-
+  const moveView = (event: KonvaEventObject<WheelEvent>) => {
     if (stageRef.current !== null) {
       const stage = stageRef.current;
-      const oldScale = stage.scaleX();
-      const pointer = stage.getPointerPosition();
+      const currentScale = stage.scaleX();
 
-      if (!pointer) return;
-
-      const mousePointTo = getMousePointTo(stage, pointer, oldScale);
-
-      let newScale = calculateNewScale(oldScale, -event.evt.deltaY, scaleBy);
-
-      newScale = Math.max(minScale, Math.min(maxScale, newScale));
-
-      if (newScale === oldScale) {
-        return;
-      }
-
-      const newPosition = calculateNewPosition(pointer, mousePointTo, newScale);
-      stage.scale({ x: newScale, y: newScale });
-      stage.position(newPosition);
+      stage.position({
+        x: stage.x() - event.evt.deltaX / currentScale,
+        y: stage.y() - event.evt.deltaY / currentScale,
+      });
     }
   };
 
-  return { zoomSpace };
+  const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
+    if (stageRef.current !== null) {
+      const stage = stageRef.current;
+
+      // Ctrl + 휠로 확대/축소
+      if (event.evt.ctrlKey) {
+        event.evt.preventDefault();
+
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        if (!pointer) return;
+
+        const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+
+        const direction =
+          event.evt.deltaY > 0
+            ? -1 // Ctrl + 휠: 아래로 휠 → 확대
+            : 1; // Ctrl + 휠: 위로 휠 → 축소
+
+        let newScale = calculateNewScale(oldScale, direction, scaleBy);
+
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+        if (newScale === oldScale) {
+          return;
+        }
+
+        const newPosition = calculateNewPosition(
+          pointer,
+          mousePointTo,
+          newScale,
+        );
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPosition);
+      } else {
+        // Ctrl 키가 없는 휠 이벤트는 화면 이동 처리
+        moveView(event);
+      }
+    }
+  };
+
+  // 핀치 줌 로직
+  const handleTouchMove = (event: KonvaEventObject<TouchEvent>) => {
+    if (stageRef.current !== null && event.evt.touches.length === 2) {
+      const stage = stageRef.current;
+      const touch1 = event.evt.touches[0];
+      const touch2 = event.evt.touches[1];
+
+      // 두 손가락 사이 거리 계산
+      const dist = Math.sqrt(
+        (touch1.clientX - touch2.clientX) ** 2 +
+          (touch1.clientY - touch2.clientY) ** 2,
+      );
+
+      if (lastDistRef.current !== null) {
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+
+        if (!pointer) return;
+
+        const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+
+        // 확대/축소 비율 계산
+        const scaleChange = lastDistRef.current / dist;
+        let newScale = oldScale * scaleChange;
+
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+        if (newScale !== oldScale) {
+          const newPosition = calculateNewPosition(
+            pointer,
+            mousePointTo,
+            newScale,
+          );
+          stage.scale({ x: newScale, y: newScale });
+          stage.position(newPosition);
+        }
+      }
+
+      lastDistRef.current = dist;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    lastDistRef.current = null;
+  };
+
+  return { zoomSpace, handleTouchMove, handleTouchEnd };
 }
