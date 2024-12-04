@@ -16,10 +16,10 @@ const getMousePointTo = (
 
 const calculateNewScale = (
   oldScale: number,
-  deltaY: number,
+  direction: number,
   scaleBy: number,
 ) => {
-  return deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+  return direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 };
 
 const calculateNewPosition = (
@@ -46,40 +46,62 @@ export function useZoomSpace({
   minScale = 0.5,
   maxScale = 3,
 }: UseZoomSpaceProps) {
-  const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
-    event.evt.preventDefault();
 
-    const isControlWheelZoom =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_LINE && event.evt.ctrlKey;
-    const isTrackpadGesture =
-      event.evt.deltaMode === WheelEvent.DOM_DELTA_PIXEL && event.evt.ctrlKey;
-
-    // NOTE - 마우스휠 동작 방향 반대로 수정할 수 있는지 검토 필요
-    // [ctrl + 마우스휠] 또는 [트랙패드 제스처]만 허용
-    if (!isControlWheelZoom && !isTrackpadGesture) {
-      return;
-    }
-
+  const moveView = (event: KonvaEventObject<WheelEvent>) => {
     if (stageRef.current !== null) {
       const stage = stageRef.current;
-      const oldScale = stage.scaleX();
-      const pointer = stage.getPointerPosition();
+      const currentScale = stage.scaleX();
 
-      if (!pointer) return;
+      stage.position({
+        x: stage.x() - event.evt.deltaX / currentScale,
+        y: stage.y() - event.evt.deltaY / currentScale,
+      });
+    }
+  };
 
-      const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+  const zoomSpace = (event: KonvaEventObject<WheelEvent>) => {
+    if (stageRef.current !== null) {
+      const stage = stageRef.current;
 
-      let newScale = calculateNewScale(oldScale, -event.evt.deltaY, scaleBy);
+      // Ctrl + 휠로 확대/축소
+      if (event.evt.ctrlKey) {
+        event.evt.preventDefault();
 
-      newScale = Math.max(minScale, Math.min(maxScale, newScale));
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
 
-      if (newScale === oldScale) {
-        return;
+        if (!pointer) return;
+
+        const mousePointTo = getMousePointTo(stage, pointer, oldScale);
+
+        const direction =
+          event.evt.deltaY > 0
+            ? -1 // Ctrl + 휠: 아래로 휠 → 확대
+            : 1; // Ctrl + 휠: 위로 휠 → 축소
+
+        let newScale = calculateNewScale(oldScale, direction, scaleBy);
+
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+        if (newScale === oldScale) {
+          return;
+        }
+
+        const newPosition = calculateNewPosition(
+          pointer,
+          mousePointTo,
+          newScale,
+        );
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPosition);
+      } else {
+        // Ctrl 키가 없는 휠 이벤트는 화면 이동 처리
+        moveView(event);
+      }
+    }
+  };
       }
 
-      const newPosition = calculateNewPosition(pointer, mousePointTo, newScale);
-      stage.scale({ x: newScale, y: newScale });
-      stage.position(newPosition);
     }
   };
 
