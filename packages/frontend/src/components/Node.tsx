@@ -220,6 +220,9 @@ export function NoteNode({
           navigate(`/note/${src}`);
         }
       }}
+      onTap={() => {
+        navigate(`/note/${src}`);
+      }}
       onContextMenu={onContextMenu}
       {...rest}
     >
@@ -255,6 +258,7 @@ export function SubspaceNode({
       x={x}
       y={y}
       onClick={() => navigate(`/space/${src}`)}
+      onTap={() => navigate(`/space/${src}`)}
       onContextMenu={onContextMenu}
       {...rest}
     >
