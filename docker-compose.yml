@@ -1,21 +1,41 @@
 services:
-  backend:
+  api:
     build:
       context: .
-      dockerfile: ./packages/backend/Dockerfile
+      dockerfile: ./packages/api
     restart: unless-stopped
-    environment:
-      - NODE_ENV=development
+    networks:
+      - app-network
+
+  load-balancer:
+    build:
+      context: .
+      dockerfile: ./packages/loadbalancer
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  collaborative-room1:
+    build:
+      context: .
+      dockerfile: ./packages/collaborative
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  collaborative-room2:
+    build:
+      context: .
+      dockerfile: ./packages/collaborative
+    restart: unless-stopped
     networks:
       - app-network
 
   frontend:
     build:
       context: .
-      dockerfile: ./packages/frontend/Dockerfile
+      dockerfile: ./packages/frontend
     restart: unless-stopped
-    environment:
-      - NODE_ENV=development
     networks:
       - app-network
 
